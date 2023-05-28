@@ -3,7 +3,7 @@ from django.core.management import BaseCommand
 import requests
 
 
-def read_html_file(file_path='/home/tintin/Desktop/fahasa.html'):
+def read_html_file(file_path='/Users/mr932/book_over_there/Book-Over-There/services/management/commands/fahasa.html'):
     try:
         with open(file_path, 'r') as file:
             html_string = file.read()
@@ -37,5 +37,16 @@ class Command(BaseCommand):
         # remote_html = fetch_remote_html('https://www.fahasa.com/sach-trong-nuoc/kinh-te-chinh-tri-phap-ly.html')
         remote_html = read_html_file()
         soup = BeautifulSoup(remote_html, "lxml")
-        soup.find()
-        print(soup)
+        ule_product = soup.find('ul', id='products_grid')
+        if ule_product:
+            for li_element in ule_product.find_all('li'):
+                a_tag = li_element.find('a')
+                if a_tag:
+                    href_value = a_tag['href']
+                    title_value = a_tag['title']
+                    print(href_value, title_value)
+
+                img_tag = li_element.find('img')
+                if img_tag:
+                    img_link = img_tag['data-src']
+                    print(img_link)
