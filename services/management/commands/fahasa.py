@@ -1,9 +1,18 @@
 from bs4 import BeautifulSoup
 from django.core.management import BaseCommand
 import requests
+from services.models import Category, Book, Author, Publisher
+
+MAP_CATEGORY = {
+    'Văn học': 'https://www.fahasa.com/sach-trong-nuoc/van-hoc-trong-nuoc.html',
+    'Kinh Tế': 'https://www.fahasa.com/sach-trong-nuoc/kinh-te-chinh-tri-phap-ly.html',
+    'Tâm Lý - Kỹ năng sống': 'https://www.fahasa.com/sach-trong-nuoc/tam-ly-ky-nang-song.html',
+    'Nuôi Dạy Con': 'https://www.fahasa.com/sach-trong-nuoc/nuoi-day-con.html',
+    'Tiểu Sử Hồi Ký': 'https://www.fahasa.com/sach-trong-nuoc/tieu-su-hoi-ky.html',
+}
 
 
-def read_html_file(file_path='/Users/mr932/book_over_there/Book-Over-There/services/management/commands/fahasa.html'):
+def read_html_file(file_path='/home/tintin/PycharmProjects/book_over_there/services/management/commands/fahasa.html'):
     try:
         with open(file_path, 'r') as file:
             html_string = file.read()
@@ -34,19 +43,40 @@ class Command(BaseCommand):
     help = "crawl books from fahasa and store to database"
 
     def handle(self, *args, **options):
-        # remote_html = fetch_remote_html('https://www.fahasa.com/sach-trong-nuoc/kinh-te-chinh-tri-phap-ly.html')
-        remote_html = read_html_file()
-        soup = BeautifulSoup(remote_html, "lxml")
-        ule_product = soup.find('ul', id='products_grid')
-        if ule_product:
-            for li_element in ule_product.find_all('li'):
-                a_tag = li_element.find('a')
-                if a_tag:
-                    href_value = a_tag['href']
-                    title_value = a_tag['title']
-                    print(href_value, title_value)
+        for k, v in MAP_CATEGORY.items():
+            category, _ = Category.objects.get_or_create(name=k)
+            for page in range(1, 3):
+                remote_url = '{url}?order=num_orders_year&limit=48&p={page}'.format(url=v, page=page)
+                print('remote_url', remote_url)
+                remote_html = fetch_remote_html(remote_url)
+                soup = BeautifulSoup(remote_html, "lxml")
+                ule_product = soup.find('ul', id='products_grid')
+                if ule_product:
+                    for li_element in ule_product.find_all('li'):
+                        book = Book()
+                        book.category = category
+                        a_tag = li_element.find('a')
+                        if a_tag:
+                            book.name = a_tag['title']
+                            book_detail_url = a_tag['href']
+                            print(book.name, book_detail_url)
+                            if Book.objects.filter(name=book.name).first():
+                                continue
+                            book_detail_html = fetch_remote_html(book_detail_url)
+                            book_detail_soup = BeautifulSoup(book_detail_html, 'lxml')
+                            author = book_detail_soup.find('td', class_='data_author')
+                            if author:
+                                book.author, _ = Author.objects.get_or_create(name=author.get_text().strip())
+                            publisher = book_detail_soup.find('td', class_='data_publisher')
+                            if publisher:
+                                book.publisher, _ = Publisher.objects.get_or_create(name=publisher.get_text().strip())
+                        img_tag = li_element.find('img')
+                        if img_tag:
+                            book.image = img_tag['data-src']
 
-                img_tag = li_element.find('img')
-                if img_tag:
-                    img_link = img_tag['data-src']
-                    print(img_link)
+                        try:
+                            book.save()
+                        except:
+                            print("save failed: ", book)
+
+                        print('save book: ', book)
