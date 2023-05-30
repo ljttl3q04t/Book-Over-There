@@ -3,13 +3,12 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Book, User
-from .serializers import BookSerializer
+from .models import Book, User, Order
+from .serializers import BookSerializer, OrderSerializer, UserSerializer, OrderDetailSerializer, BookCopySerializer
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
-from .models import Borrowing
 
 class CustomPagination(PageNumberPagination):
     page_size = 10  # Set the desired page size
@@ -38,6 +37,18 @@ class BookUpdateAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class OrderCreateAPIView(APIView):
+    def post(self, request):
+        serializer = OrderSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
 def index(request):
     return render(request, "services/index.html")
 
@@ -48,39 +59,49 @@ def viewListBook(request):
     return render(request, "services/book_list.html", context)
 
 
-def create_borrowing(request):
-    if request.method == 'POST':
-        borrower_user_id = request.POST.get('borrower_user_id')
-        borrowing_date = request.POST.get('borrowing_date')
-        comment = request.POST.get('comment')
-        status = request.POST.get('status')
+class ServiceUserCreateAPIView(APIView):
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
 
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class OrderDetailCreateAPIView(APIView):
+    def post(self, request):
+        serializer = OrderDetailSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class BookCopyCreateAPIView(APIView):
+    def post(self, request):
+        serializer = BookCopySerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class OrderStatusUpdateAPIView(APIView):
+    def patch(self, request, pk):
         try:
-            borrower_user = User.objects.get(id=borrower_user_id)
-        except User.DoesNotExist:
-            return JsonResponse({'message': 'Invalid borrower user ID.'}, status=400)
-        if borrower_user:
-            borrowing = Borrowing(
-                borrower_user=borrower_user,
-                borrowing_date=borrowing_date,
-                comment=comment,
-                status=status
-            )
-            borrowing.save()
+            order = Order.objects.get(pk=pk)
+        except Order.DoesNotExist:
+            return Response({"detail": "Order not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        return JsonResponse({'message': 'Borrowing created successfully.'})
-    else:
-        return JsonResponse({'message': 'Invalid request method.'}, status=400)
+        order.status = request.data.get('status', order.status)
+        order.save()
 
-
-def change_borrowing_status(request, borrowing_id):
-    borrowing = get_object_or_404(Borrowing, id=borrowing_id)
-    new_status = request.POST.get('status')
-
-    if new_status is not None:
-        borrowing.status = int(new_status)
-        borrowing.save()
-        return JsonResponse({'message': 'Status updated successfully.'})
-    else:
-        return JsonResponse({'message': 'Invalid status value.'}, status=400)
+        serializer = OrderSerializer(order)
+        return Response(serializer.data)
 

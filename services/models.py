@@ -7,8 +7,8 @@ class User(AbstractUser):
     # Add related_name arguments to avoid clashes with auth.User model
     groups = models.ManyToManyField(Group, related_name='service_users')
     user_permissions = models.ManyToManyField(Permission, related_name='service_users')
-    number_phone = models.CharField(max_length=200)
-    location = models.CharField(max_length=200)
+    number_phone = models.CharField(max_length=200, default=None)
+    location = models.CharField(max_length=200, default=None)
 
 
 class Category(models.Model):
@@ -45,19 +45,19 @@ class BookCopy(models.Model):
     book_deposit_status = models.IntegerField(default=None)
 
 
-class Borrowing(models.Model):
-    borrower_user = models.ForeignKey(User, on_delete=models.CASCADE)
-    borrowing_date = models.DateTimeField()
+class Order(models.Model):
+    order_user = models.ForeignKey(User, on_delete=models.CASCADE)
+    order_date = models.DateTimeField()
+    total_book = models.IntegerField()
     comment = models.CharField(max_length=200, default=None)
     status = models.IntegerField()
 
 
-class BorrowingDetail(models.Model):
-    borrowing = models.ForeignKey(Borrowing, on_delete=models.CASCADE)
+class OrderDetail(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
     book_copy = models.ForeignKey(BookCopy, on_delete=models.CASCADE)
     due_date = models.DateTimeField()
     return_date = models.DateTimeField()
-    deposit_status = models.IntegerField()
 
 
 class WishList(models.Model):
