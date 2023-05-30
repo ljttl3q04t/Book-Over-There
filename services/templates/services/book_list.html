@@ -1,0 +1,15 @@
+{% extends 'services/base.html' %}
+{% block content %}
+
+    {% if listBooks %}
+        {% for item in listBooks %}
+            <ul>
+            <li>
+                {{ item.name }},{{ item.author }},{{ item.category }}
+            </li>
+        </ul>
+        {% endfor %}
+    {% else %}
+        <h3 style="color: red;">khong co sach</h3>
+    {% endif %}
+{% endblock %}

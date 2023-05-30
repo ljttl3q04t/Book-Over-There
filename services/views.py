@@ -1,5 +1,13 @@
 from django.http import HttpResponse
+from django.shortcuts import render
+from .models import Book
 
 
 def index(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
+    return render(request, "services/index.html")
+
+
+def viewListBook(request):
+    list_book = Book.objects.all()
+    context = {"listBooks": list_book}
+    return render(request, "services/book_list.html", context)
