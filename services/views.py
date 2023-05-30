@@ -1,8 +1,13 @@
 from django.shortcuts import render
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import generics
-from .models import Book
+from .models import Book, User
 from .serializers import BookSerializer
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
+from .models import Borrowing
 
 class CustomPagination(PageNumberPagination):
     page_size = 10  # Set the desired page size
@@ -15,10 +20,50 @@ class BookListAPIView(generics.ListAPIView):
     serializer_class = BookSerializer
     pagination_class = CustomPagination
 
+
 def index(request):
     return render(request, "services/index.html")
+
 
 def viewListBook(request):
     list_book = Book.objects.all()
     context = {"listBooks": list_book}
     return render(request, "services/book_list.html", context)
+
+
+def create_borrowing(request):
+    if request.method == 'POST':
+        borrower_user_id = request.POST.get('borrower_user_id')
+        borrowing_date = request.POST.get('borrowing_date')
+        comment = request.POST.get('comment')
+        status = request.POST.get('status')
+
+        try:
+            borrower_user = User.objects.get(id=borrower_user_id)
+        except User.DoesNotExist:
+            return JsonResponse({'message': 'Invalid borrower user ID.'}, status=400)
+        if borrower_user:
+            borrowing = Borrowing(
+                borrower_user=borrower_user,
+                borrowing_date=borrowing_date,
+                comment=comment,
+                status=status
+            )
+            borrowing.save()
+
+        return JsonResponse({'message': 'Borrowing created successfully.'})
+    else:
+        return JsonResponse({'message': 'Invalid request method.'}, status=400)
+
+
+def change_borrowing_status(request, borrowing_id):
+    borrowing = get_object_or_404(Borrowing, id=borrowing_id)
+    new_status = request.POST.get('status')
+
+    if new_status is not None:
+        borrowing.status = int(new_status)
+        borrowing.save()
+        return JsonResponse({'message': 'Status updated successfully.'})
+    else:
+        return JsonResponse({'message': 'Invalid status value.'}, status=400)
+
