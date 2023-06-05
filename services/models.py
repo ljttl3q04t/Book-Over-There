@@ -38,9 +38,23 @@ class Book(models.Model):
 
 
 class BookCopy(models.Model):
+    NEW = 'new'
+    USED = 'used'
+    LOST = 'lost'
+    RETURN = 'return'
+    BORROWED = 'borrowed'
+
+    BOOK_STATUS_CHOICE = (
+        (NEW, 'New'),
+        (USED, 'Used'),
+        (LOST, 'Lost'),
+        (RETURN, 'Return'),
+        (BORROWED, 'Borrowed'),
+    )
+
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    book_status = models.IntegerField()
+    book_status = models.CharField(max_length=20, choices=BOOK_STATUS_CHOICE, default=NEW)
     book_deposit_price = models.IntegerField(default=None)
     book_deposit_status = models.IntegerField(default=None)
 
