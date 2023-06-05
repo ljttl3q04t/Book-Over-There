@@ -4,7 +4,8 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Book, User, Order
-from .serializers import BookSerializer, OrderSerializer, UserSerializer, OrderDetailSerializer, BookCopySerializer
+from .serializers import BookSerializer, OrderSerializer, UserSerializer, OrderDetailSerializer, BookCopySerializer,\
+    GetOrderSerializer, GetOrderDetailSerializer
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
@@ -35,18 +36,6 @@ class BookUpdateAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class OrderCreateAPIView(APIView):
-    def post(self, request):
-        serializer = OrderSerializer(data=request.data)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 def index(request):
@@ -104,4 +93,25 @@ class OrderStatusUpdateAPIView(APIView):
 
         serializer = OrderSerializer(order)
         return Response(serializer.data)
+
+
+class OrderCreateAPIView(APIView):
+    def post(self, request):
+        serializer = OrderSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class GetOrderCreateAPIView(APIView):
+    def get(self, request, order_id):
+        try:
+            order = Order.objects.prefetch_related('order_details').get(id=order_id)
+            serializer = GetOrderSerializer(order)
+            return Response(serializer.data)
+        except Order.DoesNotExist:
+            return Response({"error": "Order not found."}, status=404)
 

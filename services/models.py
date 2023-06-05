@@ -54,7 +54,7 @@ class Order(models.Model):
 
 
 class OrderDetail(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_details')
     book_copy = models.ForeignKey(BookCopy, on_delete=models.CASCADE)
     due_date = models.DateTimeField()
     return_date = models.DateTimeField()
