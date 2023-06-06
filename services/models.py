@@ -1,4 +1,3 @@
-from django import forms
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
 
@@ -8,6 +7,7 @@ class User(AbstractUser):
     groups = models.ManyToManyField(Group, related_name='service_users')
     user_permissions = models.ManyToManyField(Permission, related_name='service_users')
     number_phone = models.CharField(max_length=200, default=None)
+    email = models.EmailField(max_length=100, unique=True)
     location = models.CharField(max_length=200, default=None)
 
 

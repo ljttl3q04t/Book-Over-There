@@ -12,6 +12,8 @@ beautifulsoup4 = "*"
 lxml = "*"
 requests = "*"
 django-cors-headers = "*"
+djangorestframework-simplejwt = "*"
+drf-yasg = "*"
 
 [requires]
 python_version = "3.10"

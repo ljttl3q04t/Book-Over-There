@@ -1,15 +1,17 @@
+from django.contrib.auth.hashers import make_password
+from django.http import JsonResponse
 from django.shortcuts import render
-from rest_framework.pagination import PageNumberPagination
 from rest_framework import generics, status
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Book, User, Order
-from .serializers import BookSerializer, OrderSerializer, UserSerializer, OrderDetailSerializer, BookCopySerializer,\
-    GetOrderSerializer, GetOrderDetailSerializer
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+
+from .models import Book, Order
+from .serializers import BookCopySerializer, BookSerializer, GetOrderSerializer, OrderDetailSerializer, OrderSerializer, \
+    UserLoginSerializer, UserSerializer
 
 class CustomPagination(PageNumberPagination):
     page_size = 10  # Set the desired page size
@@ -18,9 +20,54 @@ class CustomPagination(PageNumberPagination):
 
 
 class BookListAPIView(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     pagination_class = CustomPagination
+
+class LogoutView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        refresh_token = request.data.get('refresh_token')
+        if refresh_token:
+            try:
+                token = RefreshToken(refresh_token)
+                token.blacklist()
+                return Response({'message': 'Logout successful.'}, status=status.HTTP_200_OK)
+            except Exception as err:
+                print(err)
+                return Response({'error': 'Invalid token.'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'error': 'Refresh token is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+class UserLoginView(APIView):
+    def post(self, request):
+        serializer = UserLoginSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.validated_data['user']
+            refresh = TokenObtainPairSerializer.get_token(user)
+            data = {
+                'refresh_token': str(refresh),
+                'access_token': str(refresh.access_token)
+            }
+            return Response(data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserRegisterView(APIView):
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.validated_data['password'] = make_password(serializer.validated_data['password'])
+            serializer.save()
+
+            return JsonResponse({
+                'message': 'Register successful!'
+            }, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class BookUpdateAPIView(APIView):

@@ -1,8 +1,26 @@
+from django.contrib.auth import authenticate
 from rest_framework import serializers
-from .models import Book, User, OrderDetail, BookCopy
-from .models import Order
-from .models import Book, Category, Author, Publisher
+from .models import Author, Book, BookCopy, Category, Order, OrderDetail, Publisher, User
 
+class UserLoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField()
+
+    def validate(self, data):
+        username = data.get('username')
+        password = data.get('password')
+
+        if username and password:
+            user = authenticate(username=username, password=password)
+
+            if not user:
+                raise serializers.ValidationError('Invalid username or password.')
+
+        else:
+            raise serializers.ValidationError('Please provide both username and password.')
+
+        data['user'] = user
+        return data
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
