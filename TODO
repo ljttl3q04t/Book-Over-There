@@ -1,0 +1,6 @@
+BACKEND:
+(ok) fix bang user:
+    - auth user voi user trong model
+tao mock data:
+
+FRONTEND:
