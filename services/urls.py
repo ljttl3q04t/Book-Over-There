@@ -4,7 +4,7 @@ from drf_yasg.views import get_schema_view
 
 from . import views
 from .views import BookCopyCreateAPIView, GetOrderCreateAPIView, LogoutView, OrderCreateAPIView, \
-    OrderStatusUpdateAPIView, ServiceUserCreateAPIView, UserLoginView, UserRegisterView
+    OrderStatusUpdateAPIView, OverViewAPIView, ServiceUserCreateAPIView, UserLoginView, UserRegisterView
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -20,6 +20,7 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('overview', OverViewAPIView.as_view(), name='overview'),
 
     # user
     path('user/register', UserRegisterView.as_view(), name='user-register'),

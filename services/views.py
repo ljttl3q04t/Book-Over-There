@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import Book, Order
+from .models import Book, BookCopy, Order, OrderDetail, User
 from .serializers import BookCopySerializer, BookSerializer, GetOrderSerializer, OrderDetailSerializer, OrderSerializer, \
     UserLoginSerializer, UserSerializer
 
@@ -18,9 +18,8 @@ class CustomPagination(PageNumberPagination):
     page_size_query_param = 'page_size'  # Customize the query parameter for specifying the page size
     max_page_size = 100  # Set the maximum allowed page size
 
-
 class BookListAPIView(generics.ListAPIView):
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     pagination_class = CustomPagination
@@ -55,7 +54,6 @@ class UserLoginView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 class UserRegisterView(APIView):
     def post(self, request):
         serializer = UserSerializer(data=request.data)
@@ -69,6 +67,14 @@ class UserRegisterView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class OverViewAPIView(APIView):
+    def get(self, request):
+        data = {
+            'user': User.objects.count(),
+            'book': Book.objects.count(),
+            'order': OrderDetail.objects.count(),
+        }
+        return JsonResponse(data, status=status.HTTP_200_OK)
 
 class BookUpdateAPIView(APIView):
     def post(self, request, book_id):
@@ -84,16 +90,13 @@ class BookUpdateAPIView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 def index(request):
     return render(request, "services/index.html")
-
 
 def viewListBook(request):
     list_book = Book.objects.all()
     context = {"listBooks": list_book}
     return render(request, "services/book_list.html", context)
-
 
 class ServiceUserCreateAPIView(APIView):
     def post(self, request):
@@ -105,7 +108,6 @@ class ServiceUserCreateAPIView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 class OrderDetailCreateAPIView(APIView):
     def post(self, request):
         serializer = OrderDetailSerializer(data=request.data)
@@ -116,7 +118,6 @@ class OrderDetailCreateAPIView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 class BookCopyCreateAPIView(APIView):
     def post(self, request):
         serializer = BookCopySerializer(data=request.data)
@@ -126,7 +127,6 @@ class BookCopyCreateAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class OrderStatusUpdateAPIView(APIView):
     def patch(self, request, pk):
@@ -141,7 +141,6 @@ class OrderStatusUpdateAPIView(APIView):
         serializer = OrderSerializer(order)
         return Response(serializer.data)
 
-
 class OrderCreateAPIView(APIView):
     def post(self, request):
         serializer = OrderSerializer(data=request.data)
@@ -152,7 +151,6 @@ class OrderCreateAPIView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 class GetOrderCreateAPIView(APIView):
     def get(self, request, order_id):
         try:
@@ -161,4 +159,3 @@ class GetOrderCreateAPIView(APIView):
             return Response(serializer.data)
         except Order.DoesNotExist:
             return Response({"error": "Order not found."}, status=404)
-
