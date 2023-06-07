@@ -2,11 +2,11 @@ version: '3.8'
 services:
   api:
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    command: python manage.py runserver 0.0.0.0:8001
     volumes:
       - .:/book_over_there
     ports:
-      - "8000:8000"
+      - "8001:8001"
     env_file:
       - ./.env.dev
 
