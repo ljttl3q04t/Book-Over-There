@@ -6,9 +6,9 @@ class User(AbstractUser):
     # Add related_name arguments to avoid clashes with auth.User model
     groups = models.ManyToManyField(Group, related_name='service_users')
     user_permissions = models.ManyToManyField(Permission, related_name='service_users')
-    number_phone = models.CharField(max_length=200, default=None)
+    number_phone = models.CharField(max_length=200, null=True, blank=True)
     email = models.EmailField(max_length=100, unique=True)
-    location = models.CharField(max_length=200, default=None)
+    location = models.CharField(max_length=200, null=True, blank=True)
 
 
 class Category(models.Model):
@@ -77,4 +77,3 @@ class OrderDetail(models.Model):
 class WishList(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
-
