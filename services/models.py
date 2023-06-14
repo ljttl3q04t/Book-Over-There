@@ -2,7 +2,15 @@ from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
 
 
-class User(AbstractUser):
+class BaseModel(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+
+class User(AbstractUser, BaseModel):
     # Add related_name arguments to avoid clashes with auth.User model
     groups = models.ManyToManyField(Group, related_name='service_users')
     user_permissions = models.ManyToManyField(Permission, related_name='service_users')
@@ -11,22 +19,22 @@ class User(AbstractUser):
     location = models.CharField(max_length=200, null=True, blank=True)
 
 
-class Category(models.Model):
+class Category(BaseModel):
     name = models.CharField(max_length=200)
 
     def __str__(self):
         return self.name
 
 
-class Author(models.Model):
+class Author(BaseModel):
     name = models.CharField(max_length=200)
 
 
-class Publisher(models.Model):
+class Publisher(BaseModel):
     name = models.CharField(max_length=200)
 
 
-class Book(models.Model):
+class Book(BaseModel):
     name = models.CharField(max_length=200)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     image = models.CharField(max_length=200)
@@ -37,7 +45,7 @@ class Book(models.Model):
         return self.name
 
 
-class BookCopy(models.Model):
+class BookCopy(BaseModel):
     NEW = 'new'
     USED = 'used'
     LOST = 'lost'
@@ -58,7 +66,7 @@ class BookCopy(models.Model):
     book_deposit_status = models.IntegerField(default=None)
 
 
-class Order(models.Model):
+class Order(BaseModel):
     order_user = models.ForeignKey(User, on_delete=models.CASCADE)
     order_date = models.DateTimeField()
     total_book = models.IntegerField()
@@ -66,19 +74,19 @@ class Order(models.Model):
     status = models.IntegerField()
 
 
-class OrderDetail(models.Model):
+class OrderDetail(BaseModel):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_details')
     book_copy = models.ForeignKey(BookCopy, on_delete=models.CASCADE)
     due_date = models.DateTimeField()
     return_date = models.DateTimeField()
 
 
-class WishList(models.Model):
+class WishList(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
 
 
-class BookClub(models.Model):
+class BookClub(BaseModel):
     name = models.CharField(max_length=100)
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -87,7 +95,7 @@ class BookClub(models.Model):
         return self.name
 
 
-class Member(models.Model):
+class Member(BaseModel):
     ACTIVE = 'active'
     BANNED = 'banned'
     MEMBER_STATUS_CHOICES = (
@@ -102,7 +110,7 @@ class Member(models.Model):
         return f"{self.user.username}"
 
 
-class Membership(models.Model):
+class Membership(BaseModel):
     member = models.ForeignKey(Member, on_delete=models.CASCADE)
     book_club = models.ForeignKey(BookClub, on_delete=models.CASCADE)
     joined_at = models.DateTimeField(auto_now_add=True)
