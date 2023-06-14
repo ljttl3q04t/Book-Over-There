@@ -1,0 +1,13 @@
+[Unit]
+Description=Gunicorn daemon for Django Project
+Before=nginx.service
+After=network.target
+
+[Service]
+WorkingDirectory=/home/Book-Over-There
+ExecStart=/usr/local/bin/pipenv run gunicorn --config /etc/gunicorn.d/gunicorn.py book_over_there.wsgi:application
+Restart=always
+
+
+[Install]
+WantedBy=multi-user.target

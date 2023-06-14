@@ -17,3 +17,5 @@
       vars:
         des_dir: "/home/Book-Over-There"
         file_name: ".env"
+
+    - name: gunicorn

@@ -1,0 +1,27 @@
+---
+# virtual_env: group variable
+- name: copy gunicorn.service
+  template:
+    src: "{{ playbook_dir }}/gunicorn.service"
+    dest: "/etc/systemd/system/gunicorn.service"
+
+- name: generate gunicorn config
+  template:
+    src: templates/gunicorn.template.py
+    dest: "/etc/gunicorn.d/gunicorn.py"
+
+- name: Reload systemd daemon
+  become: yes
+  shell: systemctl daemon-reload
+
+- name: Restart Gunicorn
+  become: yes
+  shell: systemctl restart gunicorn
+
+- name: Check Gunicorn status
+  become: yes
+  shell: systemctl status gunicorn
+  register: gunicorn_status
+
+- debug:
+    var: gunicorn_status.stdout
