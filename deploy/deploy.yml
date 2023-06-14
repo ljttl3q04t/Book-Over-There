@@ -1,0 +1,19 @@
+---
+- name: deploy code
+  hosts: all
+  become: true
+  roles:
+    - name: checkout_code
+      vars:
+        github_repo: "git@github.com:ljttl3q04t/Book-Over-There.git"
+        checkout_path: "/home/Book-Over-There"
+        branch: "develop"
+
+    - name: pipenv_install
+      vars:
+        django_base_dir: "/home/Book-Over-There"
+
+    - name: copy_env
+      vars:
+        des_dir: "/home/Book-Over-There"
+        file_name: ".env"

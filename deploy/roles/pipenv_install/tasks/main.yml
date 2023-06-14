@@ -1,0 +1,10 @@
+---
+- name: Install Pipenv
+  pip:
+    name: pipenv
+    state: present
+
+- name: install python packages
+  command: python3 -m pipenv sync
+  args:
+    chdir: "{{ django_base_dir }}"

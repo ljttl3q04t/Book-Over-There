@@ -1,0 +1,5 @@
+---
+- name: Copy .env to remote server
+  copy:
+    src: "{{ playbook_dir }}/../.env"
+    dest: "{{ des_dir }}/{{ file_name }}"

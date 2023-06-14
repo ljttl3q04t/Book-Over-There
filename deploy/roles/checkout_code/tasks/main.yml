@@ -1,0 +1,6 @@
+---
+- name: Checkout code from GitHub
+  git:
+    repo: "{{ github_repo }}"
+    dest: "{{ checkout_path }}"
+    version: "{{ branch }}"
