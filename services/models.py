@@ -51,7 +51,6 @@ class BookCopy(models.Model):
         (RETURN, 'Return'),
         (BORROWED, 'Borrowed'),
     )
-
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     book_status = models.CharField(max_length=20, choices=BOOK_STATUS_CHOICE, default=NEW)
@@ -77,3 +76,37 @@ class OrderDetail(models.Model):
 class WishList(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
+
+
+class BookClub(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Member(models.Model):
+    ACTIVE = 'active'
+    BANNED = 'banned'
+    MEMBER_STATUS_CHOICES = (
+        (ACTIVE, 'Active'),
+        (BANNED, 'Banned'),
+    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    book_clubs = models.ManyToManyField(BookClub, through='Membership')
+    member_status = models.CharField(max_length=10, choices=MEMBER_STATUS_CHOICES, default=ACTIVE)
+
+    def __str__(self):
+        return f"{self.user.username}"
+
+
+class Membership(models.Model):
+    member = models.ForeignKey(Member, on_delete=models.CASCADE)
+    book_club = models.ForeignKey(BookClub, on_delete=models.CASCADE)
+    joined_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.member.user.username} - {self.book_club.name}"
+
