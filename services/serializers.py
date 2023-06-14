@@ -1,6 +1,8 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
+
 from .models import Author, Book, BookCopy, Category, Order, OrderDetail, Publisher, User
+
 
 class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField()

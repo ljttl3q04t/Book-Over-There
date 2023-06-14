@@ -1,8 +1,9 @@
 import datetime
 
+import requests
 from bs4 import BeautifulSoup
 from django.core.management import BaseCommand
-import requests
+
 from services.models import Category, Book, Author, Publisher
 
 MAP_CATEGORY = {

@@ -15,6 +15,8 @@ django-cors-headers = "*"
 djangorestframework-simplejwt = "*"
 drf-yasg = "*"
 python-dotenv = "*"
+gunicorn = "*"
+gevent = "*"
 
 [requires]
 python_version = "3.10"

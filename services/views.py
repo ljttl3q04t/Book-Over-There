@@ -9,9 +9,10 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import Book, BookCopy, Order, OrderDetail, User
+from .models import Book, Order, OrderDetail, User
 from .serializers import BookCopySerializer, BookSerializer, GetOrderSerializer, OrderDetailSerializer, OrderSerializer, \
     UserLoginSerializer, UserSerializer
+
 
 class CustomPagination(PageNumberPagination):
     page_size = 10  # Set the desired page size
