@@ -7,10 +7,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
+from django_filters import rest_framework as filters
 
 from .models import Book, Order, OrderDetail, User
 from .serializers import BookCopySerializer, BookSerializer, GetOrderSerializer, OrderDetailSerializer, OrderSerializer, \
-    UserLoginSerializer, UserSerializer
+    UserLoginSerializer, UserSerializer, BookFilter
 
 
 class CustomPagination(PageNumberPagination):
@@ -23,6 +24,8 @@ class BookListAPIView(generics.ListAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     pagination_class = CustomPagination
+    filter_backends = [filters.DjangoFilterBackend]
+    filterset_class = BookFilter
 
 class LogoutView(APIView):
     permission_classes = (IsAuthenticated,)

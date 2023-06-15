@@ -17,6 +17,7 @@ drf-yasg = "*"
 python-dotenv = "*"
 gunicorn = "*"
 gevent = "*"
+django-filter = "*"
 
 [requires]
 python_version = "3.10"

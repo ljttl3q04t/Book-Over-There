@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
+from django_filters import rest_framework as filters
 
 from .models import Author, Book, BookCopy, Category, Order, OrderDetail, Publisher, User
 
@@ -48,6 +49,14 @@ class BookSerializer(serializers.ModelSerializer):
         model = Book
         fields = ['name', 'category', 'author', 'publisher']
 
+class BookFilter(filters.FilterSet):
+    category = filters.CharFilter(field_name='category__name', lookup_expr='icontains')
+    publisher = filters.CharFilter(field_name='publisher__name', lookup_expr='icontains')
+    author = filters.CharFilter(field_name='author__name', lookup_expr='icontains')
+
+    class Meta:
+        model = Book
+        fields = ['category', 'publisher', 'author']
 
 class OrderDetailSerializer(serializers.ModelSerializer):
     class Meta:
