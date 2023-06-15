@@ -4,7 +4,8 @@ from drf_yasg.views import get_schema_view
 
 from . import views
 from .views import BookCopyCreateAPIView, GetOrderCreateAPIView, LogoutView, OrderCreateAPIView, \
-    OrderStatusUpdateAPIView, OverViewAPIView, ServiceUserCreateAPIView, UserLoginView, UserRegisterView, UserInfoView
+    OrderStatusUpdateAPIView, OverViewAPIView, ServiceUserCreateAPIView, UserLoginView, UserRegisterView, UserInfoView, \
+    UpdateUserInfoView
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -27,6 +28,7 @@ urlpatterns = [
     path('user/login', UserLoginView.as_view(), name='login'),
     path('user/logout', LogoutView.as_view(), name='logout'),
     path('user/info', UserInfoView.as_view(), name='user-info'),
+    path('user/info/update/', UpdateUserInfoView.as_view(), name='update-user-info'),
 
     # book
     path('book/<int:book_id>/update/', views.BookUpdateAPIView.as_view(), name='book-update'),
