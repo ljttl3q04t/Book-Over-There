@@ -1,13 +1,14 @@
 from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse
+from django_filters import rest_framework as filters
 from rest_framework import generics, status
+from rest_framework.filters import SearchFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
-from django_filters import rest_framework as filters
 
 from .models import Book, Order, OrderDetail, User
 from .serializers import BookCopySerializer, BookSerializer, GetOrderSerializer, OrderDetailSerializer, OrderSerializer, \
@@ -24,8 +25,10 @@ class BookListAPIView(generics.ListAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     pagination_class = CustomPagination
-    filter_backends = [filters.DjangoFilterBackend]
+    filter_backends = [filters.DjangoFilterBackend, SearchFilter]
     filterset_class = BookFilter
+    search_fields = ['name']
+
 
 class LogoutView(APIView):
     permission_classes = (IsAuthenticated,)
