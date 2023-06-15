@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import Book, Order, OrderDetail, User
+from .models import Book, Order, OrderDetail, User, BookCopy
 from .serializers import BookCopySerializer, BookSerializer, GetOrderSerializer, OrderDetailSerializer, OrderSerializer, \
     UserLoginSerializer, UserSerializer, BookFilter
 
@@ -130,13 +130,23 @@ class ServiceUserCreateAPIView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class OrderDetailCreateAPIView(APIView):
-    def post(self, request):
-        serializer = OrderDetailSerializer(data=request.data)
+class BookListAPIView(generics.ListAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    pagination_class = CustomPagination
 
+
+class BookUpdateAPIView(APIView):
+    def post(self, request, book_id):
+        try:
+            book = Book.objects.get(pk=book_id)
+        except Book.DoesNotExist:
+            return Response({"error": "Book not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = BookSerializer(book, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -150,6 +160,29 @@ class BookCopyCreateAPIView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class BookCopyUpdateView(APIView):
+    def put(self, request, pk):
+        try:
+            book_copy = BookCopy.objects.get(pk=pk)
+        except BookCopy.DoesNotExist:
+            return Response({"error": "BookCopy not found."}, status=404)
+
+        book_status = request.data.get('book_status')
+        book_deposit_status = request.data.get('book_deposit_status')
+
+        if book_status is not None:
+            book_copy.book_status = book_status
+
+        if book_deposit_status is not None:
+            book_copy.book_deposit_status = book_deposit_status
+
+        book_copy.save()
+
+        return Response({"message": "BookCopy updated successfully."}, status=200)
+
+
+# Oders
 class OrderStatusUpdateAPIView(APIView):
     def patch(self, request, pk):
         try:
@@ -162,6 +195,18 @@ class OrderStatusUpdateAPIView(APIView):
 
         serializer = OrderSerializer(order)
         return Response(serializer.data)
+
+
+class OrderDetailCreateAPIView(APIView):
+    def post(self, request):
+        serializer = OrderDetailSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class OrderCreateAPIView(APIView):
     def post(self, request):

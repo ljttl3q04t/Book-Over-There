@@ -3,9 +3,10 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 
 from . import views
-from .views import BookCopyCreateAPIView, GetOrderCreateAPIView, LogoutView, OrderCreateAPIView, \
-    OrderStatusUpdateAPIView, OverViewAPIView, ServiceUserCreateAPIView, UserLoginView, UserRegisterView, UserInfoView, \
+from .views import LogoutView, OverViewAPIView, UserLoginView, UserRegisterView, UserInfoView, \
     UpdateUserInfoView
+from .views import OrderCreateAPIView, ServiceUserCreateAPIView, BookCopyCreateAPIView, \
+    OrderStatusUpdateAPIView, GetOrderCreateAPIView, BookCopyUpdateView
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -30,10 +31,11 @@ urlpatterns = [
     path('user/info', UserInfoView.as_view(), name='user-info'),
     path('user/info/update/', UpdateUserInfoView.as_view(), name='update-user-info'),
 
-    # book
+    # book and book copes
     path('book/<int:book_id>/update/', views.BookUpdateAPIView.as_view(), name='book-update'),
     path('book/list/', views.BookListAPIView.as_view(), name='book-list'),
     path('book-copies/create/', BookCopyCreateAPIView.as_view(), name='book-copy-create'),
+    path('bookcopies/<int:pk>/', BookCopyUpdateView.as_view(), name='bookcopy-update'),
     # user
     path('service-users/create/', ServiceUserCreateAPIView.as_view(), name='service-user-create'),
     # order
