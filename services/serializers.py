@@ -85,9 +85,14 @@ class GetOrderSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    number_phone = serializers.CharField(allow_null=False)
+    email = serializers.CharField(allow_null=False)
+    location = serializers.CharField(allow_null=False)
+
+
     class Meta:
         model = User
-        fields = '__all__'
+        fields = ['username', 'password', 'number_phone', 'email', 'location']
 
 
 class BookCopySerializer(serializers.ModelSerializer):

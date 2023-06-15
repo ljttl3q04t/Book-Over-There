@@ -35,7 +35,7 @@ class Publisher(BaseModel):
 
 
 class Book(BaseModel):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, db_index=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     image = models.CharField(max_length=200)
     author = models.ForeignKey(Author, on_delete=models.CASCADE)

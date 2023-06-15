@@ -1,6 +1,5 @@
 from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse
-from django.shortcuts import render
 from rest_framework import generics, status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
@@ -20,7 +19,7 @@ class CustomPagination(PageNumberPagination):
     max_page_size = 100  # Set the maximum allowed page size
 
 class BookListAPIView(generics.ListAPIView):
-    # permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     pagination_class = CustomPagination
@@ -49,7 +48,7 @@ class UserLoginView(APIView):
             refresh = TokenObtainPairSerializer.get_token(user)
             data = {
                 'refresh_token': str(refresh),
-                'access_token': str(refresh.access_token)
+                'access_token': str(refresh.access_token),
             }
             return Response(data, status=status.HTTP_200_OK)
 
@@ -68,7 +67,18 @@ class UserRegisterView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class UserInfoView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
+
+
 class OverViewAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+
     def get(self, request):
         data = {
             'user': User.objects.count(),
@@ -91,15 +101,9 @@ class BookUpdateAPIView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-def index(request):
-    return render(request, "services/index.html")
-
-def viewListBook(request):
-    list_book = Book.objects.all()
-    context = {"listBooks": list_book}
-    return render(request, "services/book_list.html", context)
-
 class ServiceUserCreateAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+
     def post(self, request):
         serializer = UserSerializer(data=request.data)
 
