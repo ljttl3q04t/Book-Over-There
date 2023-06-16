@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate
 from rest_framework import serializers
 from django_filters import rest_framework as filters
 
-from .models import Author, Book, BookCopy, Category, Order, OrderDetail, Publisher, User
+from .models import Author, Book, BookCopy, Category, Order, OrderDetail, Publisher, User, BookClub, Member
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -115,3 +115,25 @@ class BookCopySerializer(serializers.ModelSerializer):
     class Meta:
         model = BookCopy
         fields = '__all__'
+
+
+
+class MemberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Member
+        fields = '__all__'
+
+
+class BookClubSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BookClub
+        fields = '__all__'
+
+
+class BookClubRequestToJoinSerializer(serializers.Serializer):
+    club_id = serializers.IntegerField()
+    full_name = serializers.CharField()
+    birth_date = serializers.DateField()
+    email = serializers.EmailField()
+    phone_number = serializers.CharField()
+    address = serializers.CharField()

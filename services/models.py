@@ -96,18 +96,27 @@ class BookClub(BaseModel):
 
 
 class Member(BaseModel):
+    PENDING = 'pending'
     ACTIVE = 'active'
     BANNED = 'banned'
     MEMBER_STATUS_CHOICES = (
+        (PENDING, 'Pending'),
         (ACTIVE, 'Active'),
         (BANNED, 'Banned'),
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     book_clubs = models.ManyToManyField(BookClub, through='Membership')
-    member_status = models.CharField(max_length=10, choices=MEMBER_STATUS_CHOICES, default=ACTIVE)
+    member_status = models.CharField(max_length=10, choices=MEMBER_STATUS_CHOICES, default=PENDING)
+    full_name = models.CharField(max_length=200)
+    birth_date = models.DateField()
+    email = models.EmailField(max_length=100)
+    phone_number = models.CharField(max_length=20)
+    address = models.CharField(max_length=200)
+    # student_card = models.CharField(max_length=200)
+
 
     def __str__(self):
-        return f"{self.user.username}"
+        return f"{self.full_name}"
 
 
 class Membership(BaseModel):
@@ -116,5 +125,5 @@ class Membership(BaseModel):
     joined_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.member.user.username} - {self.book_club.name}"
+        return f"{self.member.full_name} - {self.book_club.name}"
 

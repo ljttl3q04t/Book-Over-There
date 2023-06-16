@@ -3,10 +3,6 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 
 from . import views
-from .views import LogoutView, OverViewAPIView, UserLoginView, UserRegisterView, UserInfoView, \
-    UpdateUserInfoView
-from .views import OrderCreateAPIView, ServiceUserCreateAPIView, BookCopyCreateAPIView, \
-    OrderStatusUpdateAPIView, GetOrderCreateAPIView, BookCopyUpdateView
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -22,26 +18,30 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    path('overview', OverViewAPIView.as_view(), name='overview'),
+    path('overview', views.OverViewAPIView.as_view(), name='overview'),
 
     # user
-    path('user/register', UserRegisterView.as_view(), name='user-register'),
-    path('user/login', UserLoginView.as_view(), name='login'),
-    path('user/logout', LogoutView.as_view(), name='logout'),
-    path('user/info', UserInfoView.as_view(), name='user-info'),
-    path('user/info/update/', UpdateUserInfoView.as_view(), name='update-user-info'),
+    path('user/register', views.UserRegisterView.as_view(), name='user-register'),
+    path('user/login', views.UserLoginView.as_view(), name='login'),
+    path('user/logout', views.LogoutView.as_view(), name='logout'),
+    path('user/info', views.UserInfoView.as_view(), name='user-info'),
+    path('user/info/update/', views.UpdateUserInfoView.as_view(), name='update-user-info'),
 
-    # book and book copes
+    # book and book copies
     path('book/<int:book_id>/update/', views.BookUpdateAPIView.as_view(), name='book-update'),
     path('book/list/', views.BookListAPIView.as_view(), name='book-list'),
-    path('book-copies/create/', BookCopyCreateAPIView.as_view(), name='book-copy-create'),
-    path('bookcopies/<int:pk>/', BookCopyUpdateView.as_view(), name='bookcopy-update'),
-    # user
-    path('service-users/create/', ServiceUserCreateAPIView.as_view(), name='service-user-create'),
+    path('book-copies/create/', views.BookCopyCreateAPIView.as_view(), name='book-copy-create'),
+    path('bookcopies/<int:pk>/', views.BookCopyUpdateView.as_view(), name='bookcopy-update'),
+
+    # club
+    path('club/list/', views.BookClubListAPIView.as_view(), name='book-club-list'),
+    path('club/request-join', views.BookClubRequestJoinView.as_view(), name='book-club-request-join'),
+
     # order
-    path('orders/create/', OrderCreateAPIView.as_view(), name='order-create'),
-    path('orders/<int:pk>/status/', OrderStatusUpdateAPIView.as_view(), name='order-status-update'),
-    path('orders/<int:order_id>/', GetOrderCreateAPIView.as_view(), name='order-detail'),
+    path('orders/create/', views.OrderCreateAPIView.as_view(), name='order-create'),
+    path('orders/<int:pk>/status/', views.OrderStatusUpdateAPIView.as_view(), name='order-status-update'),
+    path('orders/<int:order_id>/', views.GetOrderCreateAPIView.as_view(), name='order-detail'),
+
     # orderDetail
-    path('order-details/create/', GetOrderCreateAPIView.as_view(), name='order-detail-create'),
+    path('order-details/create/', views.GetOrderCreateAPIView.as_view(), name='order-detail-create'),
 ]
