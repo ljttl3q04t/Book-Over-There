@@ -1,5 +1,6 @@
 from django.contrib.auth.hashers import make_password
 from django.db import transaction
+from django.db.models import Count
 from django.http import JsonResponse
 from django_filters import rest_framework as filters
 from rest_framework import generics, status
@@ -36,7 +37,18 @@ class BookListAPIView(generics.ListAPIView):
 class BookClubListAPIView(generics.ListAPIView):
     queryset = BookClub.objects.all()
     serializer_class = BookClubSerializer
-    pagination_class = CustomPagination
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        data = serializer.data
+        total_members = BookClub.objects.annotate(total_members=Count('member')).values('id', 'total_members')
+        mapping_total_members = {r['id']: r['total_members'] for r in total_members}
+
+        for i, book_club in enumerate(queryset):
+            data[i]['total_member_count'] = mapping_total_members[book_club.id]
+
+        return Response(data)
 
 
 class LogoutView(APIView):
@@ -256,7 +268,8 @@ class BookClubRequestJoinView(APIView):
                     return Response(member_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
             if book_club.membership_set.filter(member=member).exists():
-                return Response({'error': 'User is already a member of this bookclub'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error': 'User is already a member of this bookclub'},
+                                status=status.HTTP_400_BAD_REQUEST)
 
             Membership.objects.create(member=member, book_club=book_club)
             return Response({"detail": "Membership request submitted."}, status=status.HTTP_201_CREATED)
