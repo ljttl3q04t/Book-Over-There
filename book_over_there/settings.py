@@ -34,7 +34,10 @@ DEBUG = int(os.environ.get("DEBUG", default=1))
 ALLOWED_HOSTS = ['*']
 
 CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOW_HEADERS = ['access-control-allow-origin']  # Add other allowed headers if needed
+CORS_ALLOW_HEADERS = [
+    'access-control-allow-origin',
+    'content-type',
+]  # Add other allowed headers if needed
 
 # Application definition
 
