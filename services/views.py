@@ -12,10 +12,11 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import Book, Order, OrderDetail, User, BookCopy, BookClub, Member, Membership
+from .models import Book, Order, OrderDetail, User, BookCopy, BookClub, Member, Membership, MembershipOrder, \
+    MembershipOrderDetail
 from .serializers import BookCopySerializer, BookSerializer, GetOrderSerializer, OrderDetailSerializer, OrderSerializer, \
     UserLoginSerializer, UserSerializer, BookFilter, BookClubSerializer, BookClubRequestToJoinSerializer, \
-    MemberSerializer
+    MemberSerializer, MembershipOrderSerializer
 
 
 class CustomPagination(PageNumberPagination):
@@ -275,3 +276,26 @@ class BookClubRequestJoinView(APIView):
             return Response({"detail": "Membership request submitted."}, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+from django.db import connection
+
+class MemberShipOrderCreateView(APIView):
+    permission_classes = (IsAuthenticated, )
+
+    @transaction.atomic
+    def post(self, request):
+        serializer = MembershipOrderSerializer(data=request.data)
+        if serializer.is_valid():
+            order_details = serializer.validated_data.pop('order_details')
+            order = MembershipOrder.objects.create(
+                membership_id=serializer.validated_data['membership_id']
+            )
+            for detail in order_details:
+                MembershipOrderDetail.objects.create(
+                    order_id=order.id,
+                    member_book_copy_id=detail.member_book_copy_id,
+                    due_date=detail.due_date,
+                )
+            return Response({'result': 'ok'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

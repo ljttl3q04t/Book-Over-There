@@ -2,7 +2,8 @@ from django.contrib.auth import authenticate
 from rest_framework import serializers
 from django_filters import rest_framework as filters
 
-from .models import Author, Book, BookCopy, Category, Order, OrderDetail, Publisher, User, BookClub, Member
+from .models import Author, Book, BookCopy, Category, Order, OrderDetail, Publisher, User, BookClub, Member, \
+    MembershipOrderDetail, Membership
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -25,20 +26,24 @@ class UserLoginSerializer(serializers.Serializer):
         data['user'] = user
         return data
 
+
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ['name']
+
 
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Author
         fields = ['name']
 
+
 class PublisherSerializer(serializers.ModelSerializer):
     class Meta:
         model = Publisher
         fields = ['name']
+
 
 class BookSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
@@ -49,6 +54,7 @@ class BookSerializer(serializers.ModelSerializer):
         model = Book
         fields = ['name', 'category', 'author', 'publisher']
 
+
 class BookFilter(filters.FilterSet):
     category = filters.CharFilter(field_name='category__name', lookup_expr='icontains')
     publisher = filters.CharFilter(field_name='publisher__name', lookup_expr='icontains')
@@ -58,6 +64,7 @@ class BookFilter(filters.FilterSet):
         model = Book
         fields = ['category', 'publisher', 'author']
 
+
 class OrderDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderDetail
@@ -66,6 +73,7 @@ class OrderDetailSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     order_details = OrderDetailSerializer(many=True)
+
     class Meta:
         model = Order
         fields = '__all__'
@@ -117,7 +125,6 @@ class BookCopySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-
 class MemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = Member
@@ -137,3 +144,28 @@ class BookClubRequestToJoinSerializer(serializers.Serializer):
     email = serializers.EmailField()
     phone_number = serializers.CharField()
     address = serializers.CharField()
+
+
+class MembershipOrderDetailSerializer(serializers.ModelSerializer):
+    def validate_member_book_copy(self, member_book_copy):
+        if member_book_copy.current_reader is not None:
+            raise serializers.ValidationError("The book copy is currently assigned to a reader.")
+        return member_book_copy
+
+    class Meta:
+        model = MembershipOrderDetail
+        fields = ['member_book_copy', 'due_date']
+
+
+class MembershipOrderSerializer(serializers.Serializer):
+    membership_id = serializers.IntegerField(required=True)
+    order_details = MembershipOrderDetailSerializer(required=True, many=True)
+
+    def validate(self, data):
+        membership_id = data.get('membership_id')
+        membership = Membership.objects.get(id=membership_id)
+
+        if membership.leaved_at is not None:
+            raise serializers.ValidationError("The membership has already ended.")
+
+        return data

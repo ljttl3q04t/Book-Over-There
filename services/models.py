@@ -40,6 +40,7 @@ class Book(BaseModel):
     image = models.CharField(max_length=200)
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)
+    description = models.TextField(null=True)
 
     def __str__(self):
         return self.name
@@ -112,8 +113,8 @@ class Member(BaseModel):
     email = models.EmailField(max_length=100)
     phone_number = models.CharField(max_length=20)
     address = models.CharField(max_length=200)
-    # student_card = models.CharField(max_length=200)
 
+    # student_card = models.CharField(max_length=200)
 
     def __str__(self):
         return f"{self.full_name}"
@@ -123,7 +124,71 @@ class Membership(BaseModel):
     member = models.ForeignKey(Member, on_delete=models.CASCADE)
     book_club = models.ForeignKey(BookClub, on_delete=models.CASCADE)
     joined_at = models.DateTimeField(auto_now_add=True)
+    leaved_at = models.DateField(null=True)
 
     def __str__(self):
         return f"{self.member.full_name} - {self.book_club.name}"
 
+
+class MemberBookCopy(BaseModel):
+    NEW = 'new'
+    USED = 'used'
+    LOST = 'lost'
+    RETURN = 'return'
+    BORROWED = 'borrowed'
+
+    BOOK_STATUS_CHOICE = (
+        (NEW, 'New'),
+        (USED, 'Used'),
+        (LOST, 'Lost'),
+        (RETURN, 'Return'),
+        (BORROWED, 'Borrowed'),
+    )
+    membership = models.ForeignKey(Membership, on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    date_added = models.DateField(auto_now_add=True)
+    book_status = models.CharField(max_length=20, choices=BOOK_STATUS_CHOICE, default=NEW)
+    current_reader = models.ForeignKey(Membership, on_delete=models.SET_NULL, null=True, blank=True,
+                                       related_name='current_reader')
+
+    def __str__(self):
+        return f'{self.membership.member.full_name} - {self.book.name}'
+
+
+# Draft -> Created, Cancelled
+# Created -> Cancelled, Confirmed
+# Created -> Confirmed: start borrowing
+# Confirmed -> Overdue: out of due_date
+# Confirmed -> Completed
+# Overdue -> Completed
+class MembershipOrder(BaseModel):
+    DRAFT = 'draft'
+    CANCEL = 'Cancel'
+    CREATED = 'Created'
+    CONFIRMED = 'Confirmed'
+    OVERDUE = 'Overdue'
+    COMPLETED = 'Completed'
+
+    MEMBERSHIP_ORDER_STATUS_CHOICE = (
+        (DRAFT, 'Draft'),
+        (CANCEL, 'Cancel'),
+        (CREATED, 'Created'),
+        (CONFIRMED, 'Confirmed'),
+        (OVERDUE, 'Overdue'),
+        (COMPLETED, 'Completed'),
+    )
+
+    membership = models.ForeignKey(Membership, on_delete=models.CASCADE)
+    order_date = models.DateField(auto_created=True)
+    confirm_date = models.DateField(null=True)
+    order_status = models.CharField(max_length=20, choices=MEMBERSHIP_ORDER_STATUS_CHOICE, default=CREATED)
+
+
+class MembershipOrderDetail(BaseModel):
+    order = models.ForeignKey(MembershipOrder, on_delete=models.CASCADE, related_name='membership_order_details')
+    member_book_copy = models.ForeignKey(MemberBookCopy, on_delete=models.CASCADE)
+    due_date = models.DateTimeField()
+    return_date = models.DateTimeField(null=True)
+    overdue_day_count = models.IntegerField(null=True)
+
+# TODO: BookLost
