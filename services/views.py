@@ -11,18 +11,21 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
+from services.managers.permission_manager import is_staff, IsStaff
 
 from .models import Book, MemberBookCopy, Order, OrderDetail, User, BookCopy, BookClub, Member, Membership, \
     MembershipOrder, \
     MembershipOrderDetail
 from .serializers import BookCopySerializer, BookSerializer, GetOrderSerializer, OrderDetailSerializer, OrderSerializer, \
-    UserLoginSerializer, UserSerializer, BookFilter, BookClubSerializer, BookClubRequestToJoinSerializer, \
-    MemberSerializer, MembershipOrderSerializer
+    UserLoginSerializer, UserRegisterSerializer, BookFilter, BookClubSerializer, BookClubRequestToJoinSerializer, \
+    MemberSerializer, MembershipOrderSerializer, UserUpdateSerializer
+
 
 class CustomPagination(PageNumberPagination):
     page_size = 10  # Set the desired page size
     page_size_query_param = 'page_size'  # Customize the query parameter for specifying the page size
     max_page_size = 100  # Set the maximum allowed page size
+
 
 class BookListAPIView(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
@@ -32,6 +35,20 @@ class BookListAPIView(generics.ListAPIView):
     filter_backends = [filters.DjangoFilterBackend, SearchFilter]
     filterset_class = BookFilter
     search_fields = ['name']
+
+
+class BookClubMemberListView(generics.ListAPIView):
+    permission_classes = (IsAuthenticated, IsStaff,)
+    serializer_class = MemberSerializer
+    pagination_class = CustomPagination
+
+    def get_queryset(self):
+        user_member = Member.objects.filter(user=self.request.user).first()
+        if not user_member:
+            return Response({'error': 'Staff is not club member'}, status=status.HTTP_400_BAD_REQUEST)
+        queryset = Member.objects.filter(book_clubs__in=user_member.book_clubs.all())
+        return queryset
+
 
 class BookClubListAPIView(generics.ListAPIView):
     queryset = BookClub.objects.all()
@@ -51,6 +68,7 @@ class BookClubListAPIView(generics.ListAPIView):
 
         return Response(data)
 
+
 class LogoutView(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -67,6 +85,7 @@ class LogoutView(APIView):
         else:
             return Response({'error': 'Refresh token is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
+
 class UserLoginView(APIView):
     def post(self, request):
         serializer = UserLoginSerializer(data=request.data)
@@ -79,15 +98,17 @@ class UserLoginView(APIView):
                 'user': {
                     'username': user.username,
                     'email': user.email,
+                    'is_staff': is_staff(user),
                 }
             }
             return Response(data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class UserRegisterView(APIView):
     def post(self, request):
-        serializer = UserSerializer(data=request.data)
+        serializer = UserRegisterSerializer(data=request.data)
         if serializer.is_valid():
             serializer.validated_data['password'] = make_password(serializer.validated_data['password'])
             serializer.save()
@@ -98,22 +119,32 @@ class UserRegisterView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class UserInfoView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        serializer = UserSerializer(request.user)
-        return Response(serializer.data)
+        data = {
+            'username': request.user.username,
+            'phone_number': request.user.phone_number,
+            'email': request.user.email,
+            'address': request.user.address,
+            'full_name': request.user.full_name,
+            'birth_date': request.user.birth_date,
+        }
+        return Response(data)
+
 
 class UpdateUserInfoView(APIView):
     permission_classes = [IsAuthenticated]
 
     def put(self, request):
-        serializer = UserSerializer(request.user, data=request.data, partial=True)
+        serializer = UserUpdateSerializer(request.user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
+
 
 class OverViewAPIView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -126,6 +157,7 @@ class OverViewAPIView(APIView):
         }
         return JsonResponse(data, status=status.HTTP_200_OK)
 
+
 class BookUpdateAPIView(APIView):
     def post(self, request, book_id):
         try:
@@ -139,12 +171,14 @@ class BookUpdateAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class BookListAPIView(generics.ListAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     pagination_class = CustomPagination
 
+
 class BookUpdateAPIView(APIView):
     def post(self, request, book_id):
         try:
@@ -158,6 +192,7 @@ class BookUpdateAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class BookCopyCreateAPIView(APIView):
     def post(self, request):
@@ -168,6 +203,7 @@ class BookCopyCreateAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class BookCopyUpdateView(APIView):
     def put(self, request, pk):
@@ -189,6 +225,7 @@ class BookCopyUpdateView(APIView):
 
         return Response({"message": "BookCopy updated successfully."}, status=200)
 
+
 # Oders
 class OrderStatusUpdateAPIView(APIView):
     def patch(self, request, pk):
@@ -203,6 +240,7 @@ class OrderStatusUpdateAPIView(APIView):
         serializer = OrderSerializer(order)
         return Response(serializer.data)
 
+
 class OrderDetailCreateAPIView(APIView):
     def post(self, request):
         serializer = OrderDetailSerializer(data=request.data)
@@ -212,6 +250,7 @@ class OrderDetailCreateAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class OrderCreateAPIView(APIView):
     def post(self, request):
@@ -223,6 +262,7 @@ class OrderCreateAPIView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class GetOrderCreateAPIView(APIView):
     def get(self, request, order_id):
         try:
@@ -231,6 +271,7 @@ class GetOrderCreateAPIView(APIView):
             return Response(serializer.data)
         except Order.DoesNotExist:
             return Response({"error": "Order not found."}, status=404)
+
 
 class BookClubRequestJoinView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -257,13 +298,14 @@ class BookClubRequestJoinView(APIView):
                     return Response(member_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
             if book_club.membership_set.filter(member=member).exists():
-                return Response({'error': 'User is already a member of this bookclub'},
+                return Response({'error': 'User is already a member of this book club'},
                                 status=status.HTTP_400_BAD_REQUEST)
 
             Membership.objects.create(member=member, book_club=book_club)
             return Response({"detail": "Membership request submitted."}, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class MemberShipOrderCreateView(APIView):
     permission_classes = (IsAuthenticated,)

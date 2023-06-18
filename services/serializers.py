@@ -101,23 +101,25 @@ class GetOrderSerializer(serializers.ModelSerializer):
         fields = ['id', 'order_user', 'order_date', 'total_book', 'comment', 'status', 'order_details']
 
 
-class UserSerializer(serializers.ModelSerializer):
-    number_phone = serializers.CharField(allow_null=False)
+class UserRegisterSerializer(serializers.ModelSerializer):
+    phone_number = serializers.CharField(allow_null=False)
     email = serializers.CharField(allow_null=False)
-    # location = serializers.CharField(allow_null=True)
-
-    def update(self, instance, validated_data):
-        # Update only the specified fields
-        instance.email = validated_data.get('email', instance.email)
-        instance.number_phone = validated_data.get('number_phone', instance.number_phone)
-        # instance.location = validated_data.get('location', instance.location)
-        instance.save()
-        return instance
 
     class Meta:
         model = User
-        fields = ['username', 'password', 'number_phone', 'email', 'location']
+        fields = ['username', 'password', 'phone_number', 'email']
 
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    phone_number = serializers.CharField(allow_null=False)
+    email = serializers.CharField(allow_null=False)
+    address = serializers.CharField(allow_null=False)
+    full_name = serializers.CharField(allow_null=False)
+    birth_date = serializers.DateField(allow_null=False)
+
+    class Meta:
+        model = User
+        fields = ['phone_number', 'email', 'address', 'full_name', 'birth_date']
 
 class BookCopySerializer(serializers.ModelSerializer):
     class Meta:

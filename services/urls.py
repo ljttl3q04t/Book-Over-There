@@ -25,7 +25,7 @@ urlpatterns = [
     path('user/login', views.UserLoginView.as_view(), name='login'),
     path('user/logout', views.LogoutView.as_view(), name='logout'),
     path('user/info', views.UserInfoView.as_view(), name='user-info'),
-    path('user/info/update/', views.UpdateUserInfoView.as_view(), name='update-user-info'),
+    path('user/info/update', views.UpdateUserInfoView.as_view(), name='update-user-info'),
 
     # book and book copies
     path('book/<int:book_id>/update/', views.BookUpdateAPIView.as_view(), name='book-update'),
@@ -47,4 +47,7 @@ urlpatterns = [
 
     # orderDetail
     path('order-details/create/', views.GetOrderCreateAPIView.as_view(), name='order-detail-create'),
+
+    # staff permission
+    path('club/member/list', views.BookClubMemberListView.as_view(), name='book-club-member-list'),
 ]
