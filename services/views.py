@@ -12,18 +12,17 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import Book, Order, OrderDetail, User, BookCopy, BookClub, Member, Membership, MembershipOrder, \
+from .models import Book, MemberBookCopy, Order, OrderDetail, User, BookCopy, BookClub, Member, Membership, \
+    MembershipOrder, \
     MembershipOrderDetail
 from .serializers import BookCopySerializer, BookSerializer, GetOrderSerializer, OrderDetailSerializer, OrderSerializer, \
     UserLoginSerializer, UserSerializer, BookFilter, BookClubSerializer, BookClubRequestToJoinSerializer, \
     MemberSerializer, MembershipOrderSerializer
 
-
 class CustomPagination(PageNumberPagination):
     page_size = 10  # Set the desired page size
     page_size_query_param = 'page_size'  # Customize the query parameter for specifying the page size
     max_page_size = 100  # Set the maximum allowed page size
-
 
 class BookListAPIView(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
@@ -34,7 +33,6 @@ class BookListAPIView(generics.ListAPIView):
     filterset_class = BookFilter
     search_fields = ['name']
 
-
 class BookClubListAPIView(generics.ListAPIView):
     queryset = BookClub.objects.all()
     serializer_class = BookClubSerializer
@@ -44,13 +42,16 @@ class BookClubListAPIView(generics.ListAPIView):
         serializer = self.get_serializer(queryset, many=True)
         data = serializer.data
         total_members = BookClub.objects.annotate(total_members=Count('member')).values('id', 'total_members')
+        # member_books = MemberBookCopy.objects \
+        #     .annotate(total_books=Count('membership__book_club')) \
+        #     .values('membership__book_club_id', 'total_books')
+
         mapping_total_members = {r['id']: r['total_members'] for r in total_members}
 
         for i, book_club in enumerate(queryset):
             data[i]['total_member_count'] = mapping_total_members[book_club.id]
 
         return Response(data)
-
 
 class LogoutView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -68,7 +69,6 @@ class LogoutView(APIView):
         else:
             return Response({'error': 'Refresh token is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
-
 class UserLoginView(APIView):
     def post(self, request):
         serializer = UserLoginSerializer(data=request.data)
@@ -78,11 +78,14 @@ class UserLoginView(APIView):
             data = {
                 'refresh_token': str(refresh),
                 'access_token': str(refresh.access_token),
+                'user': {
+                    'username': user.username,
+                    'email': user.email,
+                }
             }
             return Response(data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class UserRegisterView(APIView):
     def post(self, request):
@@ -97,14 +100,12 @@ class UserRegisterView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 class UserInfoView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
-
 
 class UpdateUserInfoView(APIView):
     permission_classes = [IsAuthenticated]
@@ -115,7 +116,6 @@ class UpdateUserInfoView(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
-
 
 class OverViewAPIView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -128,7 +128,6 @@ class OverViewAPIView(APIView):
         }
         return JsonResponse(data, status=status.HTTP_200_OK)
 
-
 class BookUpdateAPIView(APIView):
     def post(self, request, book_id):
         try:
@@ -142,14 +141,12 @@ class BookUpdateAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class BookListAPIView(generics.ListAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     pagination_class = CustomPagination
 
-
 class BookUpdateAPIView(APIView):
     def post(self, request, book_id):
         try:
@@ -163,7 +160,6 @@ class BookUpdateAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class BookCopyCreateAPIView(APIView):
     def post(self, request):
@@ -174,7 +170,6 @@ class BookCopyCreateAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class BookCopyUpdateView(APIView):
     def put(self, request, pk):
@@ -196,7 +191,6 @@ class BookCopyUpdateView(APIView):
 
         return Response({"message": "BookCopy updated successfully."}, status=200)
 
-
 # Oders
 class OrderStatusUpdateAPIView(APIView):
     def patch(self, request, pk):
@@ -211,7 +205,6 @@ class OrderStatusUpdateAPIView(APIView):
         serializer = OrderSerializer(order)
         return Response(serializer.data)
 
-
 class OrderDetailCreateAPIView(APIView):
     def post(self, request):
         serializer = OrderDetailSerializer(data=request.data)
@@ -221,7 +214,6 @@ class OrderDetailCreateAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class OrderCreateAPIView(APIView):
     def post(self, request):
@@ -233,7 +225,6 @@ class OrderCreateAPIView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 class GetOrderCreateAPIView(APIView):
     def get(self, request, order_id):
         try:
@@ -242,7 +233,6 @@ class GetOrderCreateAPIView(APIView):
             return Response(serializer.data)
         except Order.DoesNotExist:
             return Response({"error": "Order not found."}, status=404)
-
 
 class BookClubRequestJoinView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -280,7 +270,7 @@ class BookClubRequestJoinView(APIView):
 from django.db import connection
 
 class MemberShipOrderCreateView(APIView):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
 
     @transaction.atomic
     def post(self, request):

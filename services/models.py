@@ -124,7 +124,7 @@ class Membership(BaseModel):
     member = models.ForeignKey(Member, on_delete=models.CASCADE)
     book_club = models.ForeignKey(BookClub, on_delete=models.CASCADE)
     joined_at = models.DateTimeField(auto_now_add=True)
-    leaved_at = models.DateField(null=True)
+    leaved_at = models.DateField(null=True, default=None)
 
     def __str__(self):
         return f"{self.member.full_name} - {self.book_club.name}"

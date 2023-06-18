@@ -104,13 +104,13 @@ class GetOrderSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     number_phone = serializers.CharField(allow_null=False)
     email = serializers.CharField(allow_null=False)
-    location = serializers.CharField(allow_null=False)
+    # location = serializers.CharField(allow_null=True)
 
     def update(self, instance, validated_data):
         # Update only the specified fields
         instance.email = validated_data.get('email', instance.email)
         instance.number_phone = validated_data.get('number_phone', instance.number_phone)
-        instance.location = validated_data.get('location', instance.location)
+        # instance.location = validated_data.get('location', instance.location)
         instance.save()
         return instance
 
