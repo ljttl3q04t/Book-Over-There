@@ -42,14 +42,12 @@ class BookClubListAPIView(generics.ListAPIView):
         serializer = self.get_serializer(queryset, many=True)
         data = serializer.data
         total_members = BookClub.objects.annotate(total_members=Count('member')).values('id', 'total_members')
-        # member_books = MemberBookCopy.objects \
-        #     .annotate(total_books=Count('membership__book_club')) \
-        #     .values('membership__book_club_id', 'total_books')
-
         mapping_total_members = {r['id']: r['total_members'] for r in total_members}
 
         for i, book_club in enumerate(queryset):
+            total_book_count = MemberBookCopy.objects.filter(membership__book_club=book_club).count()
             data[i]['total_member_count'] = mapping_total_members[book_club.id]
+            data[i]['total_book_count'] = total_book_count
 
         return Response(data)
 
@@ -266,8 +264,6 @@ class BookClubRequestJoinView(APIView):
             return Response({"detail": "Membership request submitted."}, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-from django.db import connection
 
 class MemberShipOrderCreateView(APIView):
     permission_classes = (IsAuthenticated,)
