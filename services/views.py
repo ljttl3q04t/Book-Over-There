@@ -37,6 +37,13 @@ class BookListAPIView(generics.ListAPIView):
     search_fields = ['name']
 
 
+class MyBookView(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset = BookCopy.objects.all()
+    serializer_class = BookCopySerializer
+    pagination_class = CustomPagination
+
+
 class BookClubMemberListView(generics.ListAPIView):
     permission_classes = (IsAuthenticated, IsStaff,)
     serializer_class = MemberSerializer

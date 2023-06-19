@@ -52,7 +52,7 @@ class BookSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Book
-        fields = ['name', 'category', 'author', 'publisher']
+        fields = ['name', 'category', 'author', 'publisher', 'image']
 
 
 class BookFilter(filters.FilterSet):
@@ -122,6 +122,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         fields = ['phone_number', 'email', 'address', 'full_name', 'birth_date']
 
 class BookCopySerializer(serializers.ModelSerializer):
+    book = BookSerializer()
     class Meta:
         model = BookCopy
         fields = '__all__'

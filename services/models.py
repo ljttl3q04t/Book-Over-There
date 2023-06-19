@@ -53,20 +53,24 @@ class BookCopy(BaseModel):
     LOST = 'lost'
     RETURN = 'return'
     BORROWED = 'borrowed'
+    SHARING_CLUB = 'sharing_club'
 
-    BOOK_STATUS_CHOICE = (
+    BOOK_STATUS_CHOICES = (
         (NEW, 'New'),
         (USED, 'Used'),
         (LOST, 'Lost'),
         (RETURN, 'Return'),
         (BORROWED, 'Borrowed'),
+        (SHARING_CLUB, 'Sharing Club')
     )
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    book_status = models.CharField(max_length=20, choices=BOOK_STATUS_CHOICE, default=NEW)
-    book_deposit_price = models.IntegerField(default=None)
-    book_deposit_status = models.IntegerField(default=None)
+    book_status = models.CharField(max_length=20, choices=BOOK_STATUS_CHOICES, default=NEW)
+    book_deposit_price = models.IntegerField(null=True, default=None, blank=True)
+    book_deposit_status = models.IntegerField(null=True, default=None, blank=True)
 
+    def __str__(self):
+        return f'{self.user.username} - {self.book.name}'
 
 class Order(BaseModel):
     order_user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -139,7 +143,7 @@ class MemberBookCopy(BaseModel):
     RETURN = 'return'
     BORROWED = 'borrowed'
 
-    BOOK_STATUS_CHOICE = (
+    BOOK_STATUS_CHOICES = (
         (NEW, 'New'),
         (USED, 'Used'),
         (LOST, 'Lost'),
@@ -147,14 +151,14 @@ class MemberBookCopy(BaseModel):
         (BORROWED, 'Borrowed'),
     )
     membership = models.ForeignKey(Membership, on_delete=models.CASCADE)
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    book_copy = models.ForeignKey(BookCopy, on_delete=models.CASCADE)
     date_added = models.DateField(auto_now_add=True)
-    book_status = models.CharField(max_length=20, choices=BOOK_STATUS_CHOICE, default=NEW)
+    book_status = models.CharField(max_length=20, choices=BOOK_STATUS_CHOICES, default=NEW)
     current_reader = models.ForeignKey(Membership, on_delete=models.SET_NULL, null=True, blank=True,
                                        related_name='current_reader')
 
     def __str__(self):
-        return f'{self.membership.member.full_name} - {self.book.name}'
+        return f'{self.membership.member.full_name} - {self.book_copy.book.name}'
 
 
 # Draft -> Created, Cancelled
