@@ -19,7 +19,6 @@ class User(AbstractUser, BaseModel):
     address = models.CharField(max_length=200, null=True, blank=True)
     full_name = models.CharField(max_length=200, null=True, blank=True)
     birth_date = models.DateField(null=True)
-    user_card_photo = models.ImageField(upload_to='images', null=False, default=None)
 
 class Category(BaseModel):
     name = models.CharField(max_length=200)
