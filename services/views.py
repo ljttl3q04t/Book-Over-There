@@ -179,13 +179,6 @@ class BookUpdateAPIView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-class BookListAPIView(generics.ListAPIView):
-    queryset = Book.objects.all()
-    serializer_class = BookSerializer
-    pagination_class = CustomPagination
-
-
 class BookUpdateAPIView(APIView):
     def post(self, request, book_id):
         try:
