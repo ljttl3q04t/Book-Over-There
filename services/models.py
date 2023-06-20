@@ -19,6 +19,7 @@ class User(AbstractUser, BaseModel):
     address = models.CharField(max_length=200, null=True, blank=True)
     full_name = models.CharField(max_length=200, null=True, blank=True)
     birth_date = models.DateField(null=True)
+    user_card_photo = models.ImageField(upload_to='images', null=False, default=None)
 
 class Category(BaseModel):
     name = models.CharField(max_length=200)
@@ -68,9 +69,10 @@ class BookCopy(BaseModel):
     book_status = models.CharField(max_length=20, choices=BOOK_STATUS_CHOICES, default=NEW)
     book_deposit_price = models.IntegerField(null=True, default=None, blank=True)
     book_deposit_status = models.IntegerField(null=True, default=None, blank=True)
+    book_image = models.ImageField(upload_to='images', null=False, default=None)
 
     def __str__(self):
-        return f'{self.user.username} - {self.book.name}'
+        return f'{self.user.username} - {self.book.name} -{self.book_image}'
 
 class Order(BaseModel):
     order_user = models.ForeignKey(User, on_delete=models.CASCADE)
