@@ -172,3 +172,12 @@ class MembershipOrderSerializer(serializers.Serializer):
             raise serializers.ValidationError("The membership has already ended.")
 
         return data
+
+
+class MembershipSerializer(serializers.ModelSerializer):
+    member = MemberSerializer()
+    book_club = BookClubSerializer()
+
+    class Meta:
+        model = Membership
+        fields = '__all__'

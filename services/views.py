@@ -18,7 +18,7 @@ from .models import Book, MemberBookCopy, Order, OrderDetail, User, BookCopy, Bo
     MembershipOrderDetail
 from .serializers import BookCopySerializer, BookSerializer, GetOrderSerializer, OrderDetailSerializer, OrderSerializer, \
     UserLoginSerializer, UserRegisterSerializer, BookFilter, BookClubSerializer, BookClubRequestToJoinSerializer, \
-    MemberSerializer, MembershipOrderSerializer, UserUpdateSerializer
+    MemberSerializer, MembershipOrderSerializer, UserUpdateSerializer, MembershipSerializer
 
 
 class CustomPagination(PageNumberPagination):
@@ -334,3 +334,12 @@ class MemberShipOrderCreateView(APIView):
             return Response({'result': 'ok'}, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class MyMembershipView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        memberships = Membership.objects.filter(member__user=self.request.user)
+        serializer = MembershipSerializer(memberships, many=True)
+        return Response(serializer.data)
