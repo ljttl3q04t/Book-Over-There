@@ -18,6 +18,8 @@ python-dotenv = "*"
 gunicorn = "*"
 gevent = "*"
 django-filter = "*"
+boto3 = "*"
+django-storages = "*"
 
 [requires]
 python_version = "3.10"

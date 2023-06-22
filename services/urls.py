@@ -52,4 +52,7 @@ urlpatterns = [
 
     # staff permission
     path('club/member/list', views.BookClubMemberListView.as_view(), name='book-club-member-list'),
+
+    # upload file
+    path('upload', views.UploadFileView.as_view(), name='upload-file'),
 ]

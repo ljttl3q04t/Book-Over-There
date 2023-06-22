@@ -15,10 +15,21 @@ from services.managers.permission_manager import is_staff, IsStaff
 
 from .models import Book, MemberBookCopy, Order, OrderDetail, User, BookCopy, BookClub, Member, Membership, \
     MembershipOrder, \
-    MembershipOrderDetail
+    MembershipOrderDetail, UploadFile
 from .serializers import BookCopySerializer, BookSerializer, GetOrderSerializer, OrderDetailSerializer, OrderSerializer, \
     UserLoginSerializer, UserRegisterSerializer, BookFilter, BookClubSerializer, BookClubRequestToJoinSerializer, \
     MemberSerializer, MembershipOrderSerializer, UserUpdateSerializer, MembershipSerializer
+
+
+class UploadFileView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        file = request.FILES['image_file']
+        upload = UploadFile(file=file)
+        upload.save()
+        file_url = upload.file.url
+        return Response({'file_url': file_url}, status=status.HTTP_200_OK)
 
 
 class CustomPagination(PageNumberPagination):

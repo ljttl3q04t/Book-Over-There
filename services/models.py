@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
 
+from services.storage_backends import PublicStaticStorage
+
 
 class BaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -8,6 +10,14 @@ class BaseModel(models.Model):
 
     class Meta:
         abstract = True
+
+
+class UploadFile(BaseModel):
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    file = models.FileField(storage=PublicStaticStorage())
+
+    def __str__(self):
+        return self.file.name
 
 
 class User(AbstractUser, BaseModel):
