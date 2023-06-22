@@ -28,7 +28,6 @@ class CustomPagination(PageNumberPagination):
 
 
 class BookListAPIView(generics.ListAPIView):
-    permission_classes = (IsAuthenticated,)
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     pagination_class = CustomPagination
