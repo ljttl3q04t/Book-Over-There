@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
 
-from services.storage_backends import PublicStaticStorage
+from services.storage_backends import UserAvatarStorage, BaseStaticStorage
 
 
 class BaseModel(models.Model):
@@ -14,7 +14,7 @@ class BaseModel(models.Model):
 
 class UploadFile(BaseModel):
     uploaded_at = models.DateTimeField(auto_now_add=True)
-    file = models.FileField(storage=PublicStaticStorage())
+    file = models.FileField(storage=BaseStaticStorage())
 
     def __str__(self):
         return self.file.name
@@ -29,6 +29,7 @@ class User(AbstractUser, BaseModel):
     address = models.CharField(max_length=200, null=True, blank=True)
     full_name = models.CharField(max_length=200, null=True, blank=True)
     birth_date = models.DateField(null=True)
+    avatar = models.FileField(storage=UserAvatarStorage(), default=None, blank=True, null=True)
 
 class Category(BaseModel):
     name = models.CharField(max_length=200)

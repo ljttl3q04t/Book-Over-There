@@ -148,6 +148,7 @@ class UserInfoView(APIView):
             'address': request.user.address,
             'full_name': request.user.full_name,
             'birth_date': request.user.birth_date,
+            'avatar': request.user.avatar,
         }
         return Response(data)
 

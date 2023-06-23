@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
                 ('uploaded_at', models.DateTimeField(auto_now_add=True)),
-                ('file', models.FileField(storage=services.storage_backends.PublicStaticStorage(), upload_to='')),
+                ('file', models.FileField(storage=services.storage_backends.BaseStaticStorage(), upload_to='')),
             ],
             options={
                 'abstract': False,
