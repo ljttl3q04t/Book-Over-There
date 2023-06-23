@@ -119,7 +119,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['phone_number', 'email', 'address', 'full_name', 'birth_date']
+        fields = ['phone_number', 'email', 'address', 'full_name', 'birth_date', 'avatar']
 
 class BookCopySerializer(serializers.ModelSerializer):
     book = BookSerializer()
