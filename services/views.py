@@ -141,6 +141,11 @@ class UserInfoView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        avatar = request.user.avatar
+        avatar_url = None
+        if avatar:
+            avatar_url = avatar.url.split('?')[0]
+
         data = {
             'username': request.user.username,
             'phone_number': request.user.phone_number,
@@ -148,7 +153,7 @@ class UserInfoView(APIView):
             'address': request.user.address,
             'full_name': request.user.full_name,
             'birth_date': request.user.birth_date,
-            'avatar': request.user.avatar,
+            'avatar': avatar_url,
         }
         return Response(data)
 
