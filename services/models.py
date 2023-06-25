@@ -29,7 +29,7 @@ class User(AbstractUser, BaseModel):
     address = models.CharField(max_length=200, null=True, blank=True)
     full_name = models.CharField(max_length=200, null=True, blank=True)
     birth_date = models.DateField(null=True)
-    avatar = models.FileField(storage=UserAvatarStorage(), default=None, blank=True, null=True)
+    avatar = models.CharField(max_length=200, null=True, blank=True)
 
 class Category(BaseModel):
     name = models.CharField(max_length=200)
