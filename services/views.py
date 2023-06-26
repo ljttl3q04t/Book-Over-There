@@ -67,7 +67,7 @@ class MyBookView(generics.ListAPIView):
             if 'fahasa.com' in book_image:
                 data[i]['book']['image'] = book_image
             else:
-                data[i]['book']['image'] = book_image.url.split('?')[0]
+                data[i]['book']['image'] = book_copy.book.image.url.split('?')[0]
         return Response(data)
 
 
