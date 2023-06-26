@@ -147,6 +147,8 @@ class MemberSerializer(serializers.ModelSerializer):
 
 
 class BookClubSerializer(serializers.ModelSerializer):
+    is_member = serializers.BooleanField(default=False)
+
     class Meta:
         model = BookClub
         fields = '__all__'
