@@ -54,6 +54,19 @@ class MyBookView(generics.ListAPIView):
     serializer_class = BookCopySerializer
     pagination_class = CustomPagination
 
+    def get_queryset(self):
+        return BookCopy.objects.filter(user=self.request.user)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        data = serializer.data
+        for i, book_copy in enumerate(queryset):
+            book_image = book_copy.book.image.name
+            if 'fahasa.com' in book_image:
+                data[i]['book']['image'] = book_image
+
+        return Response(data)
 
 class CategoryListView(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
