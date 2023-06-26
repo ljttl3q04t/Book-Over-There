@@ -132,7 +132,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['phone_number', 'email', 'address', 'full_name', 'birth_date', 'avatar']
+        fields = ['phone_number', 'email', 'address', 'full_name', 'birth_date', 'avatar', 'username']
         read_only_fields = ['username']
 
 
