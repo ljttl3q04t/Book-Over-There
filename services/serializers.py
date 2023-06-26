@@ -204,3 +204,13 @@ class MyBookAddSerializer(serializers.Serializer):
             if not data.get('book'):
                 raise serializers.ValidationError("Missing field required")
         return data
+
+
+class ShareBookClubSerializer(serializers.Serializer):
+    book_copy_ids = serializers.ListSerializer(child=serializers.IntegerField())
+    club_id = serializers.IntegerField()
+
+
+class BookClubMemberUpdateSerializer(serializers.Serializer):
+    membership_id = serializers.IntegerField()
+    member_status = serializers.ChoiceField(choices=Membership.MEMBER_STATUS_CHOICES)

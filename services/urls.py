@@ -29,6 +29,7 @@ urlpatterns = [
     path('user/my-book', views.MyBookView.as_view(), name='view-my-book'),
     path('user/membership', views.MyMembershipView.as_view(), name='view-my-membership'),
     path('user/book/add', views.MyBookAddView.as_view(), name='user-add-book'),
+    path('user/book/share-club', views.BookShareClubView.as_view(), name='share-book-to-club'),  # TODO
 
     path('category/list', views.CategoryListView.as_view(), name='view-category'),
 
@@ -41,6 +42,8 @@ urlpatterns = [
     # club
     path('club/list/', views.BookClubListAPIView.as_view(), name='book-club-list'),
     path('club/request-join', views.BookClubRequestJoinView.as_view(), name='book-club-request-join'),
+    path('club/member/list', views.BookClubMemberView.as_view(), name='view-book-club-member'),
+    path('club/member/update', views.BookClubMemberUpdateView.as_view(), name='update-book-club-member'),
 
     # membership-order
     path('membership/order/create', views.MemberShipOrderCreateView.as_view(), name='membership-order-create'),

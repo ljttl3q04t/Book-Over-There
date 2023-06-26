@@ -2,6 +2,7 @@ from django.contrib.auth.hashers import make_password
 from django.db import transaction
 from django.db.models import Count
 from django.http import JsonResponse
+from django.utils import timezone
 from django_filters import rest_framework as filters
 from rest_framework import generics, status
 from rest_framework.filters import SearchFilter
@@ -19,7 +20,7 @@ from .models import Book, MemberBookCopy, Order, OrderDetail, User, BookCopy, Bo
 from .serializers import BookCopySerializer, BookSerializer, GetOrderSerializer, OrderDetailSerializer, OrderSerializer, \
     UserLoginSerializer, UserRegisterSerializer, BookFilter, BookClubSerializer, BookClubRequestToJoinSerializer, \
     MemberSerializer, MembershipOrderSerializer, UserUpdateSerializer, MembershipSerializer, CategorySerializer, \
-    MyBookAddSerializer
+    MyBookAddSerializer, ShareBookClubSerializer, BookClubMemberUpdateSerializer
 
 
 class UploadFileView(APIView):
@@ -67,6 +68,7 @@ class MyBookView(generics.ListAPIView):
                 data[i]['book']['image'] = book_image
 
         return Response(data)
+
 
 class CategoryListView(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
@@ -216,6 +218,7 @@ class BookUpdateAPIView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class BookUpdateAPIView(APIView):
     def post(self, request, book_id):
         try:
@@ -344,6 +347,39 @@ class BookClubRequestJoinView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class BookClubMemberView(APIView):
+    permission_classes = (IsAuthenticated, IsStaff,)
+
+    def get(self, request):
+        club_ids = Membership.objects.filter(member__user=self.request.user, is_staff=True) \
+            .values_list('book_club_id', flat=True)
+
+        club_members = Membership.objects.filter(book_club__in=club_ids)
+        serializer = MembershipSerializer(instance=club_members, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class BookClubMemberUpdateView(APIView):
+    permission_classes = (IsAuthenticated, IsStaff,)
+
+    def post(self, request):
+        serializer = BookClubMemberUpdateSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            membership = Membership.objects.get(id=serializer.data['membership_id'])
+        except Membership.DoesNotExist:
+            return Response({'error': 'member not found'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if membership.member_status == Membership.PENDING and serializer.data['member_status'] == Membership.ACTIVE:
+            membership.member_status = serializer.data['member_status']
+            membership.save()
+            return Response(MembershipSerializer(instance=membership).data, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'invalid change member status'}, status=status.HTTP_400_BAD_REQUEST)
+
+
 class MemberShipOrderCreateView(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -405,3 +441,39 @@ class MyBookAddView(APIView):
                     return Response({'result': 'ok'}, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class BookShareClubView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    @transaction.atomic
+    def post(self, request):
+        serializer = ShareBookClubSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        club = BookClub.objects.filter(id=serializer.data['club_id']).first()
+        if not club:
+            return Response({'error': 'club not found'}, status=status.HTTP_400_BAD_REQUEST)
+
+        membership = Membership.objects.filter(member__user=request.user, book_club=club).first()
+        if not membership:
+            return Response({'error': 'membership not found'}, status=status.HTTP_400_BAD_REQUEST)
+
+        books = BookCopy.objects \
+            .filter(user=request.user, id__in=serializer.data['book_copy_ids'], book_status=BookCopy.NEW).all()
+        if len(books) != len(serializer.data['book_copy_ids']):
+            return Response({'error': 'book not found'}, status=status.HTTP_400_BAD_REQUEST)
+
+        BookCopy.objects \
+            .filter(user=request.user, id__in=serializer.data['book_copy_ids'], book_status=BookCopy.NEW) \
+            .update(updated_at=timezone.now(), book_status=BookCopy.SHARING_CLUB)
+
+        member_book_copys = []
+        for book in books:
+            member_book_copys.append(MemberBookCopy(
+                membership=membership,
+                book_copy=book,
+            ))
+        MemberBookCopy.objects.bulk_create(member_book_copys)
+        return Response({'result': 'ok'}, status=status.HTTP_201_CREATED)

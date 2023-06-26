@@ -114,6 +114,19 @@ class BookClub(BaseModel):
 
 
 class Member(BaseModel):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    book_clubs = models.ManyToManyField(BookClub, through='Membership')
+    full_name = models.CharField(max_length=200)
+    birth_date = models.DateField()
+    email = models.EmailField(max_length=100)
+    phone_number = models.CharField(max_length=20)
+    address = models.CharField(max_length=200)
+
+    def __str__(self):
+        return f"{self.full_name}"
+
+
+class Membership(BaseModel):
     PENDING = 'pending'
     ACTIVE = 'active'
     BANNED = 'banned'
@@ -122,49 +135,21 @@ class Member(BaseModel):
         (ACTIVE, 'Active'),
         (BANNED, 'Banned'),
     )
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    book_clubs = models.ManyToManyField(BookClub, through='Membership')
-    member_status = models.CharField(max_length=10, choices=MEMBER_STATUS_CHOICES, default=PENDING)
-    full_name = models.CharField(max_length=200)
-    birth_date = models.DateField()
-    email = models.EmailField(max_length=100)
-    phone_number = models.CharField(max_length=20)
-    address = models.CharField(max_length=200)
-
-    # student_card = models.CharField(max_length=200)
-
-    def __str__(self):
-        return f"{self.full_name}"
-
-
-class Membership(BaseModel):
     member = models.ForeignKey(Member, on_delete=models.CASCADE)
     book_club = models.ForeignKey(BookClub, on_delete=models.CASCADE)
+    member_status = models.CharField(max_length=10, choices=MEMBER_STATUS_CHOICES, default=PENDING)
     joined_at = models.DateTimeField(auto_now_add=True)
     leaved_at = models.DateField(null=True, default=None, blank=True)
+    is_staff = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.member.full_name} - {self.book_club.name}"
 
 
 class MemberBookCopy(BaseModel):
-    NEW = 'new'
-    USED = 'used'
-    LOST = 'lost'
-    RETURN = 'return'
-    BORROWED = 'borrowed'
-
-    BOOK_STATUS_CHOICES = (
-        (NEW, 'New'),
-        (USED, 'Used'),
-        (LOST, 'Lost'),
-        (RETURN, 'Return'),
-        (BORROWED, 'Borrowed'),
-    )
     membership = models.ForeignKey(Membership, on_delete=models.CASCADE)
     book_copy = models.ForeignKey(BookCopy, on_delete=models.CASCADE)
     date_added = models.DateField(auto_now_add=True)
-    book_status = models.CharField(max_length=20, choices=BOOK_STATUS_CHOICES, default=NEW)
     current_reader = models.ForeignKey(Membership, on_delete=models.SET_NULL, null=True, blank=True,
                                        related_name='current_reader')
 
