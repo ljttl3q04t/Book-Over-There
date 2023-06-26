@@ -28,6 +28,9 @@ urlpatterns = [
     path('user/info/update', views.UpdateUserInfoView.as_view(), name='update-user-info'),
     path('user/my-book', views.MyBookView.as_view(), name='view-my-book'),
     path('user/membership', views.MyMembershipView.as_view(), name='view-my-membership'),
+    path('user/book/add', views.MyBookAddView.as_view(), name='user-add-book'),
+
+    path('category/list', views.CategoryListView.as_view(), name='view-category'),
 
     # book and book copies
     path('book/<int:book_id>/update/', views.BookUpdateAPIView.as_view(), name='book-update'),

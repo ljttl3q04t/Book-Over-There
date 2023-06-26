@@ -50,6 +50,18 @@ class BookSerializer(serializers.ModelSerializer):
     author = AuthorSerializer()
     publisher = PublisherSerializer()
 
+    def create(self, validated_data):
+        category, _ = Category.objects.get_or_create(name=validated_data.get('category').get('name'))
+        author, _ = Author.objects.get_or_create(name=validated_data.get('author').get('name'))
+        publisher, _ = Publisher.objects.get_or_create(name=validated_data.get('publisher').get('name'))
+        return Book.objects.create(
+            name=validated_data['name'],
+            category=category,
+            author=author,
+            publisher=publisher,
+            image=validated_data.get('image'),
+        )
+
     class Meta:
         model = Book
         fields = ['name', 'category', 'author', 'publisher', 'image']
@@ -181,3 +193,14 @@ class MembershipSerializer(serializers.ModelSerializer):
     class Meta:
         model = Membership
         fields = '__all__'
+
+
+class MyBookAddSerializer(serializers.Serializer):
+    book_id = serializers.IntegerField(required=False)
+    book = BookSerializer(required=False)
+
+    def validate(self, data):
+        if not data.get('book_id'):
+            if not data.get('book'):
+                raise serializers.ValidationError("Missing field required")
+        return data

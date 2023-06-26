@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
 
-from services.storage_backends import UserAvatarStorage, BaseStaticStorage
+from services.storage_backends import UserAvatarStorage, BaseStaticStorage, BookCoverStorage
 
 
 class BaseModel(models.Model):
@@ -49,7 +49,7 @@ class Publisher(BaseModel):
 class Book(BaseModel):
     name = models.CharField(max_length=200, db_index=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    image = models.CharField(max_length=200)
+    image = models.FileField(storage=BookCoverStorage(), default=None, blank=True, null=True)
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)
     description = models.TextField(null=True)

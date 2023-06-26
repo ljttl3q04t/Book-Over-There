@@ -9,3 +9,7 @@ class BaseStaticStorage(S3Boto3Storage):
 
 class UserAvatarStorage(BaseStaticStorage):
     location = 'user_avatar'
+
+
+class BookCoverStorage(BaseStaticStorage):
+    location = 'book_cover'

@@ -15,10 +15,11 @@ from services.managers.permission_manager import is_staff, IsStaff
 
 from .models import Book, MemberBookCopy, Order, OrderDetail, User, BookCopy, BookClub, Member, Membership, \
     MembershipOrder, \
-    MembershipOrderDetail, UploadFile
+    MembershipOrderDetail, UploadFile, Category
 from .serializers import BookCopySerializer, BookSerializer, GetOrderSerializer, OrderDetailSerializer, OrderSerializer, \
     UserLoginSerializer, UserRegisterSerializer, BookFilter, BookClubSerializer, BookClubRequestToJoinSerializer, \
-    MemberSerializer, MembershipOrderSerializer, UserUpdateSerializer, MembershipSerializer
+    MemberSerializer, MembershipOrderSerializer, UserUpdateSerializer, MembershipSerializer, CategorySerializer, \
+    MyBookAddSerializer
 
 
 class UploadFileView(APIView):
@@ -51,6 +52,13 @@ class MyBookView(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
     queryset = BookCopy.objects.all()
     serializer_class = BookCopySerializer
+    pagination_class = CustomPagination
+
+
+class CategoryListView(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
     pagination_class = CustomPagination
 
 
@@ -352,3 +360,35 @@ class MyMembershipView(APIView):
         memberships = Membership.objects.filter(member__user=self.request.user)
         serializer = MembershipSerializer(memberships, many=True)
         return Response(serializer.data)
+
+
+class MyBookAddView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    @transaction.atomic
+    def post(self, request):
+        serializer = MyBookAddSerializer(data=request.data)
+        if serializer.is_valid():
+            book_id = serializer.validated_data.get('book_id')
+            if book_id:
+                try:
+                    book = Book.objects.get(id=book_id)
+                except Book.DoesNotExist:
+                    return Response({'error': 'book not found'}, status=status.HTTP_400_BAD_REQUEST)
+
+                BookCopy.objects.create(
+                    book=book,
+                    user=request.user,
+                )
+                return Response({'result': 'ok'}, status=status.HTTP_201_CREATED)
+            else:
+                book_serializer = BookSerializer(data=serializer.validated_data.pop('book'))
+                if book_serializer.is_valid():
+                    book = book_serializer.save()
+                    BookCopy.objects.create(
+                        book=book,
+                        user=request.user,
+                    )
+                    return Response({'result': 'ok'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
