@@ -20,7 +20,8 @@ from .models import Book, MemberBookCopy, Order, OrderDetail, User, BookCopy, Bo
 from .serializers import BookCopySerializer, BookSerializer, GetOrderSerializer, OrderDetailSerializer, OrderSerializer, \
     UserLoginSerializer, UserRegisterSerializer, BookFilter, BookClubSerializer, BookClubRequestToJoinSerializer, \
     MemberSerializer, MembershipOrderSerializer, UserUpdateSerializer, MembershipSerializer, CategorySerializer, \
-    MyBookAddSerializer, ShareBookClubSerializer, BookClubMemberUpdateSerializer, MemberBookCopySerializer
+    MyBookAddSerializer, ShareBookClubSerializer, BookClubMemberUpdateSerializer, MemberBookCopySerializer, \
+    UserSerializer
 
 
 class UploadFileView(APIView):
@@ -137,14 +138,14 @@ class UserLoginView(APIView):
         if serializer.is_valid():
             user = serializer.validated_data['user']
             refresh = TokenObtainPairSerializer.get_token(user)
+            user_serializer = UserSerializer(instance=user)
+            user_data = user_serializer.data
+            user_data['is_staff'] = is_staff(user)
+
             data = {
                 'refresh_token': str(refresh),
                 'access_token': str(refresh.access_token),
-                'user': {
-                    'username': user.username,
-                    'email': user.email,
-                    'is_staff': is_staff(user),
-                }
+                'user': user_data
             }
             return Response(data, status=status.HTTP_200_OK)
 
@@ -169,21 +170,10 @@ class UserInfoView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        avatar = request.user.avatar
-        avatar_url = None
-        if avatar:
-            avatar_url = avatar.url.split('?')[0]
-
-        data = {
-            'username': request.user.username,
-            'phone_number': request.user.phone_number,
-            'email': request.user.email,
-            'address': request.user.address,
-            'full_name': request.user.full_name,
-            'birth_date': request.user.birth_date,
-            'avatar': avatar_url,
-        }
-        return Response(data)
+        user_serializer = UserSerializer(instance=request.user)
+        user_data = user_serializer.data
+        user_data['is_staff'] = is_staff(request.user)
+        return Response(user_data, status=status.HTTP_200_OK)
 
 
 class UpdateUserInfoView(APIView):

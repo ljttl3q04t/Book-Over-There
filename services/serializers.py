@@ -45,6 +45,19 @@ class PublisherSerializer(serializers.ModelSerializer):
         fields = ['name']
 
 
+class UserSerializer(serializers.ModelSerializer):
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        avatar = instance.avatar
+        if avatar:
+            data['avatar'] = avatar.url.split('?')[0]
+        return data
+
+    class Meta:
+        model = User
+        fields = ['phone_number', 'email', 'address', 'full_name', 'birth_date', 'avatar', 'username']
+
+
 class BookSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     author = AuthorSerializer()
