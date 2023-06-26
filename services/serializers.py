@@ -128,10 +128,13 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     address = serializers.CharField(allow_null=False)
     full_name = serializers.CharField(allow_null=False)
     birth_date = serializers.DateField(allow_null=False)
+    username = serializers.CharField(read_only=True)
 
     class Meta:
         model = User
         fields = ['phone_number', 'email', 'address', 'full_name', 'birth_date', 'avatar']
+        read_only_fields = ['username']
+
 
 class BookCopySerializer(serializers.ModelSerializer):
     book = BookSerializer()
