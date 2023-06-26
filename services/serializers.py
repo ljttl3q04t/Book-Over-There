@@ -3,7 +3,7 @@ from rest_framework import serializers
 from django_filters import rest_framework as filters
 
 from .models import Author, Book, BookCopy, Category, Order, OrderDetail, Publisher, User, BookClub, Member, \
-    MembershipOrderDetail, Membership
+    MembershipOrderDetail, Membership, MemberBookCopy
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -61,6 +61,17 @@ class BookSerializer(serializers.ModelSerializer):
             publisher=publisher,
             image=validated_data.get('image'),
         )
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        book_image = instance.image.name
+        if 'fahasa.com' in book_image:
+            data['image'] = book_image
+        else:
+            data['image'] = instance.image.url.split('?')[0] if instance.image else ''
+
+        return data
+
 
     class Meta:
         model = Book
@@ -219,3 +230,13 @@ class ShareBookClubSerializer(serializers.Serializer):
 class BookClubMemberUpdateSerializer(serializers.Serializer):
     membership_id = serializers.IntegerField()
     member_status = serializers.ChoiceField(choices=Membership.MEMBER_STATUS_CHOICES)
+
+
+class MemberBookCopySerializer(serializers.ModelSerializer):
+    membership = MembershipSerializer()
+    book_copy = BookCopySerializer()
+    current_reader = MembershipSerializer()
+
+    class Meta:
+        model = MemberBookCopy
+        fields = '__all__'

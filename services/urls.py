@@ -44,6 +44,7 @@ urlpatterns = [
     path('club/request-join', views.BookClubRequestJoinView.as_view(), name='book-club-request-join'),
     path('club/member/list', views.BookClubMemberView.as_view(), name='view-book-club-member'),
     path('club/member/update', views.BookClubMemberUpdateView.as_view(), name='update-book-club-member'),
+    path('club/book/list', views.BookClubBookListView.as_view(), name='book-club-view-club-books'),
 
     # membership-order
     path('membership/order/create', views.MemberShipOrderCreateView.as_view(), name='membership-order-create'),

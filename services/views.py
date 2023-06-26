@@ -20,7 +20,7 @@ from .models import Book, MemberBookCopy, Order, OrderDetail, User, BookCopy, Bo
 from .serializers import BookCopySerializer, BookSerializer, GetOrderSerializer, OrderDetailSerializer, OrderSerializer, \
     UserLoginSerializer, UserRegisterSerializer, BookFilter, BookClubSerializer, BookClubRequestToJoinSerializer, \
     MemberSerializer, MembershipOrderSerializer, UserUpdateSerializer, MembershipSerializer, CategorySerializer, \
-    MyBookAddSerializer, ShareBookClubSerializer, BookClubMemberUpdateSerializer
+    MyBookAddSerializer, ShareBookClubSerializer, BookClubMemberUpdateSerializer, MemberBookCopySerializer
 
 
 class UploadFileView(APIView):
@@ -383,6 +383,15 @@ class BookClubMemberUpdateView(APIView):
             return Response(MembershipSerializer(instance=membership).data, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'invalid change member status'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class BookClubBookListView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        records = MemberBookCopy.objects.all()
+        serializer = MemberBookCopySerializer(instance=records, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class MemberShipOrderCreateView(APIView):
