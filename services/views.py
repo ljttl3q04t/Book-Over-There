@@ -14,6 +14,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from services.managers.permission_manager import is_staff, IsStaff
+from services.managers import membership_manager
 
 from .models import Book, MemberBookCopy, Order, OrderDetail, User, BookCopy, BookClub, Member, Membership, \
     MembershipOrder, \
@@ -349,7 +350,6 @@ class BookClubMemberView(APIView):
     def get(self, request):
         club_ids = Membership.objects.filter(member__user=self.request.user, is_staff=True) \
             .values_list('book_club_id', flat=True)
-
         club_members = Membership.objects.filter(book_club__in=club_ids)
         serializer = MembershipSerializer(instance=club_members, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -358,6 +358,7 @@ class BookClubMemberView(APIView):
 class BookClubMemberUpdateView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)
 
+    @swagger_auto_schema(request_body=BookClubMemberUpdateSerializer)
     def post(self, request):
         serializer = BookClubMemberUpdateSerializer(data=request.data)
         if not serializer.is_valid():
@@ -380,9 +381,22 @@ class BookClubBookListView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        records = MemberBookCopy.objects.all()
-        serializer = MemberBookCopySerializer(instance=records, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        user_clubs = membership_manager.get_user_club(request.user)
+        print(user_clubs)
+        records = MemberBookCopy.objects.filter(membership__book_club__in=user_clubs, current_reader=None)
+        book_map = {}
+        for r in records:
+            book_id = r.book_copy.book.id
+            book_data = book_map.get(book_id)
+            if book_data:
+                book_map[book_id]['total_copy_count'] += 1
+            else:
+                book_map[book_id] = {
+                    'book': BookSerializer(instance=r.book_copy.book).data,
+                    'club': r.membership.book_club_id,
+                    'total_copy_count': 1,
+                }
+        return Response(book_map.values(), status=status.HTTP_200_OK)
 
 
 class MemberShipOrderCreateView(APIView):
