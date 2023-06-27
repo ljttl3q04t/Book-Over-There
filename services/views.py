@@ -4,6 +4,7 @@ from django.db.models import Count
 from django.http import JsonResponse
 from django.utils import timezone
 from django_filters import rest_framework as filters
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, status
 from rest_framework.filters import SearchFilter
 from rest_framework.pagination import PageNumberPagination
@@ -133,6 +134,7 @@ class LogoutView(APIView):
 
 
 class UserLoginView(APIView):
+    @swagger_auto_schema(request_body=UserLoginSerializer)
     def post(self, request):
         serializer = UserLoginSerializer(data=request.data)
         if serializer.is_valid():
@@ -341,7 +343,6 @@ class BookClubRequestJoinView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 class BookClubMemberView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)
 
@@ -450,6 +451,7 @@ class MyBookAddView(APIView):
 class BookShareClubView(APIView):
     permission_classes = (IsAuthenticated,)
 
+    @swagger_auto_schema(request_body=ShareBookClubSerializer)
     @transaction.atomic
     def post(self, request):
         serializer = ShareBookClubSerializer(data=request.data)
