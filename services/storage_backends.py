@@ -13,3 +13,7 @@ class UserAvatarStorage(BaseStaticStorage):
 
 class BookCoverStorage(BaseStaticStorage):
     location = 'book_cover'
+
+
+class BookHistoryStorage(BaseStaticStorage):
+    location = 'book_history'

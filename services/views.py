@@ -18,12 +18,12 @@ from services.managers import membership_manager
 
 from .models import Book, MemberBookCopy, Order, OrderDetail, User, BookCopy, BookClub, Member, Membership, \
     MembershipOrder, \
-    MembershipOrderDetail, UploadFile, Category
+    MembershipOrderDetail, UploadFile, Category, BookCopyHistory
 from .serializers import BookCopySerializer, BookSerializer, GetOrderSerializer, OrderDetailSerializer, OrderSerializer, \
     UserLoginSerializer, UserRegisterSerializer, BookFilter, BookClubSerializer, BookClubRequestToJoinSerializer, \
     MemberSerializer, MembershipOrderSerializer, UserUpdateSerializer, MembershipSerializer, CategorySerializer, \
-    MyBookAddSerializer, ShareBookClubSerializer, BookClubMemberUpdateSerializer, MemberBookCopySerializer, \
-    UserSerializer
+    MyBookAddSerializer, ShareBookClubSerializer, BookClubMemberUpdateSerializer, \
+    UserSerializer, BookClubMemberDepositBookSerializer, BookClubMemberWithdrawBookSerializer
 
 
 class UploadFileView(APIView):
@@ -156,6 +156,8 @@ class UserLoginView(APIView):
 
 
 class UserRegisterView(APIView):
+
+    @swagger_auto_schema(request_body=UserRegisterSerializer)
     def post(self, request):
         serializer = UserRegisterSerializer(data=request.data)
         if serializer.is_valid():
@@ -344,6 +346,7 @@ class BookClubRequestJoinView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class BookClubMemberView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)
 
@@ -377,12 +380,76 @@ class BookClubMemberUpdateView(APIView):
             return Response({'error': 'invalid change member status'}, status=status.HTTP_400_BAD_REQUEST)
 
 
+class BookClubMemberBookDepositView(APIView):
+    permission_classes = (IsAuthenticated, IsStaff,)
+
+    @swagger_auto_schema(request_body=BookClubMemberDepositBookSerializer)
+    @transaction.atomic
+    def post(self, request):
+        serializer = BookClubMemberDepositBookSerializer(data=request.data)
+        description = request.data.get('description', '')
+        attachment = request.data.get('attachment')
+
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        member_book_copy = serializer.validated_data
+        history = BookCopyHistory.objects.create(
+            book_copy=member_book_copy.book_copy,
+            action=BookCopyHistory.DONATE_TO_CLUB,
+            description=description,
+            attachment=attachment,
+        )
+        member_book_copy.onboard_date = history.created_at
+        member_book_copy.updated_at = history.created_at
+        member_book_copy.save()
+        return Response({'result': 'ok'}, status=status.HTTP_200_OK)
+
+
+class BookClubMemberBookWithdrawView(APIView):
+    permission_classes = (IsAuthenticated, IsStaff,)
+
+    @swagger_auto_schema(request_body=BookClubMemberWithdrawBookSerializer)
+    @transaction.atomic
+    def post(self, request):
+        serializer = BookClubMemberWithdrawBookSerializer(data=request.data)
+        description = request.data.get('description', '')
+        attachment = request.data.get('attachment')
+
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        member_book_copy = serializer.validated_data
+        history = BookCopyHistory.objects.create(
+            book_copy=member_book_copy.book_copy,
+            action=BookCopyHistory.WITHDRAW_BOOK_FROM_CLUB,
+            description=description,
+            attachment=attachment,
+        )
+
+        member_book_copy.book_copy.book_status = BookCopy.NEW
+        member_book_copy.book_copy.updated_at = history.created_at
+        member_book_copy.save()
+
+        member_book_copy.updated_at = history.created_at
+        member_book_copy.is_enabled = False
+        member_book_copy.onboard_date = None
+        member_book_copy.save()
+        return Response({'result': 'ok'}, status=status.HTTP_200_OK)
+
+# class BookClubMemberBookLendView(APIView):
+#     permission_classes = (IsAuthenticated, IsStaff,)
+#
+#
+# class BookClubMemberBookReturnView(APIView):
+#     permission_classes = (IsAuthenticated, IsStaff,)
+
+
 class BookClubBookListView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
         user_clubs = membership_manager.get_user_club(request.user)
-        print(user_clubs)
         records = MemberBookCopy.objects.filter(membership__book_club__in=user_clubs, current_reader=None)
         book_map = {}
         for r in records:
@@ -402,6 +469,7 @@ class BookClubBookListView(APIView):
 class MemberShipOrderCreateView(APIView):
     permission_classes = (IsAuthenticated,)
 
+    @swagger_auto_schema(request_body=MembershipOrderSerializer)
     @transaction.atomic
     def post(self, request):
         serializer = MembershipOrderSerializer(data=request.data)
@@ -472,19 +540,7 @@ class BookShareClubView(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        club = BookClub.objects.filter(id=serializer.data['club_id']).first()
-        if not club:
-            return Response({'error': 'club not found'}, status=status.HTTP_400_BAD_REQUEST)
-
-        membership = Membership.objects.filter(member__user=request.user, book_club=club).first()
-        if not membership:
-            return Response({'error': 'membership not found'}, status=status.HTTP_400_BAD_REQUEST)
-
-        books = BookCopy.objects \
-            .filter(user=request.user, id__in=serializer.data['book_copy_ids'], book_status=BookCopy.NEW).all()
-        if len(books) != len(serializer.data['book_copy_ids']):
-            return Response({'error': 'book not found'}, status=status.HTTP_400_BAD_REQUEST)
-
+        membership, books = serializer.validated_data
         BookCopy.objects \
             .filter(user=request.user, id__in=serializer.data['book_copy_ids'], book_status=BookCopy.NEW) \
             .update(updated_at=timezone.now(), book_status=BookCopy.SHARING_CLUB)
@@ -493,6 +549,7 @@ class BookShareClubView(APIView):
         for book in books:
             member_book_copys.append(MemberBookCopy(
                 membership=membership,
+                current_holder=membership,
                 book_copy=book,
             ))
         MemberBookCopy.objects.bulk_create(member_book_copys)

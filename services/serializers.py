@@ -1,4 +1,7 @@
+from datetime import timedelta, datetime
+
 from django.contrib.auth import authenticate
+from django.utils import timezone
 from rest_framework import serializers
 from django_filters import rest_framework as filters
 
@@ -85,7 +88,6 @@ class BookSerializer(serializers.ModelSerializer):
 
         return data
 
-
     class Meta:
         model = Book
         fields = ['name', 'category', 'author', 'publisher', 'image']
@@ -162,6 +164,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
 class BookCopySerializer(serializers.ModelSerializer):
     book = BookSerializer()
+
     class Meta:
         model = BookCopy
         fields = '__all__'
@@ -239,10 +242,66 @@ class ShareBookClubSerializer(serializers.Serializer):
     book_copy_ids = serializers.ListSerializer(child=serializers.IntegerField())
     club_id = serializers.IntegerField()
 
+    def validate(self, data):
+        club = BookClub.objects.filter(id=data['club_id']).first()
+        if not club:
+            raise serializers.ValidationError("Club not found")
+
+        request_user = self.context['request'].user
+        membership = Membership.objects.filter(member__user=request_user, book_club=club).first()
+        if not membership:
+            raise serializers.ValidationError("membership not found")
+
+        books = BookCopy.objects \
+            .filter(user=request_user, id__in=data['book_copy_ids'], book_status=BookCopy.NEW).all()
+        if len(books) != len(data['book_copy_ids']):
+            raise serializers.ValidationError("Book not found or invalid book_status")
+
+        return membership, books
+
 
 class BookClubMemberUpdateSerializer(serializers.Serializer):
     membership_id = serializers.IntegerField()
     member_status = serializers.ChoiceField(choices=Membership.MEMBER_STATUS_CHOICES)
+
+
+class BookClubMemberDepositBookSerializer(serializers.Serializer):
+    member_book_copy_id = serializers.IntegerField(required=True)
+    description = serializers.CharField(max_length=200, required=False)
+    attachment = serializers.FileField(required=False)
+
+    def validate(self, data):
+        member_book_copy_id = data.get('member_book_copy_id')
+        record = MemberBookCopy.objects.filter(id=member_book_copy_id).first()
+        if not record:
+            raise serializers.ValidationError("Member book copy not found")
+        if record.current_reader:
+            raise serializers.ValidationError("Book is borrowing")
+        if record.onboard_date:
+            raise serializers.ValidationError("Book already in club")
+        return record
+
+
+class BookClubMemberWithdrawBookSerializer(serializers.Serializer):
+    member_book_copy_id = serializers.IntegerField(required=True)
+    description = serializers.CharField(max_length=200, required=False)
+    attachment = serializers.FileField(required=False)
+
+    def validate(self, data):
+        member_book_copy_id = data.get('member_book_copy_id')
+        record = MemberBookCopy.objects.filter(id=member_book_copy_id, is_enabled=True).first()
+        if not record:
+            raise serializers.ValidationError("Member book copy not found")
+        if record.current_reader:
+            raise serializers.ValidationError("Book is borrowing")
+        if not record.onboard_date:
+            raise serializers.ValidationError("Book not in club")
+
+        onboard_datetime = datetime.combine(record.onboard_date, datetime.min.time())
+        delta = datetime.now() - onboard_datetime
+        if delta.days <= 30:
+            raise serializers.ValidationError("Book onboard date not exceeded 30 days")
+        return record
 
 
 class MemberBookCopySerializer(serializers.ModelSerializer):

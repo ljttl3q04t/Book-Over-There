@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
 
-from services.storage_backends import UserAvatarStorage, BaseStaticStorage, BookCoverStorage
+from services.storage_backends import UserAvatarStorage, BaseStaticStorage, BookCoverStorage, BookHistoryStorage
 
 
 class BaseModel(models.Model):
@@ -83,6 +83,25 @@ class BookCopy(BaseModel):
     def __str__(self):
         return f'{self.user.username} - {self.book.name}'
 
+
+class BookCopyHistory(BaseModel):
+    DONATE_TO_CLUB = "donate_to_club"
+    WITHDRAW_BOOK_FROM_CLUB = "withdraw_book_from_club"
+
+    ACTION_CHOICES = (
+        (DONATE_TO_CLUB, 'donate_to_club'),
+        (WITHDRAW_BOOK_FROM_CLUB, "withdraw_book_from_club"),
+    )
+
+    book_copy = models.ForeignKey(BookCopy, on_delete=models.CASCADE)
+    action = models.CharField(max_length=50, choices=ACTION_CHOICES, default=DONATE_TO_CLUB)
+    description = models.TextField(blank=True)
+    attachment = models.FileField(storage=BookHistoryStorage(), null=True)
+
+    def __str__(self):
+        return f"{self.book_copy} - {self.action}"
+
+
 class Order(BaseModel):
     order_user = models.ForeignKey(User, on_delete=models.CASCADE)
     order_date = models.DateTimeField()
@@ -152,6 +171,8 @@ class MemberBookCopy(BaseModel):
     date_added = models.DateField(auto_now_add=True)
     current_reader = models.ForeignKey(Membership, on_delete=models.SET_NULL, null=True, blank=True,
                                        related_name='current_reader')
+    onboard_date = models.DateField(null=True, blank=True)
+    is_enabled = models.BooleanField(default=True)
 
     def __str__(self):
         return f'{self.membership.member.full_name} - {self.book_copy.book.name}'

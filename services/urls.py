@@ -30,6 +30,7 @@ urlpatterns = [
     path('user/membership', views.MyMembershipView.as_view(), name='view-my-membership'),
     path('user/book/add', views.MyBookAddView.as_view(), name='user-add-book'),
     path('user/book/share-club', views.BookShareClubView.as_view(), name='share-book-to-club'),
+    # path('user/book/history', views.BookHistoryView.as_view(), name='book-history-view'),
 
     path('category/list', views.CategoryListView.as_view(), name='view-category'),
 
@@ -44,6 +45,12 @@ urlpatterns = [
     path('club/request-join', views.BookClubRequestJoinView.as_view(), name='book-club-request-join'),
     path('club/member/list', views.BookClubMemberView.as_view(), name='view-book-club-member'),
     path('club/member/update', views.BookClubMemberUpdateView.as_view(), name='update-book-club-member'),
+
+    path('club/member/book/deposit', views.BookClubMemberBookDepositView.as_view(), name='member-deposit-book'),
+    path('club/member/book/withdraw', views.BookClubMemberBookWithdrawView.as_view(), name='member-withdraw-book'),
+    # path('club/member/book/lend', views.BookClubMemberBookLendView.as_view(), name='user-borrow-book'),
+    # path('club/member/book/return', views.BookClubMemberBookReturnView.as_view(), name='member-return-book'),
+
     path('club/book/list', views.BookClubBookListView.as_view(), name='book-club-view-club-books'),
 
     # membership-order
