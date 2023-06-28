@@ -80,20 +80,6 @@ class CategoryListView(generics.ListAPIView):
     serializer_class = CategorySerializer
     pagination_class = CustomPagination
 
-
-class BookClubMemberListView(generics.ListAPIView):
-    permission_classes = (IsAuthenticated, IsStaff,)
-    serializer_class = MemberSerializer
-    pagination_class = CustomPagination
-
-    def get_queryset(self):
-        user_member = Member.objects.filter(user=self.request.user).first()
-        if not user_member:
-            return Response({'error': 'Staff is not club member'}, status=status.HTTP_400_BAD_REQUEST)
-        queryset = Member.objects.filter(book_clubs__in=user_member.book_clubs.all())
-        return queryset
-
-
 class BookClubListAPIView(generics.ListAPIView):
     queryset = BookClub.objects.all()
     serializer_class = BookClubSerializer

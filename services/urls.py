@@ -64,9 +64,6 @@ urlpatterns = [
     # orderDetail
     path('order-details/create/', views.GetOrderCreateAPIView.as_view(), name='order-detail-create'),
 
-    # staff permission
-    path('club/member/list', views.BookClubMemberListView.as_view(), name='book-club-member-list'),
-
     # upload file
     path('upload', views.UploadFileView.as_view(), name='upload-file'),
 ]
