@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django_filters import rest_framework as filters
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import generics, status
+from rest_framework import generics, status, serializers
 from rest_framework.filters import SearchFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
@@ -24,7 +24,7 @@ from .serializers import BookCopySerializer, BookSerializer, GetOrderSerializer,
     MemberSerializer, MembershipOrderSerializer, UserUpdateSerializer, MembershipSerializer, CategorySerializer, \
     MyBookAddSerializer, ShareBookClubSerializer, BookClubMemberUpdateSerializer, \
     UserSerializer, BookClubMemberDepositBookSerializer, BookClubMemberWithdrawBookSerializer, \
-    BookClubStaffCreateOrderSerializer
+    BookClubStaffCreateOrderSerializer, MemberBookCopySerializer
 
 
 class UploadFileView(APIView):
@@ -52,6 +52,18 @@ class BookListAPIView(generics.ListAPIView):
     filterset_class = BookFilter
     search_fields = ['name']
 
+
+class ClubBookListAPIView(generics.ListAPIView):
+    permission_classes = (IsAuthenticated, IsStaff, )
+    serializer_class = MemberBookCopySerializer
+    pagination_class = CustomPagination
+
+    def get_queryset(self):
+        membership = Membership.objects.filter(member__user=self.request.user).first()
+        if not membership:
+            raise serializers.ValidationError("Membership not found")
+        book_club = membership.book_club
+        return MemberBookCopy.objects.filter(membership__book_club=book_club)
 
 class MyBookView(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
