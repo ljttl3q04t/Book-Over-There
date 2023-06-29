@@ -57,6 +57,9 @@ class ClubBookListAPIView(generics.ListAPIView):
     permission_classes = (IsAuthenticated, IsStaff, )
     serializer_class = MemberBookCopySerializer
     pagination_class = CustomPagination
+    filter_backends = [SearchFilter]
+    search_fields = ['book_copy__book__name']
+
 
     def get_queryset(self):
         membership = Membership.objects.filter(member__user=self.request.user).first()
