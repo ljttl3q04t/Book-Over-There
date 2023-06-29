@@ -15,4 +15,5 @@ admin.site.register(models.Member)
 admin.site.register(models.MemberBookCopy)
 admin.site.register(models.UploadFile)
 admin.site.register(models.BookCopyHistory)
-
+admin.site.register(models.MembershipOrder)
+admin.site.register(models.MembershipOrderDetail)

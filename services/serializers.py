@@ -304,6 +304,26 @@ class BookClubMemberWithdrawBookSerializer(serializers.Serializer):
         return record
 
 
+class BookClubStaffCreateOrderSerializer(serializers.Serializer):
+    membership_id = serializers.IntegerField()
+    member_book_copy_ids = serializers.ListSerializer(child=serializers.IntegerField())
+    due_date = serializers.DateTimeField()
+
+    def validate(self, data):
+        membership = Membership.objects.filter(id=data['membership_id']).first()
+        if not membership:
+            raise serializers.ValidationError('membership not found')
+        member_book_copys = MemberBookCopy.objects.filter(
+            id__in=data['member_book_copy_ids'],
+            current_reader=None,
+            onboard_date__isnull=False,
+            is_enabled=True,
+        )
+        if len(member_book_copys) != len(data['member_book_copy_ids']):
+            raise serializers.ValidationError('invalid books')
+        return membership, member_book_copys
+
+
 class MemberBookCopySerializer(serializers.ModelSerializer):
     membership = MembershipSerializer()
     book_copy = BookCopySerializer()

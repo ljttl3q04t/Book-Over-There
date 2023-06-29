@@ -206,6 +206,8 @@ class MembershipOrder(BaseModel):
     confirm_date = models.DateField(null=True)
     order_status = models.CharField(max_length=20, choices=MEMBERSHIP_ORDER_STATUS_CHOICE, default=CREATED)
 
+    def __str__(self):
+        return f'{self.id} - {self.membership}'
 
 class MembershipOrderDetail(BaseModel):
     order = models.ForeignKey(MembershipOrder, on_delete=models.CASCADE, related_name='membership_order_details')
@@ -213,5 +215,8 @@ class MembershipOrderDetail(BaseModel):
     due_date = models.DateTimeField()
     return_date = models.DateTimeField(null=True)
     overdue_day_count = models.IntegerField(null=True)
+
+    def __str__(self):
+        return f'{self.id} - orderId: {self.order.id} - {self.member_book_copy}'
 
 # TODO: BookLost

@@ -23,7 +23,8 @@ from .serializers import BookCopySerializer, BookSerializer, GetOrderSerializer,
     UserLoginSerializer, UserRegisterSerializer, BookFilter, BookClubSerializer, BookClubRequestToJoinSerializer, \
     MemberSerializer, MembershipOrderSerializer, UserUpdateSerializer, MembershipSerializer, CategorySerializer, \
     MyBookAddSerializer, ShareBookClubSerializer, BookClubMemberUpdateSerializer, \
-    UserSerializer, BookClubMemberDepositBookSerializer, BookClubMemberWithdrawBookSerializer
+    UserSerializer, BookClubMemberDepositBookSerializer, BookClubMemberWithdrawBookSerializer, \
+    BookClubStaffCreateOrderSerializer
 
 
 class UploadFileView(APIView):
@@ -79,6 +80,7 @@ class CategoryListView(generics.ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     pagination_class = CustomPagination
+
 
 class BookClubListAPIView(generics.ListAPIView):
     queryset = BookClub.objects.all()
@@ -423,12 +425,47 @@ class BookClubMemberBookWithdrawView(APIView):
         member_book_copy.save()
         return Response({'result': 'ok'}, status=status.HTTP_200_OK)
 
+
 # class BookClubMemberBookLendView(APIView):
 #     permission_classes = (IsAuthenticated, IsStaff,)
 #
 #
 # class BookClubMemberBookReturnView(APIView):
 #     permission_classes = (IsAuthenticated, IsStaff,)
+
+class BookClubStaffCreateOrderView(APIView):
+    permission_classes = (IsAuthenticated, IsStaff,)
+
+    @swagger_auto_schema(request_body=BookClubStaffCreateOrderSerializer)
+    @transaction.atomic
+    def post(self, request):
+        serializer = BookClubStaffCreateOrderSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        due_date = request.data['due_date']
+        membership, member_book_copys = serializer.validated_data
+        current_time = timezone.now()
+        order = MembershipOrder.objects.create(
+            membership=membership,
+            order_date=current_time,
+            confirm_date=current_time,
+            order_status=MembershipOrder.CONFIRMED,
+        )
+        order_details = [
+            MembershipOrderDetail(
+                order=order,
+                member_book_copy=member_book_copy,
+                due_date=due_date,
+            ) for member_book_copy in member_book_copys
+        ]
+        MembershipOrderDetail.objects.bulk_create(order_details)
+        MemberBookCopy.objects.filter(id__in=request.data['member_book_copy_ids']) \
+            .update(current_reader=membership, updated_at=current_time)
+        book_copy_ids = [r.book_copy.id for r in member_book_copys]
+        BookCopy.objects.filter(id__in=book_copy_ids).update(book_status=BookCopy.BORROWED, updated_at=current_time)
+
+        return Response({'result': 'ok'}, status=status.HTTP_200_OK)
 
 
 class BookClubBookListView(APIView):
