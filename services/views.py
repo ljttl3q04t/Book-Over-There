@@ -444,6 +444,9 @@ class BookClubStaffCreateOrderView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         due_date = request.data['due_date']
+        note = request.data['note']
+        attachment = request.data.get('attachment')
+
         membership, member_book_copys = serializer.validated_data
         current_time = timezone.now()
         order = MembershipOrder.objects.create(
@@ -464,7 +467,14 @@ class BookClubStaffCreateOrderView(APIView):
             .update(current_reader=membership, updated_at=current_time)
         book_copy_ids = [r.book_copy.id for r in member_book_copys]
         BookCopy.objects.filter(id__in=book_copy_ids).update(book_status=BookCopy.BORROWED, updated_at=current_time)
-
+        history_list = [BookCopyHistory(
+            book_copy_id=book_copy_id,
+            action=BookCopyHistory.CLUB_BORROW_BOOK,
+            description=note,
+            attachment=attachment,
+            created_at=current_time,
+        ) for book_copy_id in book_copy_ids]
+        BookCopyHistory.objects.bulk_create(history_list)
         return Response({'result': 'ok'}, status=status.HTTP_200_OK)
 
 

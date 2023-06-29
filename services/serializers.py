@@ -308,6 +308,8 @@ class BookClubStaffCreateOrderSerializer(serializers.Serializer):
     membership_id = serializers.IntegerField()
     member_book_copy_ids = serializers.ListSerializer(child=serializers.IntegerField())
     due_date = serializers.DateTimeField()
+    note = serializers.CharField(max_length=500)
+    attachment = serializers.FileField(required=False)
 
     def validate(self, data):
         membership = Membership.objects.filter(id=data['membership_id']).first()

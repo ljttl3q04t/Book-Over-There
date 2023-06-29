@@ -87,10 +87,12 @@ class BookCopy(BaseModel):
 class BookCopyHistory(BaseModel):
     DONATE_TO_CLUB = "donate_to_club"
     WITHDRAW_BOOK_FROM_CLUB = "withdraw_book_from_club"
+    CLUB_BORROW_BOOK = 'club_borrow_book'
 
     ACTION_CHOICES = (
         (DONATE_TO_CLUB, 'donate_to_club'),
         (WITHDRAW_BOOK_FROM_CLUB, "withdraw_book_from_club"),
+        (CLUB_BORROW_BOOK, 'club_borrow_book'),
     )
 
     book_copy = models.ForeignKey(BookCopy, on_delete=models.CASCADE)
