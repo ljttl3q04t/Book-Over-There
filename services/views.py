@@ -584,20 +584,20 @@ class BookShareClubView(APIView):
     @swagger_auto_schema(request_body=ShareBookClubSerializer)
     @transaction.atomic
     def post(self, request):
-        serializer = ShareBookClubSerializer(data=request.data)
+        serializer = ShareBookClubSerializer(data=request.data, context={'request': request})
+        book_copy_ids = request.data.get('book_copy_ids')
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         membership, books = serializer.validated_data
         BookCopy.objects \
-            .filter(user=request.user, id__in=serializer.data['book_copy_ids'], book_status=BookCopy.NEW) \
+            .filter(user=request.user, id__in=book_copy_ids, book_status=BookCopy.NEW) \
             .update(updated_at=timezone.now(), book_status=BookCopy.SHARING_CLUB)
 
         member_book_copys = []
         for book in books:
             member_book_copys.append(MemberBookCopy(
                 membership=membership,
-                current_holder=membership,
                 book_copy=book,
             ))
         MemberBookCopy.objects.bulk_create(member_book_copys)
