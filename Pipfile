@@ -21,6 +21,7 @@ django-filter = "*"
 boto3 = "*"
 django-storages = "*"
 django-redis = "*"
+pymemcache = "*"
 
 [requires]
 python_version = "3.10"

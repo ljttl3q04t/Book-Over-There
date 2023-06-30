@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
+from django.db.models import ManyToManyField
 
 from services.storage_backends import UserAvatarStorage, BaseStaticStorage, BookCoverStorage, BookHistoryStorage
 
@@ -7,6 +8,19 @@ from services.storage_backends import UserAvatarStorage, BaseStaticStorage, Book
 class BaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def as_dict(self, fields=None, exclude=None):
+        opts = self._meta
+        data = {}
+        fs = list(opts.concrete_fields) + list(opts.many_to_many)
+        for f in fs:
+            if fields and f.name not in fields:
+                continue
+            if exclude and f.name in exclude:
+                continue
+            else:
+                data[f.name] = f.value_from_object(self)
+        return data
 
     class Meta:
         abstract = True
@@ -135,7 +149,7 @@ class BookClub(BaseModel):
 
 
 class Member(BaseModel):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     book_clubs = models.ManyToManyField(BookClub, through='Membership')
     full_name = models.CharField(max_length=200)
     birth_date = models.DateField()
@@ -144,7 +158,11 @@ class Member(BaseModel):
     address = models.CharField(max_length=200)
 
     def __str__(self):
-        return f"{self.full_name}"
+        return f"{self.id} - {self.full_name}"
+
+    def as_dict(self, fields=None, exclude=None):
+        res = BaseModel.as_dict(self, exclude=['book_clubs'])
+        return res
 
 
 class Membership(BaseModel):
@@ -210,6 +228,7 @@ class MembershipOrder(BaseModel):
 
     def __str__(self):
         return f'{self.id} - {self.membership}'
+
 
 class MembershipOrderDetail(BaseModel):
     order = models.ForeignKey(MembershipOrder, on_delete=models.CASCADE, related_name='membership_order_details')

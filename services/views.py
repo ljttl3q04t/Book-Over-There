@@ -97,27 +97,36 @@ class CategoryListView(generics.ListAPIView):
     pagination_class = CustomPagination
 
 
-class BookClubListAPIView(generics.ListAPIView):
-    queryset = BookClub.objects.all()
-    serializer_class = BookClubSerializer
+class BookClubListAPIView(APIView):
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        serializer = self.get_serializer(queryset, many=True)
-        data = serializer.data
-        total_members = BookClub.objects.annotate(total_members=Count('member')).values('id', 'total_members')
-        mapping_total_members = {r['id']: r['total_members'] for r in total_members}
-        joined_clubs = []
-        if not request.user.is_anonymous:
-            joined_clubs = Membership.objects.filter(member__user=request.user).values_list('book_club_id', flat=True)
+    def get(self, request):
+        map_clubs = membership_manager.get_clubs()
+        data = map_clubs.values()
+        for d in data:
+            d['is_member'] = False
 
-        for i, book_club in enumerate(queryset):
-            total_book_count = MemberBookCopy.objects.filter(membership__book_club=book_club).count()
-            data[i]['total_member_count'] = mapping_total_members[book_club.id]
-            data[i]['total_book_count'] = total_book_count
-            data[i]['is_member'] = book_club.id in joined_clubs
+        if request.user.is_anonymous:
+            return Response(data, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "not support yet"}, status=status.HTTP_200_OK)
 
-        return Response(data)
+    # def list(self, request, *args, **kwargs):
+    #     queryset = self.filter_queryset(self.get_queryset())
+    #     serializer = self.get_serializer(queryset, many=True)
+    #     data = serializer.data
+    #     total_members = BookClub.objects.annotate(total_members=Count('member')).values('id', 'total_members')
+    #     mapping_total_members = {r['id']: r['total_members'] for r in total_members}
+    #     joined_clubs = []
+    #     if not request.user.is_anonymous:
+    #         joined_clubs = Membership.objects.filter(member__user=request.user).values_list('book_club_id', flat=True)
+    #
+    #     for i, book_club in enumerate(queryset):
+    #         total_book_count = MemberBookCopy.objects.filter(membership__book_club=book_club).count()
+    #         data[i]['total_member_count'] = mapping_total_members[book_club.id]
+    #         data[i]['total_book_count'] = total_book_count
+    #         data[i]['is_member'] = book_club.id in joined_clubs
+    #
+    #     return Response(data)
 
 
 class LogoutView(APIView):
