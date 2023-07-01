@@ -36,6 +36,7 @@ urlpatterns = [
 
     # book and book copies
     path('book/<int:book_id>/update/', views.BookUpdateAPIView.as_view(), name='book-update'),
+    path('book/check', views.BookCheckView.as_view(), name='book-check'),
     path('book/list/', views.BookListAPIView.as_view(), name='book-list'),
     path('book-copies/create/', views.BookCopyCreateAPIView.as_view(), name='book-copy-create'),
     path('bookcopies/<int:pk>/', views.BookCopyUpdateView.as_view(), name='bookcopy-update'),

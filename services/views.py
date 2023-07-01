@@ -16,6 +16,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from services.managers import membership_manager
 from services.managers.permission_manager import is_staff, IsStaff
+from .managers.crawl_manager import CrawFahasa, CrawTiki
 from .models import Book, MemberBookCopy, Order, OrderDetail, User, BookCopy, BookClub, Member, Membership, \
     MembershipOrder, \
     MembershipOrderDetail, UploadFile, Category, BookCopyHistory
@@ -24,7 +25,7 @@ from .serializers import BookCopySerializer, BookSerializer, GetOrderSerializer,
     MemberSerializer, MembershipOrderSerializer, UserUpdateSerializer, MembershipSerializer, CategorySerializer, \
     MyBookAddSerializer, ShareBookClubSerializer, BookClubMemberUpdateSerializer, \
     UserSerializer, BookClubMemberDepositBookSerializer, BookClubMemberWithdrawBookSerializer, \
-    BookClubStaffCreateOrderSerializer, MemberBookCopySerializer, ClubBookListFilter
+    BookClubStaffCreateOrderSerializer, MemberBookCopySerializer, ClubBookListFilter, BookCheckSerializer
 
 
 class UploadFileView(APIView):
@@ -54,7 +55,7 @@ class BookListAPIView(generics.ListAPIView):
 
 
 class ClubBookListAPIView(generics.ListAPIView):
-    permission_classes = (IsAuthenticated, IsStaff, )
+    permission_classes = (IsAuthenticated, IsStaff,)
     serializer_class = MemberBookCopySerializer
     pagination_class = CustomPagination
     filter_backends = [filters.DjangoFilterBackend, SearchFilter]
@@ -62,13 +63,13 @@ class ClubBookListAPIView(generics.ListAPIView):
 
     search_fields = ['book_copy__book__name']
 
-
     def get_queryset(self):
         membership = Membership.objects.filter(member__user=self.request.user).first()
         if not membership:
             raise serializers.ValidationError("Membership not found")
         book_club = membership.book_club
         return MemberBookCopy.objects.filter(membership__book_club=book_club)
+
 
 class MyBookView(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
@@ -207,6 +208,31 @@ class OverViewAPIView(APIView):
             'order': OrderDetail.objects.count(),
         }
         return JsonResponse(data, status=status.HTTP_200_OK)
+
+
+class BookCheckView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    @swagger_auto_schema(request_body=BookCheckSerializer)
+    def post(self, request):
+        serializer = BookCheckSerializer(data=request.data)
+        if serializer.is_valid():
+            remote_url = serializer.data['remote_url']
+            if remote_url.startswith(CrawFahasa.DOMAIN_PREFIX):
+                crawler = CrawFahasa(remote_url)
+            elif remote_url.startswith(CrawTiki.DOMAIN_PREFIX):
+                crawler = CrawTiki(remote_url)
+            else:
+                return Response({'error': 'not support'}, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                book = crawler.build_book()
+            except:
+                return Response({'error': 'check book failed'}, status=status.HTTP_200_OK)
+
+            return Response(book, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class BookUpdateAPIView(APIView):

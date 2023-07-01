@@ -169,6 +169,9 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         read_only_fields = ['username']
 
 
+class BookCheckSerializer(serializers.Serializer):
+    remote_url = serializers.CharField()
+
 class BookCopySerializer(serializers.ModelSerializer):
     book = BookSerializer()
 
