@@ -49,13 +49,6 @@ class PublisherSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        avatar = instance.avatar
-        if avatar:
-            data['avatar'] = avatar.url.split('?')[0]
-        return data
-
     class Meta:
         model = User
         fields = ['phone_number', 'email', 'address', 'full_name', 'birth_date', 'avatar', 'username']
@@ -79,13 +72,6 @@ class BookSerializer(serializers.ModelSerializer):
             publisher=publisher,
             image=validated_data.get('image'),
         )
-
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        book_image = instance.image.name
-        data['image'] = instance.image.url.split('?')[0] if instance.image else ''
-
-        return data
 
     class Meta:
         model = Book

@@ -84,9 +84,6 @@ class MyBookView(generics.ListAPIView):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         data = serializer.data
-        for i, book_copy in enumerate(queryset):
-            book_image = book_copy.book.image.name
-            data[i]['book']['image'] = book_copy.book.image.url.split('?')[0] if book_copy.book.image else ''
         return Response(data)
 
 
