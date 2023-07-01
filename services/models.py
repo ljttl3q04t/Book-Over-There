@@ -195,7 +195,7 @@ class MemberBookCopy(BaseModel):
     is_enabled = models.BooleanField(default=True)
 
     def __str__(self):
-        return f'{self.membership.member.full_name} - {self.book_copy.book.name}'
+        return f'{self.id} - {self.membership.member.full_name} - {self.book_copy.book.name}'
 
 
 # Draft -> Created, Cancelled
