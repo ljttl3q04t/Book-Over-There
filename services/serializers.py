@@ -65,6 +65,8 @@ class BookSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     author = AuthorSerializer()
     publisher = PublisherSerializer()
+    image = serializers.ImageField(required=False)
+    image_url = serializers.CharField(required=False)
 
     def create(self, validated_data):
         category, _ = Category.objects.get_or_create(name=validated_data.get('category').get('name'))
@@ -81,16 +83,13 @@ class BookSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         data = super().to_representation(instance)
         book_image = instance.image.name
-        if 'fahasa.com' in book_image:
-            data['image'] = book_image
-        else:
-            data['image'] = instance.image.url.split('?')[0] if instance.image else ''
+        data['image'] = instance.image.url.split('?')[0] if instance.image else ''
 
         return data
 
     class Meta:
         model = Book
-        fields = ['name', 'category', 'author', 'publisher', 'image']
+        fields = ['name', 'category', 'author', 'publisher', 'image', 'image_url']
 
 
 class BookFilter(filters.FilterSet):
@@ -240,9 +239,10 @@ class MyBookAddSerializer(serializers.Serializer):
     book = BookSerializer(required=False)
 
     def validate(self, data):
+        data = super().validate(data)
         if not data.get('book_id'):
             if not data.get('book'):
-                raise serializers.ValidationError("Missing field required")
+                raise serializers.ValidationError("Missing field book_id or book")
         return data
 
 

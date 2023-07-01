@@ -14,7 +14,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from services.managers import membership_manager
+from services.managers import membership_manager, book_manager
 from services.managers.permission_manager import is_staff, IsStaff
 from .managers.crawl_manager import CrawFahasa, CrawTiki
 from .models import Book, MemberBookCopy, Order, OrderDetail, User, BookCopy, BookClub, Member, Membership, \
@@ -86,10 +86,7 @@ class MyBookView(generics.ListAPIView):
         data = serializer.data
         for i, book_copy in enumerate(queryset):
             book_image = book_copy.book.image.name
-            if 'fahasa.com' in book_image:
-                data[i]['book']['image'] = book_image
-            else:
-                data[i]['book']['image'] = book_copy.book.image.url.split('?')[0] if book_copy.book.image else ''
+            data[i]['book']['image'] = book_copy.book.image.url.split('?')[0] if book_copy.book.image else ''
         return Response(data)
 
 
@@ -577,6 +574,7 @@ class MyMembershipView(APIView):
 class MyBookAddView(APIView):
     permission_classes = (IsAuthenticated,)
 
+    @swagger_auto_schema(request_body=MyBookAddSerializer)
     @transaction.atomic
     def post(self, request):
         serializer = MyBookAddSerializer(data=request.data)
@@ -601,6 +599,8 @@ class MyBookAddView(APIView):
                         book=book,
                         user=request.user,
                     )
+                    if book_serializer.validated_data.get('image_url'):
+                        book_manager.save_image_from_url(book, book_serializer.validated_data.get('image_url'))
                     return Response({'result': 'ok'}, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
