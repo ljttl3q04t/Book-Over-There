@@ -13,18 +13,18 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
-from services.managers.permission_manager import is_staff, IsStaff
-from services.managers import membership_manager
 
+from services.managers import membership_manager
+from services.managers.permission_manager import is_staff, IsStaff
 from .models import Book, MemberBookCopy, Order, OrderDetail, User, BookCopy, BookClub, Member, Membership, \
     MembershipOrder, \
     MembershipOrderDetail, UploadFile, Category, BookCopyHistory
 from .serializers import BookCopySerializer, BookSerializer, GetOrderSerializer, OrderDetailSerializer, OrderSerializer, \
-    UserLoginSerializer, UserRegisterSerializer, BookFilter, BookClubSerializer, BookClubRequestToJoinSerializer, \
+    UserLoginSerializer, UserRegisterSerializer, BookFilter, BookClubRequestToJoinSerializer, \
     MemberSerializer, MembershipOrderSerializer, UserUpdateSerializer, MembershipSerializer, CategorySerializer, \
     MyBookAddSerializer, ShareBookClubSerializer, BookClubMemberUpdateSerializer, \
     UserSerializer, BookClubMemberDepositBookSerializer, BookClubMemberWithdrawBookSerializer, \
-    BookClubStaffCreateOrderSerializer, MemberBookCopySerializer
+    BookClubStaffCreateOrderSerializer, MemberBookCopySerializer, ClubBookListFilter
 
 
 class UploadFileView(APIView):
@@ -57,7 +57,9 @@ class ClubBookListAPIView(generics.ListAPIView):
     permission_classes = (IsAuthenticated, IsStaff, )
     serializer_class = MemberBookCopySerializer
     pagination_class = CustomPagination
-    filter_backends = [SearchFilter]
+    filter_backends = [filters.DjangoFilterBackend, SearchFilter]
+    filterset_class = ClubBookListFilter
+
     search_fields = ['book_copy__book__name']
 
 

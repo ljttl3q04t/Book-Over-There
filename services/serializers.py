@@ -102,6 +102,13 @@ class BookFilter(filters.FilterSet):
         model = Book
         fields = ['category', 'publisher', 'author']
 
+class ClubBookListFilter(filters.FilterSet):
+    membership_id = filters.NumberFilter(field_name='membership__id', lookup_expr='exact')
+    book_copy__book_status = filters.ChoiceFilter(choices=BookCopy.BOOK_STATUS_CHOICES)
+
+    class Meta:
+        model = MemberBookCopy
+        fields = ['membership_id', 'book_copy__book_status']
 
 class OrderDetailSerializer(serializers.ModelSerializer):
     class Meta:

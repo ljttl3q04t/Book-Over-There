@@ -182,7 +182,7 @@ class Membership(BaseModel):
     is_staff = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.member.full_name} - {self.book_club.name}"
+        return f"{self.id} - {self.member.full_name} - {self.book_club.name}"
 
 
 class MemberBookCopy(BaseModel):
