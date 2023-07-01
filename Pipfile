@@ -22,6 +22,7 @@ boto3 = "*"
 django-storages = "*"
 django-redis = "*"
 pymemcache = "*"
+pillow = "*"
 
 [requires]
 python_version = "3.10"
