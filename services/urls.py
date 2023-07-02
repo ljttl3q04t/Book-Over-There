@@ -49,12 +49,14 @@ urlpatterns = [
     path('club/member/list', views.BookClubMemberView.as_view(), name='view-book-club-member'),
     path('club/member/update', views.BookClubMemberUpdateView.as_view(), name='update-book-club-member'),
 
+    path('club/member/book/borrowing', views.StaffBorrowingView.as_view(), name='staff-view-borrowing-book-by'),
     path('club/member/book/deposit', views.BookClubMemberBookDepositView.as_view(), name='member-deposit-book'),
     path('club/member/book/withdraw', views.BookClubMemberBookWithdrawView.as_view(), name='member-withdraw-book'),
     # path('club/member/book/lend', views.BookClubMemberBookLendView.as_view(), name='user-borrow-book'),
     # path('club/member/book/return', views.BookClubMemberBookReturnView.as_view(), name='member-return-book'),
 
     path('club/member/order/create', views.BookClubStaffCreateOrderView.as_view(), name='staff-create-order'),
+    path('club/member/order/extend', views.BookClubStaffExtendOrderView.as_view(), name='staff-extend-order-due-date'),
 
     path('club/book/list', views.BookClubBookListView.as_view(), name='book-club-view-club-books'),
     path('club/staff/book/list', views.ClubBookListAPIView.as_view(), name='staff-view-all-books'),

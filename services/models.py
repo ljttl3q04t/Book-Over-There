@@ -89,25 +89,6 @@ class BookCopy(BaseModel):
     def __str__(self):
         return f'{self.user.username} - {self.book.name}'
 
-class BookCopyHistory(BaseModel):
-    DONATE_TO_CLUB = "donate_to_club"
-    WITHDRAW_BOOK_FROM_CLUB = "withdraw_book_from_club"
-    CLUB_BORROW_BOOK = 'club_borrow_book'
-
-    ACTION_CHOICES = (
-        (DONATE_TO_CLUB, 'donate_to_club'),
-        (WITHDRAW_BOOK_FROM_CLUB, "withdraw_book_from_club"),
-        (CLUB_BORROW_BOOK, 'club_borrow_book'),
-    )
-
-    book_copy = models.ForeignKey(BookCopy, on_delete=models.CASCADE)
-    action = models.CharField(max_length=50, choices=ACTION_CHOICES, default=DONATE_TO_CLUB)
-    description = models.TextField(blank=True)
-    attachment = models.FileField(storage=BookHistoryStorage(), null=True)
-
-    def __str__(self):
-        return f"{self.book_copy} - {self.action}"
-
 class Order(BaseModel):
     order_user = models.ForeignKey(User, on_delete=models.CASCADE)
     order_date = models.DateTimeField()
@@ -222,4 +203,24 @@ class MembershipOrderDetail(BaseModel):
     def __str__(self):
         return f'{self.id} - orderId: {self.order.id} - {self.member_book_copy}'
 
-# TODO: BookLost
+class BookCopyHistory(BaseModel):
+    DONATE_TO_CLUB = "donate_to_club"
+    WITHDRAW_BOOK_FROM_CLUB = "withdraw_book_from_club"
+    CLUB_BORROW_BOOK = 'club_borrow_book'
+    CLUB_EXTEND_DUE_DATE = 'club_extend_due_date'
+
+    ACTION_CHOICES = (
+        (DONATE_TO_CLUB, 'donate_to_club'),
+        (WITHDRAW_BOOK_FROM_CLUB, "withdraw_book_from_club"),
+        (CLUB_BORROW_BOOK, 'club_borrow_book'),
+        (CLUB_EXTEND_DUE_DATE, 'club_extend_due_date'),
+    )
+
+    book_copy = models.ForeignKey(BookCopy, on_delete=models.CASCADE)
+    action = models.CharField(max_length=50, choices=ACTION_CHOICES, default=DONATE_TO_CLUB)
+    membership_borrower = models.ForeignKey(Membership, on_delete=models.CASCADE, null=True)
+    description = models.TextField(blank=True)
+    attachment = models.FileField(storage=BookHistoryStorage(), null=True)
+
+    def __str__(self):
+        return f"{self.book_copy} - {self.action}"

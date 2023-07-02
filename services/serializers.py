@@ -5,7 +5,7 @@ from django_filters import rest_framework as filters
 from rest_framework import serializers
 
 from .models import Author, Book, BookCopy, Category, Order, OrderDetail, Publisher, User, BookClub, Member, \
-    MembershipOrderDetail, Membership, MemberBookCopy
+    MembershipOrderDetail, Membership, MemberBookCopy, MembershipOrder
 
 class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField()
@@ -168,7 +168,7 @@ class BookClubRequestToJoinSerializer(serializers.Serializer):
     phone_number = serializers.CharField()
     address = serializers.CharField()
 
-class MembershipOrderDetailSerializer(serializers.ModelSerializer):
+class MembershipOrderDetailCreateSerializer(serializers.ModelSerializer):
     def validate_member_book_copy(self, member_book_copy):
         if member_book_copy.current_reader is not None:
             raise serializers.ValidationError("The book copy is currently assigned to a reader.")
@@ -178,9 +178,9 @@ class MembershipOrderDetailSerializer(serializers.ModelSerializer):
         model = MembershipOrderDetail
         fields = ['member_book_copy', 'due_date']
 
-class MembershipOrderSerializer(serializers.Serializer):
+class MembershipOrderCreateSerializer(serializers.Serializer):
     membership_id = serializers.IntegerField(required=True)
-    order_details = MembershipOrderDetailSerializer(required=True, many=True)
+    order_details = MembershipOrderDetailCreateSerializer(required=True, many=True)
 
     def validate(self, data):
         membership_id = data.get('membership_id')
@@ -272,6 +272,26 @@ class BookClubMemberWithdrawBookSerializer(serializers.Serializer):
             raise serializers.ValidationError("Book onboard date not exceeded 30 days")
         return record
 
+class BookClubStaffExtendOrderSerializer(serializers.Serializer):
+    membership_order_detail_ids = serializers.CharField()
+    new_due_date = serializers.DateTimeField()
+    note = serializers.CharField(max_length=500)
+    attachment = serializers.FileField(required=False)
+
+    def validate(self, data):
+        try:
+            membership_order_detail_ids = [int(i) for i in data['membership_order_detail_ids'].split(',')]
+        except:
+            raise serializers.ValidationError('invalid membership_order_detail_ids')
+
+        order_details = MembershipOrderDetail.objects.filter(id__in=membership_order_detail_ids)
+        if len(order_details) != len(membership_order_detail_ids):
+            raise serializers.ValidationError('membership_order_detail_ids missmatch')
+
+        membership_borrower = order_details[0].order.membership
+        book_copy_ids = [order_detail.member_book_copy.book_copy_id for order_detail in order_details]
+        return order_details, membership_borrower, book_copy_ids
+
 class BookClubStaffCreateOrderSerializer(serializers.Serializer):
     membership_id = serializers.IntegerField()
     member_book_copy_ids = serializers.CharField()
@@ -306,6 +326,7 @@ class UserBorrowingBookSerializer(serializers.ModelSerializer):
         book = instance.member_book_copy.book_copy.book
         book_image = book.image.url if book.image else ''
         return {
+            'order_detail_id': instance.id,
             'order_id': instance.order.id,
             'book_name': book.name,
             'book_image': book_image,
@@ -327,3 +348,12 @@ class MemberBookCopySerializer(serializers.ModelSerializer):
     class Meta:
         model = MemberBookCopy
         fields = '__all__'
+
+class StaffBorrowingSerializer(serializers.Serializer):
+    membership_id = serializers.IntegerField()
+
+    def validate(self, data):
+        membership = Membership.objects.filter(id=data['membership_id']).first()
+        if not membership:
+            raise serializers.ValidationError('membership_id not found')
+        return membership

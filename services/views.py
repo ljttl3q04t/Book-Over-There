@@ -22,11 +22,11 @@ from .models import Book, MemberBookCopy, Order, OrderDetail, User, BookCopy, Bo
     MembershipOrderDetail, UploadFile, Category, BookCopyHistory
 from .serializers import BookCopySerializer, BookSerializer, GetOrderSerializer, OrderDetailSerializer, OrderSerializer, \
     UserLoginSerializer, UserRegisterSerializer, BookFilter, BookClubRequestToJoinSerializer, \
-    MemberSerializer, MembershipOrderSerializer, UserUpdateSerializer, MembershipSerializer, CategorySerializer, \
+    MemberSerializer, MembershipOrderCreateSerializer, UserUpdateSerializer, MembershipSerializer, CategorySerializer, \
     MyBookAddSerializer, ShareBookClubSerializer, BookClubMemberUpdateSerializer, \
     UserSerializer, BookClubMemberDepositBookSerializer, BookClubMemberWithdrawBookSerializer, \
     BookClubStaffCreateOrderSerializer, MemberBookCopySerializer, ClubBookListFilter, BookCheckSerializer, \
-    UserBorrowingBookSerializer
+    UserBorrowingBookSerializer, BookClubStaffExtendOrderSerializer, StaffBorrowingSerializer
 
 class UploadFileView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -447,7 +447,52 @@ class BookClubMemberBookWithdrawView(APIView):
 #     def post(self, request):
 #         serializer = ReturnBookSerializer(data=request.data)
 
+class StaffBorrowingView(APIView):
+    permission_classes = (IsAuthenticated, IsStaff,)
 
+    @swagger_auto_schema(request_body=StaffBorrowingSerializer)
+    def post(self, request):
+        serializer = StaffBorrowingSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        membership = serializer.validated_data
+        order_details = MembershipOrderDetail.objects.filter(order__membership=membership)
+        serializer = UserBorrowingBookSerializer(instance=order_details, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class BookClubStaffExtendOrderView(APIView):
+    permission_classes = (IsAuthenticated, IsStaff,)
+
+    @swagger_auto_schema(request_body=BookClubStaffExtendOrderSerializer)
+    @transaction.atomic
+    def post(self, request):
+        serializer = BookClubStaffExtendOrderSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        new_due_date = request.data['new_due_date']
+        note = request.data['note']
+        attachment = request.data.get('attachment')
+        updated_at = timezone.now()
+
+        order_details, membership_borrower, book_copy_ids = serializer.validated_data
+        order_detail_ids = [o.id for o in order_details]
+
+        MembershipOrderDetail.objects \
+            .filter(id__in=order_detail_ids) \
+            .update(due_date=new_due_date, updated_at=updated_at)
+
+        history_list = [BookCopyHistory(
+            book_copy_id=book_copy_id,
+            action=BookCopyHistory.CLUB_EXTEND_DUE_DATE,
+            membership_borrower=membership_borrower,
+            description=note,
+            attachment=attachment,
+            created_at=updated_at,
+        ) for book_copy_id in book_copy_ids]
+        BookCopyHistory.objects.bulk_create(history_list)
+        return Response({'result': 'ok'}, status=status.HTTP_200_OK)
 
 class BookClubStaffCreateOrderView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)
@@ -486,6 +531,7 @@ class BookClubStaffCreateOrderView(APIView):
         history_list = [BookCopyHistory(
             book_copy_id=book_copy_id,
             action=BookCopyHistory.CLUB_BORROW_BOOK,
+            membership_borrower=membership,
             description=note,
             attachment=attachment,
             created_at=current_time,
@@ -516,10 +562,10 @@ class BookClubBookListView(APIView):
 class MemberShipOrderCreateView(APIView):
     permission_classes = (IsAuthenticated,)
 
-    @swagger_auto_schema(request_body=MembershipOrderSerializer)
+    @swagger_auto_schema(request_body=MembershipOrderCreateSerializer)
     @transaction.atomic
     def post(self, request):
-        serializer = MembershipOrderSerializer(data=request.data)
+        serializer = MembershipOrderCreateSerializer(data=request.data)
         if serializer.is_valid():
             order_details = serializer.validated_data.pop('order_details')
             order = MembershipOrder.objects.create(
