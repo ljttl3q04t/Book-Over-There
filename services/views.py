@@ -26,7 +26,7 @@ from .serializers import BookCopySerializer, BookSerializer, GetOrderSerializer,
     MyBookAddSerializer, ShareBookClubSerializer, BookClubMemberUpdateSerializer, \
     UserSerializer, BookClubMemberDepositBookSerializer, BookClubMemberWithdrawBookSerializer, \
     BookClubStaffCreateOrderSerializer, MemberBookCopySerializer, ClubBookListFilter, BookCheckSerializer, \
-    UserBorrowingBookSerializer, BookClubStaffExtendOrderSerializer, StaffBorrowingSerializer
+    UserBorrowingBookSerializer, BookClubStaffExtendOrderSerializer, StaffBorrowingSerializer, BookCopyHistorySerializer
 
 class UploadFileView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -651,9 +651,17 @@ class BookShareClubView(APIView):
 class UserBorrowingBookView(APIView):
     permission_classes = (IsAuthenticated,)
 
-    @transaction.atomic
     def get(self, request):
         user_memberships = membership_manager.get_membership_by_user(request.user)
         order_details = MembershipOrderDetail.objects.filter(order__membership__in=user_memberships)
         serializer = UserBorrowingBookSerializer(instance=order_details, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class BookHistoryView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        book_copys = BookCopy.objects.filter(user=request.user)
+        records = BookCopyHistory.objects.filter(book_copy__in=book_copys)
+        serializer = BookCopyHistorySerializer(instance=records, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

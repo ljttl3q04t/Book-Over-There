@@ -31,8 +31,7 @@ urlpatterns = [
     path('user/book/add', views.MyBookAddView.as_view(), name='user-add-book'),
     path('user/book/share-club', views.BookShareClubView.as_view(), name='share-book-to-club'),
     path('user/book/borrowing', views.UserBorrowingBookView.as_view(), name='user-view-borrowing-book'),
-
-    # path('user/book/history', views.BookHistoryView.as_view(), name='book-history-view'),
+    path('user/book/history', views.BookHistoryView.as_view(), name='book-history-view'),
 
     path('category/list', views.CategoryListView.as_view(), name='view-category'),
 

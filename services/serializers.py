@@ -5,7 +5,7 @@ from django_filters import rest_framework as filters
 from rest_framework import serializers
 
 from .models import Author, Book, BookCopy, Category, Order, OrderDetail, Publisher, User, BookClub, Member, \
-    MembershipOrderDetail, Membership, MemberBookCopy, MembershipOrder
+    MembershipOrderDetail, Membership, MemberBookCopy, MembershipOrder, BookCopyHistory
 
 class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField()
@@ -357,3 +357,11 @@ class StaffBorrowingSerializer(serializers.Serializer):
         if not membership:
             raise serializers.ValidationError('membership_id not found')
         return membership
+
+class BookCopyHistorySerializer(serializers.ModelSerializer):
+    book_copy = BookCopySerializer()
+    membership_borrower = MembershipSerializer()
+
+    class Meta:
+        model = BookCopyHistory
+        fields = '__all__'
