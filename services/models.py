@@ -218,9 +218,9 @@ class BookCopyHistory(BaseModel):
 
     book_copy = models.ForeignKey(BookCopy, on_delete=models.CASCADE)
     action = models.CharField(max_length=50, choices=ACTION_CHOICES, default=DONATE_TO_CLUB)
-    membership_borrower = models.ForeignKey(Membership, on_delete=models.CASCADE, null=True)
+    membership_borrower = models.ForeignKey(Membership, on_delete=models.CASCADE, null=True, blank=True)
     description = models.TextField(blank=True)
-    attachment = models.FileField(storage=BookHistoryStorage(), null=True)
+    attachment = models.FileField(storage=BookHistoryStorage(), null=True, blank=True)
 
     def __str__(self):
         return f"{self.book_copy} - {self.action}"
