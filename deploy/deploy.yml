@@ -22,4 +22,8 @@
       vars:
         django_base_dir: "/home/Book-Over-There"
 
+    - name: collect_static
+      vars:
+        django_base_dir: "/home/Book-Over-There"
+
     - name: gunicorn

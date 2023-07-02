@@ -1,0 +1,5 @@
+---
+- name: Run crontab add
+  command: "/usr/local/bin/pipenv run python manage.py crontab add"
+  args:
+    chdir: "{{ django_base_dir }}"
