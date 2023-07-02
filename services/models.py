@@ -1,9 +1,7 @@
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
-from django.db.models import ManyToManyField
 
 from services.storage_backends import UserAvatarStorage, BaseStaticStorage, BookCoverStorage, BookHistoryStorage
-
 
 class BaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -25,14 +23,12 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
 
-
 class UploadFile(BaseModel):
     uploaded_at = models.DateTimeField(auto_now_add=True)
     file = models.FileField(storage=BaseStaticStorage())
 
     def __str__(self):
         return self.file.name
-
 
 class User(AbstractUser, BaseModel):
     # Add related_name arguments to avoid clashes with auth.User model
@@ -51,14 +47,11 @@ class Category(BaseModel):
     def __str__(self):
         return self.name
 
-
 class Author(BaseModel):
     name = models.CharField(max_length=200)
 
-
 class Publisher(BaseModel):
     name = models.CharField(max_length=200)
-
 
 class Book(BaseModel):
     name = models.CharField(max_length=200, db_index=True)
@@ -70,7 +63,6 @@ class Book(BaseModel):
 
     def __str__(self):
         return self.name
-
 
 class BookCopy(BaseModel):
     NEW = 'new'
@@ -97,7 +89,6 @@ class BookCopy(BaseModel):
     def __str__(self):
         return f'{self.user.username} - {self.book.name}'
 
-
 class BookCopyHistory(BaseModel):
     DONATE_TO_CLUB = "donate_to_club"
     WITHDRAW_BOOK_FROM_CLUB = "withdraw_book_from_club"
@@ -117,7 +108,6 @@ class BookCopyHistory(BaseModel):
     def __str__(self):
         return f"{self.book_copy} - {self.action}"
 
-
 class Order(BaseModel):
     order_user = models.ForeignKey(User, on_delete=models.CASCADE)
     order_date = models.DateTimeField()
@@ -125,18 +115,15 @@ class Order(BaseModel):
     comment = models.CharField(max_length=200, default=None)
     status = models.IntegerField()
 
-
 class OrderDetail(BaseModel):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_details')
     book_copy = models.ForeignKey(BookCopy, on_delete=models.CASCADE)
     due_date = models.DateTimeField()
     return_date = models.DateTimeField()
 
-
 class WishList(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
-
 
 class BookClub(BaseModel):
     name = models.CharField(max_length=100)
@@ -146,7 +133,6 @@ class BookClub(BaseModel):
 
     def __str__(self):
         return self.name
-
 
 class Member(BaseModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -163,7 +149,6 @@ class Member(BaseModel):
     def as_dict(self, fields=None, exclude=None):
         res = BaseModel.as_dict(self, exclude=['book_clubs'])
         return res
-
 
 class Membership(BaseModel):
     PENDING = 'pending'
@@ -184,7 +169,6 @@ class Membership(BaseModel):
     def __str__(self):
         return f"{self.id} - {self.member.full_name} - {self.book_club.name}"
 
-
 class MemberBookCopy(BaseModel):
     membership = models.ForeignKey(Membership, on_delete=models.CASCADE)
     book_copy = models.ForeignKey(BookCopy, on_delete=models.CASCADE)
@@ -196,7 +180,6 @@ class MemberBookCopy(BaseModel):
 
     def __str__(self):
         return f'{self.id} - {self.membership.member.full_name} - {self.book_copy.book.name}'
-
 
 # Draft -> Created, Cancelled
 # Created -> Cancelled, Confirmed
@@ -228,7 +211,6 @@ class MembershipOrder(BaseModel):
 
     def __str__(self):
         return f'{self.id} - {self.membership}'
-
 
 class MembershipOrderDetail(BaseModel):
     order = models.ForeignKey(MembershipOrder, on_delete=models.CASCADE, related_name='membership_order_details')

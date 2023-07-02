@@ -2,9 +2,7 @@
 
 from django.db import migrations, models
 
-
 class Migration(migrations.Migration):
-
     dependencies = [
         ('services', '0005_alter_book_name'),
     ]
@@ -38,6 +36,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='member',
             name='member_status',
-            field=models.CharField(choices=[('pending', 'Pending'), ('active', 'Active'), ('banned', 'Banned')], default='pending', max_length=10),
+            field=models.CharField(choices=[('pending', 'Pending'), ('active', 'Active'), ('banned', 'Banned')],
+                                   default='pending', max_length=10),
         ),
     ]

@@ -2,9 +2,7 @@
 
 from django.db import migrations, models
 
-
 class Migration(migrations.Migration):
-
     dependencies = [
         ('services', '0013_remove_memberbookcopy_book_memberbookcopy_book_copy_and_more'),
     ]

@@ -1,9 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
 
-from services.models import Book, Author, Publisher, Category
-
-
 def fetch_remote_html(remote_url):
     try:
         headers = {
@@ -18,7 +15,6 @@ def fetch_remote_html(remote_url):
     except requests.exceptions.RequestException as e:
         print(f"Error: {e}")
         return None
-
 
 class CrawBase:
     DOMAIN_PREFIX = None
@@ -44,7 +40,6 @@ class CrawBase:
 
     def build_book(self):
         self.soup = self.build_soup()
-
 
 class CrawTiki(CrawBase):
     DOMAIN_PREFIX = 'https://tiki.vn/'
@@ -74,12 +69,12 @@ class CrawTiki(CrawBase):
             self.book['book_publisher_name'] = td_elements[-1].text.strip()
 
         try:
-            self.book['book_description'] = self.soup.find_all('div', class_='content')[-1].find_all('p')[1].text.strip()
+            self.book['book_description'] = self.soup.find_all('div', class_='content')[-1].find_all('p')[
+                1].text.strip()
         except:
             pass
 
         return self.book
-
 
 class CrawFahasa(CrawBase):
     DOMAIN_PREFIX = 'https://www.fahasa.com/'

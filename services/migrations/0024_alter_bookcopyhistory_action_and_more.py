@@ -2,9 +2,7 @@
 
 from django.db import migrations, models
 
-
 class Migration(migrations.Migration):
-
     dependencies = [
         ('services', '0023_remove_memberbookcopy_in_club_and_more'),
     ]
@@ -13,7 +11,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='bookcopyhistory',
             name='action',
-            field=models.CharField(choices=[('donate_to_club', 'donate_to_club')], default='donate_to_club', max_length=50),
+            field=models.CharField(choices=[('donate_to_club', 'donate_to_club')], default='donate_to_club',
+                                   max_length=50),
         ),
         migrations.AlterField(
             model_name='bookcopyhistory',

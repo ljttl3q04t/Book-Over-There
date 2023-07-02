@@ -6,9 +6,7 @@ import django.utils.timezone
 from django.conf import settings
 from django.db import migrations, models
 
-
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -22,12 +20,22 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('password', models.CharField(max_length=128, verbose_name='password')),
                 ('last_login', models.DateTimeField(blank=True, null=True, verbose_name='last login')),
-                ('is_superuser', models.BooleanField(default=False, help_text='Designates that this user has all permissions without explicitly assigning them.', verbose_name='superuser status')),
-                ('username', models.CharField(error_messages={'unique': 'A user with that username already exists.'}, help_text='Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.', max_length=150, unique=True, validators=[django.contrib.auth.validators.UnicodeUsernameValidator()], verbose_name='username')),
+                ('is_superuser', models.BooleanField(default=False,
+                                                     help_text='Designates that this user has all permissions without explicitly assigning them.',
+                                                     verbose_name='superuser status')),
+                ('username', models.CharField(error_messages={'unique': 'A user with that username already exists.'},
+                                              help_text='Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.',
+                                              max_length=150, unique=True,
+                                              validators=[django.contrib.auth.validators.UnicodeUsernameValidator()],
+                                              verbose_name='username')),
                 ('first_name', models.CharField(blank=True, max_length=150, verbose_name='first name')),
                 ('last_name', models.CharField(blank=True, max_length=150, verbose_name='last name')),
-                ('is_staff', models.BooleanField(default=False, help_text='Designates whether the user can log into this admin site.', verbose_name='staff status')),
-                ('is_active', models.BooleanField(default=True, help_text='Designates whether this user should be treated as active. Unselect this instead of deleting accounts.', verbose_name='active')),
+                ('is_staff', models.BooleanField(default=False,
+                                                 help_text='Designates whether the user can log into this admin site.',
+                                                 verbose_name='staff status')),
+                ('is_active', models.BooleanField(default=True,
+                                                  help_text='Designates whether this user should be treated as active. Unselect this instead of deleting accounts.',
+                                                  verbose_name='active')),
                 ('date_joined', models.DateTimeField(default=django.utils.timezone.now, verbose_name='date joined')),
                 ('number_phone', models.CharField(blank=True, max_length=200, null=True)),
                 ('email', models.EmailField(max_length=100, unique=True)),
@@ -64,7 +72,9 @@ class Migration(migrations.Migration):
             name='BookCopy',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('book_status', models.CharField(choices=[('new', 'New'), ('used', 'Used'), ('lost', 'Lost'), ('return', 'Return'), ('borrowed', 'Borrowed')], default='new', max_length=20)),
+                ('book_status', models.CharField(
+                    choices=[('new', 'New'), ('used', 'Used'), ('lost', 'Lost'), ('return', 'Return'),
+                             ('borrowed', 'Borrowed')], default='new', max_length=20)),
                 ('book_deposit_price', models.IntegerField(default=None)),
                 ('book_deposit_status', models.IntegerField(default=None)),
                 ('book', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='services.book')),
@@ -86,7 +96,8 @@ class Migration(migrations.Migration):
                 ('total_book', models.IntegerField()),
                 ('comment', models.CharField(default=None, max_length=200)),
                 ('status', models.IntegerField()),
-                ('order_user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('order_user',
+                 models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
         ),
         migrations.CreateModel(
@@ -111,7 +122,8 @@ class Migration(migrations.Migration):
                 ('due_date', models.DateTimeField()),
                 ('return_date', models.DateTimeField()),
                 ('book_copy', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='services.bookcopy')),
-                ('order', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='order_details', to='services.order')),
+                ('order', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='order_details',
+                                            to='services.order')),
             ],
         ),
         migrations.AddField(

@@ -2,9 +2,7 @@
 
 from django.db import migrations, models
 
-
 class Migration(migrations.Migration):
-
     dependencies = [
         ('services', '0009_alter_membershiporder_confirm_date_and_more'),
     ]

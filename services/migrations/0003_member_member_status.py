@@ -2,9 +2,7 @@
 
 from django.db import migrations, models
 
-
 class Migration(migrations.Migration):
-
     dependencies = [
         ('services', '0002_bookclub_member_membership_member_book_clubs_and_more'),
     ]
@@ -13,6 +11,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='member',
             name='member_status',
-            field=models.CharField(choices=[('active', 'Active'), ('banned', 'Banned')], default='active', max_length=10),
+            field=models.CharField(choices=[('active', 'Active'), ('banned', 'Banned')], default='active',
+                                   max_length=10),
         ),
     ]

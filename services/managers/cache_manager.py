@@ -22,7 +22,6 @@ CACHE_CLUB_GET_INFOS_DICT = {
     'expiry_time': DEFAULT_EXPIRY_TIME
 }
 
-
 def simple_cache_data(cache_key_converter, cache_prefix, expiry_time=DEFAULT_EXPIRY_TIME):
     def _cache_data(func):
         def _func(*args, **kwargs):

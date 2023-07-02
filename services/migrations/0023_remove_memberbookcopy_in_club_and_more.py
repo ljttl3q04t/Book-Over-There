@@ -2,9 +2,7 @@
 
 from django.db import migrations, models
 
-
 class Migration(migrations.Migration):
-
     dependencies = [
         ('services', '0022_memberbookcopy_in_club_memberbookcopy_is_enabled_and_more'),
     ]

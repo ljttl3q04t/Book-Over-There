@@ -3,7 +3,6 @@ from django.core.cache import cache
 
 from services import models
 
-
 class CustomModelAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
@@ -12,7 +11,6 @@ class CustomModelAdmin(admin.ModelAdmin):
     def delete_model(self, request, obj):
         super().delete_model(request, obj)
         cache.clear()
-
 
 models_to_register = [
     models.Permission,

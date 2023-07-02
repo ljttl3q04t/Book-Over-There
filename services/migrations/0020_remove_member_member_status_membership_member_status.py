@@ -2,9 +2,7 @@
 
 from django.db import migrations, models
 
-
 class Migration(migrations.Migration):
-
     dependencies = [
         ('services', '0019_membership_is_staff'),
     ]
@@ -17,6 +15,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='membership',
             name='member_status',
-            field=models.CharField(choices=[('pending', 'Pending'), ('active', 'Active'), ('banned', 'Banned')], default='pending', max_length=10),
+            field=models.CharField(choices=[('pending', 'Pending'), ('active', 'Active'), ('banned', 'Banned')],
+                                   default='pending', max_length=10),
         ),
     ]

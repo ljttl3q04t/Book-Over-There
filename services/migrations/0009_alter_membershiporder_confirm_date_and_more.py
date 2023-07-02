@@ -2,9 +2,7 @@
 
 from django.db import migrations, models
 
-
 class Migration(migrations.Migration):
-
     dependencies = [
         ('services', '0008_memberbookcopy_membershiporder_book_description_and_more'),
     ]
@@ -23,6 +21,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='membershiporder',
             name='order_status',
-            field=models.CharField(choices=[('draft', 'Draft'), ('Cancel', 'Cancel'), ('Created', 'Created'), ('Confirmed', 'Confirmed'), ('Overdue', 'Overdue'), ('Completed', 'Completed')], default='Created', max_length=20),
+            field=models.CharField(
+                choices=[('draft', 'Draft'), ('Cancel', 'Cancel'), ('Created', 'Created'), ('Confirmed', 'Confirmed'),
+                         ('Overdue', 'Overdue'), ('Completed', 'Completed')], default='Created', max_length=20),
         ),
     ]

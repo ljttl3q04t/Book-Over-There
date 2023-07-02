@@ -5,15 +5,15 @@ from drf_yasg.views import get_schema_view
 from . import views
 
 schema_view = get_schema_view(
-   openapi.Info(
-      title="Snippets API",
-      default_version='v1',
-      description="Test description",
-      terms_of_service="https://www.google.com/policies/terms/",
-      contact=openapi.Contact(email="contact@snippets.local"),
-      license=openapi.License(name="BSD License"),
-   ),
-   public=True,
+    openapi.Info(
+        title="Snippets API",
+        default_version='v1',
+        description="Test description",
+        terms_of_service="https://www.google.com/policies/terms/",
+        contact=openapi.Contact(email="contact@snippets.local"),
+        license=openapi.License(name="BSD License"),
+    ),
+    public=True,
 )
 
 urlpatterns = [
@@ -53,7 +53,6 @@ urlpatterns = [
     # path('club/member/book/return', views.BookClubMemberBookReturnView.as_view(), name='member-return-book'),
 
     path('club/member/order/create', views.BookClubStaffCreateOrderView.as_view(), name='staff-create-order'),
-
 
     path('club/book/list', views.BookClubBookListView.as_view(), name='book-club-view-club-books'),
     path('club/staff/book/list', views.ClubBookListAPIView.as_view(), name='staff-view-all-books'),

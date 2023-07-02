@@ -2,9 +2,7 @@
 
 from django.db import migrations, models
 
-
 class Migration(migrations.Migration):
-
     dependencies = [
         ('services', '0004_author_created_at_author_updated_at_book_created_at_and_more'),
     ]

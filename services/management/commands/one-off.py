@@ -1,9 +1,6 @@
-import requests
-from bs4 import BeautifulSoup
 from django.core.management import BaseCommand
 
-from services.managers.crawl_manager import CrawFahasa, CrawTiki
-
+from services.managers.crawl_manager import CrawTiki
 
 class Command(BaseCommand):
 

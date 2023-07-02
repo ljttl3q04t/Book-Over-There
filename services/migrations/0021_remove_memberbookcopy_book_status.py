@@ -2,9 +2,7 @@
 
 from django.db import migrations
 
-
 class Migration(migrations.Migration):
-
     dependencies = [
         ('services', '0020_remove_member_member_status_membership_member_status'),
     ]

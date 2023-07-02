@@ -1,7 +1,7 @@
-import requests
-from django.core.files import File
 from io import BytesIO
 
+import requests
+from django.core.files import File
 
 def save_image_from_url(book, image_url):
     response = requests.get(image_url)

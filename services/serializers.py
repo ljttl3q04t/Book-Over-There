@@ -1,13 +1,11 @@
-from datetime import timedelta, datetime
+from datetime import datetime
 
 from django.contrib.auth import authenticate
-from django.utils import timezone
-from rest_framework import serializers
 from django_filters import rest_framework as filters
+from rest_framework import serializers
 
 from .models import Author, Book, BookCopy, Category, Order, OrderDetail, Publisher, User, BookClub, Member, \
     MembershipOrderDetail, Membership, MemberBookCopy
-
 
 class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField()
@@ -29,30 +27,25 @@ class UserLoginSerializer(serializers.Serializer):
         data['user'] = user
         return data
 
-
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ['name']
-
 
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Author
         fields = ['name']
 
-
 class PublisherSerializer(serializers.ModelSerializer):
     class Meta:
         model = Publisher
         fields = ['name']
 
-
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['phone_number', 'email', 'address', 'full_name', 'birth_date', 'avatar', 'username']
-
 
 class BookSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
@@ -77,7 +70,6 @@ class BookSerializer(serializers.ModelSerializer):
         model = Book
         fields = ['name', 'category', 'author', 'publisher', 'image', 'image_url']
 
-
 class BookFilter(filters.FilterSet):
     category = filters.CharFilter(field_name='category__name', lookup_expr='icontains')
     publisher = filters.CharFilter(field_name='publisher__name', lookup_expr='icontains')
@@ -100,7 +92,6 @@ class OrderDetailSerializer(serializers.ModelSerializer):
         model = OrderDetail
         fields = ['book_copy', 'due_date', 'return_date']
 
-
 class OrderSerializer(serializers.ModelSerializer):
     order_details = OrderDetailSerializer(many=True)
 
@@ -116,12 +107,10 @@ class OrderSerializer(serializers.ModelSerializer):
             OrderDetail.objects.create(**order_detail_data)
         return order
 
-
 class GetOrderDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderDetail
         fields = ['id', 'book_copy', 'due_date', 'return_date']
-
 
 class GetOrderSerializer(serializers.ModelSerializer):
     order_details = GetOrderDetailSerializer(many=True)
@@ -130,7 +119,6 @@ class GetOrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = ['id', 'order_user', 'order_date', 'total_book', 'comment', 'status', 'order_details']
 
-
 class UserRegisterSerializer(serializers.ModelSerializer):
     phone_number = serializers.CharField(allow_null=False)
     email = serializers.CharField(allow_null=False)
@@ -138,7 +126,6 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['username', 'password', 'phone_number', 'email']
-
 
 class UserUpdateSerializer(serializers.ModelSerializer):
     phone_number = serializers.CharField(allow_null=False)
@@ -153,7 +140,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         fields = ['phone_number', 'email', 'address', 'full_name', 'birth_date', 'avatar', 'username']
         read_only_fields = ['username']
 
-
 class BookCheckSerializer(serializers.Serializer):
     remote_url = serializers.CharField()
 
@@ -164,18 +150,15 @@ class BookCopySerializer(serializers.ModelSerializer):
         model = BookCopy
         fields = '__all__'
 
-
 class MemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = Member
         fields = '__all__'
 
-
 class BookClubSerializer(serializers.ModelSerializer):
     class Meta:
         model = BookClub
         fields = '__all__'
-
 
 class BookClubRequestToJoinSerializer(serializers.Serializer):
     club_id = serializers.IntegerField()
@@ -184,7 +167,6 @@ class BookClubRequestToJoinSerializer(serializers.Serializer):
     email = serializers.EmailField()
     phone_number = serializers.CharField()
     address = serializers.CharField()
-
 
 class MembershipOrderDetailSerializer(serializers.ModelSerializer):
     def validate_member_book_copy(self, member_book_copy):
@@ -195,7 +177,6 @@ class MembershipOrderDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = MembershipOrderDetail
         fields = ['member_book_copy', 'due_date']
-
 
 class MembershipOrderSerializer(serializers.Serializer):
     membership_id = serializers.IntegerField(required=True)
@@ -210,7 +191,6 @@ class MembershipOrderSerializer(serializers.Serializer):
 
         return data
 
-
 class MembershipSerializer(serializers.ModelSerializer):
     member = MemberSerializer()
     book_club = BookClubSerializer()
@@ -218,7 +198,6 @@ class MembershipSerializer(serializers.ModelSerializer):
     class Meta:
         model = Membership
         fields = '__all__'
-
 
 class MyBookAddSerializer(serializers.Serializer):
     book_id = serializers.IntegerField(required=False)
@@ -230,7 +209,6 @@ class MyBookAddSerializer(serializers.Serializer):
             if not data.get('book'):
                 raise serializers.ValidationError("Missing field book_id or book")
         return data
-
 
 class ShareBookClubSerializer(serializers.Serializer):
     book_copy_ids = serializers.ListSerializer(child=serializers.IntegerField())
@@ -253,11 +231,9 @@ class ShareBookClubSerializer(serializers.Serializer):
 
         return membership, books
 
-
 class BookClubMemberUpdateSerializer(serializers.Serializer):
     membership_id = serializers.IntegerField()
     member_status = serializers.ChoiceField(choices=Membership.MEMBER_STATUS_CHOICES)
-
 
 class BookClubMemberDepositBookSerializer(serializers.Serializer):
     member_book_copy_id = serializers.IntegerField(required=True)
@@ -274,7 +250,6 @@ class BookClubMemberDepositBookSerializer(serializers.Serializer):
         if record.onboard_date:
             raise serializers.ValidationError("Book already in club")
         return record
-
 
 class BookClubMemberWithdrawBookSerializer(serializers.Serializer):
     member_book_copy_id = serializers.IntegerField(required=True)
@@ -296,7 +271,6 @@ class BookClubMemberWithdrawBookSerializer(serializers.Serializer):
         if delta.days <= 30:
             raise serializers.ValidationError("Book onboard date not exceeded 30 days")
         return record
-
 
 class BookClubStaffCreateOrderSerializer(serializers.Serializer):
     membership_id = serializers.IntegerField()
@@ -323,7 +297,6 @@ class BookClubStaffCreateOrderSerializer(serializers.Serializer):
         if len(member_book_copys) != len(member_book_copy_ids):
             raise serializers.ValidationError('invalid books')
         return membership, member_book_copys
-
 
 class MemberBookCopySerializer(serializers.ModelSerializer):
     membership = MembershipSerializer()
