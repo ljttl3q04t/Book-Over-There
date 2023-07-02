@@ -602,15 +602,11 @@ class BookShareClubView(APIView):
         MemberBookCopy.objects.bulk_create(member_book_copys)
         return Response({'result': 'ok'}, status=status.HTTP_201_CREATED)
 
-import logging
-
 class UserBorrowingBookView(APIView):
     permission_classes = (IsAuthenticated,)
 
     @transaction.atomic
     def get(self, request):
-        log = logging.getLogger('django')
-        log.info("concuxinhxan")
         user_memberships = membership_manager.get_membership_by_user(request.user)
         order_details = MembershipOrderDetail.objects.filter(order__membership__in=user_memberships)
         serializer = UserBorrowingBookSerializer(instance=order_details, many=True)
