@@ -22,7 +22,7 @@
       vars:
         django_base_dir: "/home/Book-Over-There"
 
-    - name: collect_static
+    - name: cron-add
       vars:
         django_base_dir: "/home/Book-Over-There"
 
