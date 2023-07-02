@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_filters',
     'storages',
+    'django_crontab',
 ]
 
 MIDDLEWARE = [
@@ -215,3 +216,35 @@ MEDIA_URL = f'https://{AWS_S3_ENDPOINT_URL}/{PUBLIC_MEDIA_LOCATION}/'
 DEFAULT_FILE_STORAGE = 'services.storage_backends.CustomS3Boto3Storage'
 
 # DEFAULT_FILE_STORAGE = 'book_over_there.storage_backends.PublicMediaStorage'
+
+# crontab settings
+CRONJOBS = [
+    ('1 0 * * *', 'services.managers.cron_manager.evaluate_overdue_day')
+]
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{asctime} {levelname} [{name}:{lineno}] {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': '/var/log/django/debug.log',
+            'formatter': 'verbose',
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'INFO',
+        },
+    },
+}

@@ -21,3 +21,6 @@ def get_member_infos():
 
     return data
     # return {item['id']: item.as_dict() for item in results}
+
+def get_membership_by_user(user):
+    return Membership.objects.filter(member__user=user, leaved_at=None)

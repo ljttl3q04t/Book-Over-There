@@ -298,6 +298,27 @@ class BookClubStaffCreateOrderSerializer(serializers.Serializer):
             raise serializers.ValidationError('invalid books')
         return membership, member_book_copys
 
+# class ReturnBookSerializer(serializers.Serializer):
+
+class UserBorrowingBookSerializer(serializers.ModelSerializer):
+
+    def to_representation(self, instance):
+        book = instance.member_book_copy.book_copy.book
+        book_image = book.image.url if book.image else ''
+        return {
+            'order_id': instance.order.id,
+            'book_name': book.name,
+            'book_image': book_image,
+            'start_date': instance.order.confirm_date,
+            'due_date': instance.due_date,
+            'overdue_day_count': instance.overdue_day_count,
+            'club_name': instance.order.membership.book_club.name,
+        }
+
+    class Meta:
+        model = MembershipOrderDetail
+        fields = ['order', 'member_book_copy', 'due_date', 'overdue_day_count']
+
 class MemberBookCopySerializer(serializers.ModelSerializer):
     membership = MembershipSerializer()
     book_copy = BookCopySerializer()
