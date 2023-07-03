@@ -361,6 +361,7 @@ class StaffBorrowingSerializer(serializers.Serializer):
 class BookCopyHistorySerializer(serializers.ModelSerializer):
     book_copy = BookCopySerializer()
     membership_borrower = MembershipSerializer()
+    attachment = serializers.FileField(source='attachment.file', read_only=True)
 
     class Meta:
         model = BookCopyHistory

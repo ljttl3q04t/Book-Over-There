@@ -483,12 +483,16 @@ class BookClubStaffExtendOrderView(APIView):
             .filter(id__in=order_detail_ids) \
             .update(due_date=new_due_date, updated_at=updated_at)
 
+        attachment_file = None
+        if attachment:
+            attachment_file = UploadFile.objects.create(file=attachment)
+
         history_list = [BookCopyHistory(
             book_copy_id=book_copy_id,
             action=BookCopyHistory.CLUB_EXTEND_DUE_DATE,
             membership_borrower=membership_borrower,
             description=note,
-            attachment=attachment,
+            attachment=attachment_file,
             created_at=updated_at,
         ) for book_copy_id in book_copy_ids]
         BookCopyHistory.objects.bulk_create(history_list)
@@ -528,12 +532,16 @@ class BookClubStaffCreateOrderView(APIView):
             .update(current_reader=membership, updated_at=current_time)
         book_copy_ids = [r.book_copy.id for r in member_book_copys]
         BookCopy.objects.filter(id__in=book_copy_ids).update(book_status=BookCopy.BORROWED, updated_at=current_time)
+        attachment_file = None
+        if attachment:
+            attachment_file = UploadFile.objects.create(file=attachment)
+
         history_list = [BookCopyHistory(
             book_copy_id=book_copy_id,
             action=BookCopyHistory.CLUB_BORROW_BOOK,
             membership_borrower=membership,
             description=note,
-            attachment=attachment,
+            attachment=attachment_file,
             created_at=current_time,
         ) for book_copy_id in book_copy_ids]
         BookCopyHistory.objects.bulk_create(history_list)
