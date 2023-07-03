@@ -83,18 +83,24 @@ class ClubBookListFilter(filters.FilterSet):
     membership_id = filters.NumberFilter(field_name='membership__id', lookup_expr='exact')
     book_copy__book_status = filters.ChoiceFilter(choices=BookCopy.BOOK_STATUS_CHOICES)
     deposit_book = filters.BooleanFilter(method='filter_deposit_book')
+    withdraw_book = filters.BooleanFilter(method='filter_withdraw_book')
 
     def filter_deposit_book(self, queryset, _, value):
         if value:
-            a = queryset.filter(current_reader__isnull=True, onboard_date__isnull=True)
-            print(a.query)
             return queryset.filter(current_reader__isnull=True, onboard_date__isnull=True)
+        else:
+            return queryset
+
+    def filter_withdraw_book(self, queryset, _, value):
+        if value:
+            return queryset \
+                .filter(book_copy__book_status=BookCopy.SHARING_CLUB, current_reader__isnull=True)
         else:
             return queryset
 
     class Meta:
         model = MemberBookCopy
-        fields = ['membership_id', 'book_copy__book_status', 'deposit_book']
+        fields = ['membership_id', 'book_copy__book_status', 'deposit_book', 'withdraw_book']
 
 class OrderDetailSerializer(serializers.ModelSerializer):
     class Meta:
