@@ -393,17 +393,27 @@ class BookClubMemberBookDepositView(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        member_book_copy = serializer.validated_data
-        history = BookCopyHistory.objects.create(
-            book_copy=member_book_copy.book_copy,
+        member_book_copys = serializer.validated_data
+        updated_at = timezone.now()
+        member_book_copy_ids = [r.id for r in member_book_copys]
+        book_copy_ids = [r.book_copy.id for r in member_book_copys]
+        MemberBookCopy.objects \
+            .filter(id__in=member_book_copy_ids) \
+            .update(updated_at=updated_at, onboard_date=updated_at)
+
+        attachment_file = None
+        if attachment:
+            attachment_file = UploadFile.objects.create(file=attachment)
+
+        history_list = [BookCopyHistory(
+            book_copy_id=book_copy_id,
             action=BookCopyHistory.DONATE_TO_CLUB,
             description=description,
-            attachment=attachment,
-        )
-        member_book_copy.onboard_date = history.created_at
-        member_book_copy.updated_at = history.created_at
-        member_book_copy.save()
-        return Response({'result': 'ok'}, status=status.HTTP_200_OK)
+            attachment=attachment_file,
+            created_at=updated_at,
+        ) for book_copy_id in book_copy_ids]
+        BookCopyHistory.objects.bulk_create(history_list)
+        return Response({'result': 'deposit books successfully'}, status=status.HTTP_200_OK)
 
 class BookClubMemberBookWithdrawView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)
@@ -418,23 +428,29 @@ class BookClubMemberBookWithdrawView(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        member_book_copy = serializer.validated_data
-        history = BookCopyHistory.objects.create(
-            book_copy=member_book_copy.book_copy,
+        member_book_copys = serializer.validated_data
+        updated_at = timezone.now()
+        member_book_copy_ids = [r.id for r in member_book_copys]
+        book_copy_ids = [r.book_copy.id for r in member_book_copys]
+        MemberBookCopy.objects \
+            .filter(id__in=member_book_copy_ids) \
+            .update(updated_at=updated_at, is_enabled=False, onboard_date=None)
+
+        BookCopy.objects.filter(id__in=book_copy_ids).update(book_status=BookCopy.NEW, updated_at=updated_at)
+
+        attachment_file = None
+        if attachment:
+            attachment_file = UploadFile.objects.create(file=attachment)
+
+        history_list = [BookCopyHistory(
+            book_copy_id=book_copy_id,
             action=BookCopyHistory.WITHDRAW_BOOK_FROM_CLUB,
             description=description,
-            attachment=attachment,
-        )
-
-        member_book_copy.book_copy.book_status = BookCopy.NEW
-        member_book_copy.book_copy.updated_at = history.created_at
-        member_book_copy.save()
-
-        member_book_copy.updated_at = history.created_at
-        member_book_copy.is_enabled = False
-        member_book_copy.onboard_date = None
-        member_book_copy.save()
-        return Response({'result': 'ok'}, status=status.HTTP_200_OK)
+            attachment=attachment_file,
+            created_at=updated_at,
+        ) for book_copy_id in book_copy_ids]
+        BookCopyHistory.objects.bulk_create(history_list)
+        return Response({'result': 'withdraw books successfully'}, status=status.HTTP_200_OK)
 
 # class BookClubMemberBookLendView(APIView):
 #     permission_classes = (IsAuthenticated, IsStaff,)
