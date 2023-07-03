@@ -401,6 +401,8 @@ class BookClubMemberBookDepositView(APIView):
             .filter(id__in=member_book_copy_ids) \
             .update(updated_at=updated_at, onboard_date=updated_at)
 
+        BookCopy.objects.filter(id__in=book_copy_ids).update(book_status=BookCopy.SHARING_CLUB, updated_at=updated_at)
+
         attachment_file = None
         if attachment:
             attachment_file = UploadFile.objects.create(file=attachment)
@@ -455,8 +457,8 @@ class BookClubMemberBookWithdrawView(APIView):
 # class BookClubMemberBookLendView(APIView):
 #     permission_classes = (IsAuthenticated, IsStaff,)
 #
-# class BookClubMemberBookReturnView(APIView):
-#     permission_classes = (IsAuthenticated, IsStaff,)
+class BookClubMemberBookReturnView(APIView):
+    permission_classes = (IsAuthenticated, IsStaff,)
 #
 #     @swagger_auto_schema(request_body=ReturnBookSerializer)
 #     @transaction.atomic
