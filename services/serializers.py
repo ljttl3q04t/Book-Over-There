@@ -95,7 +95,8 @@ class ClubBookListFilter(filters.FilterSet):
     def filter_withdraw_book(self, queryset, _, value):
         if value:
             return queryset \
-                .filter(book_copy__book_status=BookCopy.SHARING_CLUB, current_reader__isnull=True)
+                .filter(book_copy__book_status=BookCopy.SHARING_CLUB, current_reader__isnull=True,
+                        onboard_date__isnull=False)
         else:
             return queryset
 
