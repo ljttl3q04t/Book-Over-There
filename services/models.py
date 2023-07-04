@@ -197,8 +197,8 @@ class MembershipOrderDetail(BaseModel):
     order = models.ForeignKey(MembershipOrder, on_delete=models.CASCADE, related_name='membership_order_details')
     member_book_copy = models.ForeignKey(MemberBookCopy, on_delete=models.CASCADE)
     due_date = models.DateTimeField()
-    return_date = models.DateTimeField(null=True)
-    overdue_day_count = models.IntegerField(null=True)
+    return_date = models.DateTimeField(null=True, blank=True)
+    overdue_day_count = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return f'{self.id} - orderId: {self.order.id} - {self.member_book_copy}'
@@ -208,12 +208,14 @@ class BookCopyHistory(BaseModel):
     WITHDRAW_BOOK_FROM_CLUB = "withdraw_book_from_club"
     CLUB_BORROW_BOOK = 'club_borrow_book'
     CLUB_EXTEND_DUE_DATE = 'club_extend_due_date'
+    CLUB_RETURN_BOOK = 'club_return_book'
 
     ACTION_CHOICES = (
         (DONATE_TO_CLUB, 'donate_to_club'),
         (WITHDRAW_BOOK_FROM_CLUB, "withdraw_book_from_club"),
         (CLUB_BORROW_BOOK, 'club_borrow_book'),
         (CLUB_EXTEND_DUE_DATE, 'club_extend_due_date'),
+        (CLUB_RETURN_BOOK, 'club_return_book'),
     )
 
     book_copy = models.ForeignKey(BookCopy, on_delete=models.CASCADE)

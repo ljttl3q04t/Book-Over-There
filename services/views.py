@@ -26,7 +26,8 @@ from .serializers import BookCopySerializer, BookSerializer, GetOrderSerializer,
     MyBookAddSerializer, ShareBookClubSerializer, BookClubMemberUpdateSerializer, \
     UserSerializer, BookClubMemberDepositBookSerializer, BookClubMemberWithdrawBookSerializer, \
     BookClubStaffCreateOrderSerializer, MemberBookCopySerializer, ClubBookListFilter, BookCheckSerializer, \
-    UserBorrowingBookSerializer, BookClubStaffExtendOrderSerializer, StaffBorrowingSerializer, BookCopyHistorySerializer
+    UserBorrowingBookSerializer, BookClubStaffExtendOrderSerializer, StaffBorrowingSerializer, \
+    BookCopyHistorySerializer, ReturnBookSerializer
 
 class UploadFileView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -454,17 +455,6 @@ class BookClubMemberBookWithdrawView(APIView):
         BookCopyHistory.objects.bulk_create(history_list)
         return Response({'result': 'withdraw books successfully'}, status=status.HTTP_200_OK)
 
-# class BookClubMemberBookLendView(APIView):
-#     permission_classes = (IsAuthenticated, IsStaff,)
-#
-class BookClubMemberBookReturnView(APIView):
-    permission_classes = (IsAuthenticated, IsStaff,)
-#
-#     @swagger_auto_schema(request_body=ReturnBookSerializer)
-#     @transaction.atomic
-#     def post(self, request):
-#         serializer = ReturnBookSerializer(data=request.data)
-
 class StaffBorrowingView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)
 
@@ -478,6 +468,52 @@ class StaffBorrowingView(APIView):
         order_details = MembershipOrderDetail.objects.filter(order__membership=membership)
         serializer = UserBorrowingBookSerializer(instance=order_details, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class BookClubMemberBookReturnView(APIView):
+    permission_classes = (IsAuthenticated, IsStaff,)
+
+    @swagger_auto_schema(request_body=ReturnBookSerializer)
+    @transaction.atomic
+    def post(self, request):
+        serializer = ReturnBookSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        note = request.data['note']
+        attachment = request.data.get('attachment')
+        updated_at = timezone.now()
+
+        order_details, membership_borrower, book_copy_ids = serializer.validated_data
+        order_detail_ids = [o.id for o in order_details]
+        member_book_copy_ids = [o.member_book_copy_id for o in order_details]
+
+        MembershipOrderDetail.objects \
+            .filter(id__in=order_detail_ids) \
+            .update(return_date=updated_at, updated_at=updated_at)
+
+        MemberBookCopy.objects.filter(id__in=member_book_copy_ids).update(updated_at=updated_at, current_reader=None)
+        BookCopy.objects.filter(id__in=book_copy_ids).update(updated_at=updated_at, book_status=BookCopy.SHARING_CLUB)
+        order_ids = set([o.order_id for o in order_details])
+        for order_id in order_ids:
+            flag = MembershipOrderDetail.objects.filter(order_id=order_id, return_date__isnull=True).exists()
+            if not flag:
+                MembershipOrder.objects.filter(id=order_id).update(updated_at=updated_at,
+                                                                   order_status=MembershipOrder.COMPLETED)
+
+        attachment_file = None
+        if attachment:
+            attachment_file = UploadFile.objects.create(file=attachment)
+
+        history_list = [BookCopyHistory(
+            book_copy_id=book_copy_id,
+            action=BookCopyHistory.CLUB_RETURN_BOOK,
+            membership_borrower=membership_borrower,
+            description=note,
+            attachment=attachment_file,
+            created_at=updated_at,
+        ) for book_copy_id in book_copy_ids]
+        BookCopyHistory.objects.bulk_create(history_list)
+        return Response({'result': 'return books successfully'}, status=status.HTTP_200_OK)
 
 class BookClubStaffExtendOrderView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)

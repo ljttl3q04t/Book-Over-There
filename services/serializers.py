@@ -324,6 +324,29 @@ class BookClubStaffExtendOrderSerializer(serializers.Serializer):
         book_copy_ids = [order_detail.member_book_copy.book_copy_id for order_detail in order_details]
         return order_details, membership_borrower, book_copy_ids
 
+class ReturnBookSerializer(serializers.Serializer):
+    membership_order_detail_ids = serializers.CharField()
+    note = serializers.CharField(max_length=500)
+    attachment = serializers.FileField(required=False)
+
+    def validate(self, data):
+        try:
+            membership_order_detail_ids = [int(i) for i in data['membership_order_detail_ids'].split(',')]
+        except:
+            raise serializers.ValidationError('invalid membership_order_detail_ids')
+
+        order_details = MembershipOrderDetail.objects.filter(id__in=membership_order_detail_ids)
+        if len(order_details) != len(membership_order_detail_ids):
+            raise serializers.ValidationError('membership_order_detail_ids missmatch')
+
+        for order_detail in order_details:
+            if order_detail.return_date:
+                raise serializers.ValidationError('already return book', order_detail.member_book_copy.book_copy.book.name)
+
+        membership_borrower = order_details[0].order.membership
+        book_copy_ids = [order_detail.member_book_copy.book_copy_id for order_detail in order_details]
+        return order_details, membership_borrower, book_copy_ids
+
 class BookClubStaffCreateOrderSerializer(serializers.Serializer):
     membership_id = serializers.IntegerField()
     member_book_copy_ids = serializers.CharField()
@@ -349,8 +372,6 @@ class BookClubStaffCreateOrderSerializer(serializers.Serializer):
         if len(member_book_copys) != len(member_book_copy_ids):
             raise serializers.ValidationError('invalid books')
         return membership, member_book_copys
-
-# class ReturnBookSerializer(serializers.Serializer):
 
 class UserBorrowingBookSerializer(serializers.ModelSerializer):
 
