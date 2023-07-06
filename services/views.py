@@ -631,15 +631,15 @@ class MemberShipOrderCreateView(APIView):
         if serializer.is_valid():
             order_details = serializer.validated_data.pop('order_details')
             order = MembershipOrder.objects.create(
-                membership_id=serializer.validated_data['membership_id']
+                membership_id=serializer.validated_data['membership_id'],
             )
             for detail in order_details:
                 MembershipOrderDetail.objects.create(
                     order_id=order.id,
-                    member_book_copy_id=detail.member_book_copy_id,
-                    due_date=detail.due_date,
+                    member_book_copy_id=detail['member_book_copy'].id,
+                    due_date=detail['due_date'],
                 )
-            return Response({'result': 'ok'}, status=status.HTTP_201_CREATED)
+            return Response({'result': 'create order successfully'}, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

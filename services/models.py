@@ -186,7 +186,7 @@ class MembershipOrder(BaseModel):
     )
 
     membership = models.ForeignKey(Membership, on_delete=models.CASCADE)
-    order_date = models.DateField(auto_created=True)
+    order_date = models.DateField(auto_created=True, auto_now_add=True)
     confirm_date = models.DateField(null=True)
     order_status = models.CharField(max_length=20, choices=MEMBERSHIP_ORDER_STATUS_CHOICE, default=CREATED)
 
