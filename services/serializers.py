@@ -304,6 +304,17 @@ class BookClubMemberWithdrawBookSerializer(serializers.Serializer):
         #     raise serializers.ValidationError("Book onboard date not exceeded 30 days")
         return member_book_copys
 
+class StaffOrderConfirmSerializer(serializers.Serializer):
+    order_id = serializers.IntegerField()
+    note = serializers.CharField(max_length=500)
+    attachment = serializers.FileField(required=False)
+
+    def validate(self, data):
+        order = MembershipOrder.objects.filter(id=data['order_id']).first()
+        if not order:
+            raise serializers.ValidationError('order not found')
+        return order
+
 class BookClubStaffExtendOrderSerializer(serializers.Serializer):
     membership_order_detail_ids = serializers.CharField()
     new_due_date = serializers.DateTimeField()

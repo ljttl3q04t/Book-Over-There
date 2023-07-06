@@ -27,7 +27,8 @@ from .serializers import BookCopySerializer, BookSerializer, GetOrderSerializer,
     UserSerializer, BookClubMemberDepositBookSerializer, BookClubMemberWithdrawBookSerializer, \
     BookClubStaffCreateOrderSerializer, MemberBookCopySerializer, ClubBookListFilter, BookCheckSerializer, \
     UserBorrowingBookSerializer, BookClubStaffExtendOrderSerializer, StaffBorrowingSerializer, \
-    BookCopyHistorySerializer, ReturnBookSerializer
+    BookCopyHistorySerializer, ReturnBookSerializer, StaffOrderConfirmSerializer
+
 
 class UploadFileView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -552,6 +553,50 @@ class BookClubStaffExtendOrderView(APIView):
         BookCopyHistory.objects.bulk_create(history_list)
         return Response({'result': 'ok'}, status=status.HTTP_200_OK)
 
+class StaffConfirmOrderView(APIView):
+    permission_classes = (IsAuthenticated, IsStaff,)
+
+    @swagger_auto_schema(request_body=StaffOrderConfirmSerializer)
+    @transaction.atomic
+    def post(self, request):
+        serializer = StaffOrderConfirmSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        order = serializer.validated_data
+        note = request.data['note']
+        attachment = request.data.get('attachment')
+        updated_at = timezone.now()
+
+        MembershipOrder.objects \
+            .filter(id=order.id) \
+            .update(order_status=MembershipOrder.CONFIRMED, updated_at=updated_at, confirm_date=updated_at)
+
+        member_book_copy_ids = MembershipOrderDetail.objects.filter(order_id=order.id).values_list(
+            'member_book_copy_id', flat=True)
+        book_copy_ids = MemberBookCopy.objects.filter(id__in=member_book_copy_ids).values_list('book_copy_id', flat=True)
+
+        MemberBookCopy.objects \
+            .filter(id__in=member_book_copy_ids) \
+            .update(current_reader=order.membership, updated_at=updated_at)
+
+        BookCopy.objects.filter(id__in=book_copy_ids).update(updated_at=updated_at, book_status=BookCopy.BORROWED)
+
+        attachment_file = None
+        if attachment:
+            attachment_file = UploadFile.objects.create(file=attachment)
+
+        history_list = [BookCopyHistory(
+            book_copy_id=book_copy_id,
+            action=BookCopyHistory.CLUB_EXTEND_DUE_DATE,
+            membership_borrower=order.membership,
+            description=note,
+            attachment=attachment_file,
+            created_at=updated_at,
+        ) for book_copy_id in book_copy_ids]
+        BookCopyHistory.objects.bulk_create(history_list)
+        return Response({'result': 'Order confirmed'}, status=status.HTTP_200_OK)
+
 class BookClubStaffCreateOrderView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)
 
@@ -628,20 +673,20 @@ class MemberShipOrderCreateView(APIView):
     @transaction.atomic
     def post(self, request):
         serializer = MembershipOrderCreateSerializer(data=request.data)
-        if serializer.is_valid():
-            order_details = serializer.validated_data.pop('order_details')
-            order = MembershipOrder.objects.create(
-                membership_id=serializer.validated_data['membership_id'],
-            )
-            for detail in order_details:
-                MembershipOrderDetail.objects.create(
-                    order_id=order.id,
-                    member_book_copy_id=detail['member_book_copy'].id,
-                    due_date=detail['due_date'],
-                )
-            return Response({'result': 'create order successfully'}, status=status.HTTP_201_CREATED)
-        else:
+        if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        order_details = serializer.validated_data.pop('order_details')
+        order = MembershipOrder.objects.create(
+            membership_id=serializer.validated_data['membership_id'],
+        )
+        for detail in order_details:
+            MembershipOrderDetail.objects.create(
+                order=order,
+                member_book_copy=detail['member_book_copy'],
+                due_date=detail['due_date'],
+            )
+        return Response({'result': 'create order successfully'}, status=status.HTTP_201_CREATED)
 
 class MyMembershipView(APIView):
     permission_classes = (IsAuthenticated,)
