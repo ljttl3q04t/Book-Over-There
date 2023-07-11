@@ -42,23 +42,29 @@ class User(AbstractUser, BaseModel):
     avatar = models.FileField(storage=UserAvatarStorage(), default=None, blank=True, null=True)
 
 class Category(BaseModel):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, unique=True)
 
     def __str__(self):
         return self.name
 
 class Author(BaseModel):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, unique=True)
+
+    def __str__(self):
+        return self.name
 
 class Publisher(BaseModel):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, unique=True)
+
+    def __str__(self):
+        return self.name
 
 class Book(BaseModel):
     name = models.CharField(max_length=200, db_index=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     image = models.FileField(storage=BookCoverStorage(), default=None, blank=True, null=True)
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
-    publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)
+    publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE, default=None, blank=True, null=True)
     description = models.TextField(null=True)
 
     def __str__(self):
@@ -82,9 +88,8 @@ class BookCopy(BaseModel):
     )
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    code = models.CharField(max_length=10, db_index=True, null=True, blank=True)
     book_status = models.CharField(max_length=20, choices=BOOK_STATUS_CHOICES, default=NEW)
-    book_deposit_price = models.IntegerField(null=True, default=None, blank=True)
-    book_deposit_status = models.IntegerField(null=True, default=None, blank=True)
 
     def __str__(self):
         return f'{self.user.username} - {self.book.name}'
