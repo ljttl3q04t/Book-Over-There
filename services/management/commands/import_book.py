@@ -37,4 +37,4 @@ class Command(BaseCommand):
     help = "import book for d free book"
 
     def handle(self, *args, **options):
-        import_books_from_csv('/home/tintin/Downloads/caugiay.csv')
+        import_books_from_csv('/home/caugiay.csv')
