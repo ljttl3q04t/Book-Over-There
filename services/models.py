@@ -121,13 +121,13 @@ class BookClub(BaseModel):
         return self.name
 
 class Member(BaseModel):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     book_clubs = models.ManyToManyField(BookClub, through='Membership')
     full_name = models.CharField(max_length=200)
-    birth_date = models.DateField()
-    email = models.EmailField(max_length=100)
-    phone_number = models.CharField(max_length=20)
-    address = models.CharField(max_length=200)
+    birth_date = models.DateField(null=True, blank=True)
+    email = models.EmailField(max_length=100, null=True, blank=True)
+    phone_number = models.CharField(max_length=20, null=True, blank=True)
+    address = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
         return f"{self.id} - {self.full_name}"
@@ -148,7 +148,7 @@ class Membership(BaseModel):
     member = models.ForeignKey(Member, on_delete=models.CASCADE)
     book_club = models.ForeignKey(BookClub, on_delete=models.CASCADE)
     member_status = models.CharField(max_length=10, choices=MEMBER_STATUS_CHOICES, default=PENDING)
-    joined_at = models.DateTimeField(auto_now_add=True)
+    joined_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     leaved_at = models.DateField(null=True, default=None, blank=True)
     is_staff = models.BooleanField(default=False)
 

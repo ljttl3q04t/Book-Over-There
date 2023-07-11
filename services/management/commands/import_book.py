@@ -1,8 +1,7 @@
 import csv
 
-from django.core.cache import cache
 from django.core.management import BaseCommand
-from django.db import connection, transaction
+from django.db import transaction
 from django.utils import timezone
 
 from services.models import User, Book, Author, Category, BookCopy, MemberBookCopy, Membership
@@ -27,7 +26,8 @@ def import_books_from_csv(file_path):
             book_record, _ = Book.objects.get_or_create(name=name, author=author_record, category=category_record)
             count_book_copy = BookCopy.objects.filter(book=book_record, user=user).count()
             for i in range(int(init_count) - count_book_copy):
-                book_copy = BookCopy.objects.create(book=book_record, user=user, book_status=BookCopy.SHARING_CLUB)
+                book_copy = BookCopy.objects \
+                    .create(book=book_record, user=user, book_status=BookCopy.SHARING_CLUB, code=code)
                 member_book_copy = MemberBookCopy.objects \
                     .create(book_copy=book_copy, membership=membership, onboard_date=current_time)
 
