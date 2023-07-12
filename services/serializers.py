@@ -115,10 +115,11 @@ class ClubBookListFilter(filters.FilterSet):
 class UserRegisterSerializer(serializers.ModelSerializer):
     phone_number = serializers.CharField(allow_null=False)
     email = serializers.CharField(allow_null=False)
+    full_name = serializers.CharField(allow_null=False, required=True)
 
     class Meta:
         model = User
-        fields = ['username', 'password', 'phone_number', 'email']
+        fields = ['username', 'password', 'phone_number', 'email', 'full_name']
 
 class UserUpdateSerializer(serializers.ModelSerializer):
     phone_number = serializers.CharField(allow_null=False)
