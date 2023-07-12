@@ -11,6 +11,11 @@ class ClubBookGetIdsSerializer(serializers.Serializer):
 class ClubBookGetInfosSerializer(serializers.Serializer):
     club_book_ids = ListIntegerField()
 
+class GetOrderIdsSerializer(serializers.Serializer):
+    club_id = serializers.IntegerField()
+    from_date = serializers.DateField(required=False)
+    to_date = serializers.DateField(required=False)
+
 class ClubBookAddSerializer(serializers.Serializer):
     name = serializers.CharField()
     category_id = serializers.IntegerField()

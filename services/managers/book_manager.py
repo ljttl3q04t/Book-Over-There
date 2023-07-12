@@ -33,11 +33,12 @@ def get_publisher_infos():
     serializer = PublisherSerializer(instance=publishers, many=True)
     return {item['id']: item for item in serializer.data}
 
-def get_book_records(book_ids=None, author_ids=None, category_ids=None):
+def get_book_records(book_ids=None, author_ids=None, category_ids=None, book_name=None):
     return Book.objects.filter_ignore_none(
         id__in=book_ids,
         author_id__in=author_ids,
         category_id__in=category_ids,
+        name__istartswith=book_name,
     )
 
 @combine_key_cache_data(**CACHE_KEY_BOOK_INFOS)
