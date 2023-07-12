@@ -95,28 +95,28 @@ WSGI_APPLICATION = 'book_over_there.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# DATABASES = {
-#     "default": {
-#         "ENGINE": 'django.db.backends.postgresql',
-#         "NAME": os.environ.get("SQL_DATABASE", "book_db"),
-#         "USER": os.environ.get("SQL_USER", "postgres"),
-#         "PASSWORD": os.environ.get("SQL_PASSWORD", "123456"),
-#         "HOST": os.environ.get("SQL_HOST", "localhost"),
-#         # "PORT": os.environ.get("SQL_PORT", "5432"),
-#         "PORT": "5433",
-#     }
-# }
-
 DATABASES = {
     "default": {
         "ENGINE": 'django.db.backends.postgresql',
-        "NAME": "book_db",
-        "USER": "postgres",
-        "PASSWORD": "123456",
-        "HOST": "localhost",
-        "PORT": "5432",
+        "NAME": os.environ.get("SQL_DATABASE", "book_db"),
+        "USER": os.environ.get("SQL_USER", "postgres"),
+        "PASSWORD": os.environ.get("SQL_PASSWORD", "123456"),
+        "HOST": os.environ.get("SQL_HOST", "localhost"),
+        # "PORT": os.environ.get("SQL_PORT", "5432"),
+        "PORT": "5433",
     }
 }
+
+# DATABASES = {
+#     "default": {
+#         "ENGINE": 'django.db.backends.postgresql',
+#         "NAME": "book_db",
+#         "USER": "postgres",
+#         "PASSWORD": "123456",
+#         "HOST": "localhost",
+#         "PORT": "5432",
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

@@ -13,6 +13,13 @@ class CustomImageField(serializers.ImageField):
             return None
         return super().to_representation(value)
 
+class ListIntegerField(serializers.CharField):
+    def to_representation(self, value):
+        try:
+            return [int(i) for i in value.split(',')]
+        except:
+            raise serializers.ValidationError('invalid ListIntegerField')
+
 class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()

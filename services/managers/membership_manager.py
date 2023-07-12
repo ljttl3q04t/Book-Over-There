@@ -1,4 +1,5 @@
-from services.managers.cache_manager import simple_cache_data, CACHE_CLUB_GET_INFOS_DICT, CACHE_KEY_MEMBER_INFOS
+from services.managers.cache_manager import simple_cache_data, CACHE_CLUB_GET_INFOS_DICT, CACHE_KEY_MEMBER_INFOS, \
+    combine_key_cache_data
 from services.models import User, Membership, BookClub, Member
 from services.serializers import BookClubSerializer
 
@@ -11,7 +12,12 @@ def get_clubs():
     serializer = BookClubSerializer(instance=result, many=True)
     return {item['id']: item for item in serializer.data}
 
-# @simple_cache_data(**CACHE_KEY_MEMBER_INFOS)
+def get_member_records(user_id=None):
+    return Member.objects.filter_ignore_none(
+        user_id=user_id,
+    )
+
+@combine_key_cache_data(**CACHE_KEY_MEMBER_INFOS)
 def get_member_infos():
     results = Member.objects.all()
     data = {}

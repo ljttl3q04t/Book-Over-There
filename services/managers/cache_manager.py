@@ -11,12 +11,6 @@ CACHE_KEY_MEMBER_CLUB = {
     'expiry_time': DEFAULT_EXPIRY_TIME
 }
 
-CACHE_KEY_MEMBER_INFOS = {
-    'cache_key_converter': lambda cache_prefix: cache_prefix,
-    'cache_prefix': 'member.infos.club.%s',
-    'expiry_time': DEFAULT_EXPIRY_TIME
-}
-
 CACHE_KEY_CATEGORY_INFOS_DICT = {
     'cache_key_converter': lambda cache_prefix: cache_prefix,
     'cache_prefix': 'book.category.infos',
@@ -50,6 +44,12 @@ CACHE_KEY_CLUB_BOOK_INFOS = {
 CACHE_CLUB_GET_INFOS_DICT = {
     'cache_key_converter': lambda cache_prefix: cache_prefix,
     'cache_prefix': 'club.infos',
+    'expiry_time': DEFAULT_EXPIRY_TIME
+}
+
+CACHE_KEY_MEMBER_INFOS = {
+    'cache_key_converter': lambda cache_prefix, user_id: cache_prefix % user_id,
+    'cache_prefix': 'member.infos.user_id.%s',
     'expiry_time': DEFAULT_EXPIRY_TIME
 }
 
