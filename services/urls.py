@@ -18,8 +18,6 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    path('overview', views.OverViewAPIView.as_view(), name='overview'),
-
     # user
     path('user/register', views.UserRegisterView.as_view(), name='user-register'),
     path('user/login', views.UserLoginView.as_view(), name='login'),
@@ -63,14 +61,6 @@ urlpatterns = [
 
     # membership-order
     path('membership/order/create', views.MemberShipOrderCreateView.as_view(), name='membership-order-create'),
-
-    # order
-    path('orders/create/', views.OrderCreateAPIView.as_view(), name='order-create'),
-    path('orders/<int:pk>/status/', views.OrderStatusUpdateAPIView.as_view(), name='order-status-update'),
-    path('orders/<int:order_id>/', views.GetOrderCreateAPIView.as_view(), name='order-detail'),
-
-    # orderDetail
-    path('order-details/create/', views.GetOrderCreateAPIView.as_view(), name='order-detail-create'),
 
     # upload file
     path('upload', views.UploadFileView.as_view(), name='upload-file'),

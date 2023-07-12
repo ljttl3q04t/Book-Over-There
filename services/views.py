@@ -17,10 +17,10 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from services.managers import membership_manager, book_manager
 from services.managers.permission_manager import is_staff, IsStaff
 from .managers.crawl_manager import CrawFahasa, CrawTiki
-from .models import Book, MemberBookCopy, Order, OrderDetail, User, BookCopy, BookClub, Member, Membership, \
+from .models import Book, MemberBookCopy, BookCopy, BookClub, Member, Membership, \
     MembershipOrder, \
     MembershipOrderDetail, UploadFile, Category, BookCopyHistory
-from .serializers import BookCopySerializer, BookSerializer, GetOrderSerializer, OrderDetailSerializer, OrderSerializer, \
+from .serializers import BookCopySerializer, BookSerializer, \
     UserLoginSerializer, UserRegisterSerializer, BookFilter, BookClubRequestToJoinSerializer, \
     MemberSerializer, MembershipOrderCreateSerializer, UserUpdateSerializer, MembershipSerializer, CategorySerializer, \
     MyBookAddSerializer, ShareBookClubSerializer, BookClubMemberUpdateSerializer, \
@@ -28,7 +28,6 @@ from .serializers import BookCopySerializer, BookSerializer, GetOrderSerializer,
     BookClubStaffCreateOrderSerializer, MemberBookCopySerializer, ClubBookListFilter, BookCheckSerializer, \
     UserBorrowingBookSerializer, BookClubStaffExtendOrderSerializer, StaffBorrowingSerializer, \
     BookCopyHistorySerializer, ReturnBookSerializer, StaffOrderConfirmSerializer
-
 
 class UploadFileView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -182,17 +181,6 @@ class UpdateUserInfoView(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
 
-class OverViewAPIView(APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def get(self, request):
-        data = {
-            'user': User.objects.count(),
-            'book': Book.objects.count(),
-            'order': OrderDetail.objects.count(),
-        }
-        return JsonResponse(data, status=status.HTTP_200_OK)
-
 class BookCheckView(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -274,49 +262,6 @@ class BookCopyUpdateView(APIView):
         book_copy.save()
 
         return Response({"message": "BookCopy updated successfully."}, status=200)
-
-# Oders
-class OrderStatusUpdateAPIView(APIView):
-    def patch(self, request, pk):
-        try:
-            order = Order.objects.get(pk=pk)
-        except Order.DoesNotExist:
-            return Response({"detail": "Order not found."}, status=status.HTTP_404_NOT_FOUND)
-
-        order.status = request.data.get('status', order.status)
-        order.save()
-
-        serializer = OrderSerializer(order)
-        return Response(serializer.data)
-
-class OrderDetailCreateAPIView(APIView):
-    def post(self, request):
-        serializer = OrderDetailSerializer(data=request.data)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class OrderCreateAPIView(APIView):
-    def post(self, request):
-        serializer = OrderSerializer(data=request.data)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class GetOrderCreateAPIView(APIView):
-    def get(self, request, order_id):
-        try:
-            order = Order.objects.prefetch_related('order_details').get(id=order_id)
-            serializer = GetOrderSerializer(order)
-            return Response(serializer.data)
-        except Order.DoesNotExist:
-            return Response({"error": "Order not found."}, status=404)
 
 class BookClubRequestJoinView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -574,7 +519,8 @@ class StaffConfirmOrderView(APIView):
 
         member_book_copy_ids = MembershipOrderDetail.objects.filter(order_id=order.id).values_list(
             'member_book_copy_id', flat=True)
-        book_copy_ids = MemberBookCopy.objects.filter(id__in=member_book_copy_ids).values_list('book_copy_id', flat=True)
+        book_copy_ids = MemberBookCopy.objects.filter(id__in=member_book_copy_ids).values_list('book_copy_id',
+                                                                                               flat=True)
 
         MemberBookCopy.objects \
             .filter(id__in=member_book_copy_ids) \

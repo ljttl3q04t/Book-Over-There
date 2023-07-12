@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate
 from django_filters import rest_framework as filters
 from rest_framework import serializers
 
-from .models import Author, Book, BookCopy, Category, Order, OrderDetail, Publisher, User, BookClub, Member, \
+from .models import Author, Book, BookCopy, Category, Publisher, User, BookClub, Member, \
     MembershipOrderDetail, Membership, MemberBookCopy, MembershipOrder, BookCopyHistory
 
 class UserLoginSerializer(serializers.Serializer):
@@ -111,38 +111,6 @@ class ClubBookListFilter(filters.FilterSet):
     class Meta:
         model = MemberBookCopy
         fields = ['membership_id', 'book_copy__book_status', 'deposit_book', 'withdraw_book', 'create_order_book']
-
-class OrderDetailSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = OrderDetail
-        fields = ['book_copy', 'due_date', 'return_date']
-
-class OrderSerializer(serializers.ModelSerializer):
-    order_details = OrderDetailSerializer(many=True)
-
-    class Meta:
-        model = Order
-        fields = '__all__'
-
-    def create(self, validated_data):
-        order_details_data = validated_data.pop('order_details')
-        order = Order.objects.create(**validated_data)
-        for order_detail_data in order_details_data:
-            order_detail_data['order'] = order
-            OrderDetail.objects.create(**order_detail_data)
-        return order
-
-class GetOrderDetailSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = OrderDetail
-        fields = ['id', 'book_copy', 'due_date', 'return_date']
-
-class GetOrderSerializer(serializers.ModelSerializer):
-    order_details = GetOrderDetailSerializer(many=True)
-
-    class Meta:
-        model = Order
-        fields = ['id', 'order_user', 'order_date', 'total_book', 'comment', 'status', 'order_details']
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     phone_number = serializers.CharField(allow_null=False)

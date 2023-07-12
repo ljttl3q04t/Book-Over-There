@@ -94,23 +94,6 @@ class BookCopy(BaseModel):
     def __str__(self):
         return f'{self.user.username} - {self.book.name}'
 
-class Order(BaseModel):
-    order_user = models.ForeignKey(User, on_delete=models.CASCADE)
-    order_date = models.DateTimeField()
-    total_book = models.IntegerField()
-    comment = models.CharField(max_length=200, default=None)
-    status = models.IntegerField()
-
-class OrderDetail(BaseModel):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_details')
-    book_copy = models.ForeignKey(BookCopy, on_delete=models.CASCADE)
-    due_date = models.DateTimeField()
-    return_date = models.DateTimeField()
-
-class WishList(BaseModel):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
-
 class BookClub(BaseModel):
     name = models.CharField(max_length=100)
     description = models.TextField()
