@@ -5,7 +5,7 @@ from services.serializers import BookClubSerializer
 def get_user_club(user: User):
     return Membership.objects.filter(member__user=user).values_list('book_club_id', flat=True)
 
-# @simple_cache_data(**CACHE_CLUB_GET_INFOS_DICT)
+@simple_cache_data(**CACHE_CLUB_GET_INFOS_DICT)
 def get_clubs():
     result = BookClub.objects.all()
     serializer = BookClubSerializer(instance=result, many=True)
