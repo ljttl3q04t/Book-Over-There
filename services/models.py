@@ -1,9 +1,37 @@
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
+from django.db.models import QuerySet
+from django.db.models.manager import BaseManager
 
-from services.storage_backends import UserAvatarStorage, BaseStaticStorage, BookCoverStorage, BookHistoryStorage
+from services import utils
+from services.storage_backends import UserAvatarStorage, BaseStaticStorage, BookCoverStorage
+
+class BookQuerySet(QuerySet):
+    def __init__(self, *args, **kwargs):
+        super(BookQuerySet, self).__init__(*args, **kwargs)
+
+    def pk_list(self):
+        return list(self.values_list("pk", flat=True))
+
+    def flat_list(self, field, distinct=False):
+        qs = self.values_list(field, flat=True)
+        qs = qs.distinct() if distinct else qs
+        return list(qs)
+
+    def filter_ignore_none(self, *args, **kwargs):
+        not_none_kwargs = utils.remove_none_value_in_dict(kwargs)
+        return self.filter(*args, **not_none_kwargs)
+
+    def exclude_ignore_none(self, *args, **kwargs):
+        not_none_kwargs = utils.remove_none_value_in_dict(kwargs)
+        return self.exclude(*args, **not_none_kwargs)
+
+class Manager(BaseManager.from_queryset(BookQuerySet)):
+    pass
 
 class BaseModel(models.Model):
+    objects = Manager()
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -7,6 +7,19 @@ from rest_framework import serializers
 from .models import Author, Book, BookCopy, Category, Publisher, User, BookClub, Member, \
     MembershipOrderDetail, Membership, MemberBookCopy, MembershipOrder, BookCopyHistory
 
+class CustomImageField(serializers.ImageField):
+    def to_representation(self, value):
+        if not value or not value.name:
+            return None
+        return super().to_representation(value)
+
+class ListIntegerField(serializers.CharField):
+    def to_representation(self, value):
+        try:
+            return [int(i) for i in value.split(',')]
+        except:
+            raise serializers.ValidationError('invalid ListIntegerField')
+
 class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
@@ -30,22 +43,25 @@ class UserLoginSerializer(serializers.Serializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ['name']
+        fields = ['id', 'name']
 
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Author
-        fields = ['name']
+        fields = ['id', 'name']
 
 class PublisherSerializer(serializers.ModelSerializer):
     class Meta:
         model = Publisher
-        fields = ['name']
+        fields = ['id', 'name']
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['phone_number', 'email', 'address', 'full_name', 'birth_date', 'avatar', 'username']
+
+class ImageSerializer(serializers.Serializer):
+    image = serializers.ImageField()
 
 class BookSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
@@ -321,7 +337,8 @@ class ReturnBookSerializer(serializers.Serializer):
 
         for order_detail in order_details:
             if order_detail.return_date:
-                raise serializers.ValidationError('already return book', order_detail.member_book_copy.book_copy.book.name)
+                raise serializers.ValidationError('already return book',
+                                                  order_detail.member_book_copy.book_copy.book.name)
 
         membership_borrower = order_details[0].order.membership
         book_copy_ids = [order_detail.member_book_copy.book_copy_id for order_detail in order_details]

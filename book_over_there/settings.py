@@ -43,6 +43,7 @@ CORS_ALLOW_HEADERS = [
 
 INSTALLED_APPS = [
     'services.apps.ServicesConfig',
+    'd_free_book.apps.DFreeBookConfig',
     'rest_framework',
     'corsheaders',
     'drf_yasg',
@@ -253,7 +254,7 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': ['file'],
+            'handlers': ['console'],
             'level': 'INFO',
         },
     },
