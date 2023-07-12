@@ -53,6 +53,12 @@ CACHE_KEY_MEMBER_INFOS = {
     'expiry_time': DEFAULT_EXPIRY_TIME
 }
 
+CACHE_KEY_DFB_ORDER_INFOS = {
+    'cache_key_converter': lambda cache_prefix, order_id: cache_prefix % order_id,
+    'cache_prefix': 'dfb.order.infos.order_id.%s',
+    'expiry_time': DEFAULT_EXPIRY_TIME
+}
+
 def simple_cache_data(cache_key_converter, cache_prefix, expiry_time=DEFAULT_EXPIRY_TIME):
     def _cache_data(func):
         def _func(*args, **kwargs):

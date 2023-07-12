@@ -6,8 +6,11 @@ urlpatterns = [
     path('club_book/get_ids', views.ClubBookGetIdsView.as_view()),
     path('club_book/get_infos', views.ClubBookGetInfosView.as_view()),
 
+    path('order_detail/get_ids', views.OrderDetailGetIdsView.as_view()),
+    path('order_detail/get_infos', views.OrderDetailGetInfosView.as_view()),
+
     path('order/get_ids', views.StaffGetOrderIdsView.as_view()),
-    path('order/get_infos', views.ClubBookGetInfosView.as_view()),
+    path('order/get_infos', views.OrderInfosView.as_view()),
 
     # path('club_book/add', views.StaffAddBook.as_view()),
     # path('club_book/update', views.ClubBookAddView.as_view()),

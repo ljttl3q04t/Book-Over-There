@@ -31,6 +31,7 @@ class DFreeOrder(BaseModel):
     )
 
     member = models.ForeignKey(DFreeMember, on_delete=models.CASCADE)
+    club = models.ForeignKey(BookClub, on_delete=models.CASCADE)
     order_date = models.DateField()
     due_date = models.DateField()
     order_status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default=CREATED)
