@@ -1,6 +1,7 @@
 from d_free_book.models import ClubBook, DFreeOrder, DFreeMember, DFreeOrderDetail
 from services.managers.book_manager import get_book_infos
-from services.managers.cache_manager import combine_key_cache_data, CACHE_KEY_CLUB_BOOK_INFOS, CACHE_KEY_DFB_ORDER_INFOS
+from services.managers.cache_manager import combine_key_cache_data, CACHE_KEY_CLUB_BOOK_INFOS, \
+    CACHE_KEY_DFB_ORDER_INFOS, CACHE_KEY_MEMBER_INFOS
 
 def get_club_book_records(club_book_ids=None, club_id=None, book_ids=None):
     return ClubBook.objects.filter_ignore_none(
@@ -9,11 +10,24 @@ def get_club_book_records(club_book_ids=None, club_id=None, book_ids=None):
         book_id__in=book_ids,
     )
 
-def get_member_records(phone_number=None, code=None):
+def get_member_records(phone_number=None, code=None, member_ids=None):
     return DFreeMember.objects.filter_ignore_none(
+        id__in=member_ids,
         phone_number=phone_number,
         code=code,
     )
+
+@combine_key_cache_data(**CACHE_KEY_MEMBER_INFOS)
+def get_member_infos(member_ids):
+    members = get_member_records(member_ids=member_ids)
+    result = {}
+    for member in members:
+        result[member.id] = {
+            'phone_number': member.phone_number,
+            'full_name': member.full_name,
+            'code': member.code,
+        }
+    return result
 
 def get_order_records(order_ids=None, club_id=None, member_ids=None, from_date=None, to_date=None, order_status=None):
     return DFreeOrder.objects.filter_ignore_none(
@@ -74,6 +88,8 @@ def get_order_infos(order_ids):
         return None
 
     orders = list(get_order_records(order_ids))
+    member_ids = [o.member_id for o in orders]
+    member_infos = get_member_infos(member_ids)
     order_detail_ids = get_order_detail_records(order_ids=order_ids).pk_list()
     order_detail_infos = get_order_detail_infos(order_detail_ids)
     map_order_order_details = {}
@@ -88,6 +104,7 @@ def get_order_infos(order_ids):
         order_details = map_order_order_details.get(order.id)
         result[order.id] = {
             'id': order.id,
+            'member': member_infos.get(order.member_id),
             'club_id': order.club_id,
             'order_date': order.order_date,
             'due_date': order.due_date,
