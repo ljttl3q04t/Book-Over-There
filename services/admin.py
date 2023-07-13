@@ -6,11 +6,11 @@ from services import models
 class CustomModelAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
-        # cache.clear()
+        cache.clear()
 
     def delete_model(self, request, obj):
         super().delete_model(request, obj)
-        # cache.clear()
+        cache.clear()
 
 models_to_register = [
     models.Permission,
