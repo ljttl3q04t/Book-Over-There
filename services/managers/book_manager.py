@@ -55,6 +55,7 @@ def get_book_infos(book_ids):
 
     for book in books:
         result[book.id] = {
+            'id': book.id,
             'name': book.name,
             'category': map_category.get(book.category_id),
             'author': map_author.get(book.author_id),
