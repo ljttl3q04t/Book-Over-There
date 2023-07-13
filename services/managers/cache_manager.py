@@ -1,6 +1,6 @@
 from django.core.cache import cache
 
-DEFAULT_EXPIRY_TIME = 30 * 60
+DEFAULT_EXPIRY_TIME = 10
 CACHE_KEY_LENGTH_MAX_SIZE = 5000
 
 force_query_default = False
