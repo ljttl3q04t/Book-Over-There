@@ -127,6 +127,7 @@ class BookClub(BaseModel):
     description = models.TextField()
     address = models.TextField(default='', null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    code = models.CharField(max_length=50, null=True, blank=True)
 
     def __str__(self):
         return self.name
