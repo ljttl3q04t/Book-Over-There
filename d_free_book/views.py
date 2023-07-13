@@ -19,7 +19,7 @@ class ClubBookGetIdsView(APIView):
         serializer = ClubBookGetIdsSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        club_id = serializer.data['club_id']
+        club_id = serializer.data.get('club_id')
 
         book_category_ids = serializer.data.get('book_category_ids')
         book_author_ids = serializer.data.get('book_author_ids')
