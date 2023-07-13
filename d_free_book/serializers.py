@@ -20,8 +20,10 @@ class GetOrderInfosSerializer(serializers.Serializer):
     order_ids = ListIntegerField()
 
 class ClubBookAddSerializer(serializers.Serializer):
+    club_id = serializers.IntegerField()
     name = serializers.CharField()
-    category_id = serializers.IntegerField()
+    code = serializers.CharField()
+    category = serializers.CharField()
     author = serializers.CharField()
     image = serializers.ImageField(required=False)
     init_count = serializers.IntegerField(default=1)

@@ -59,12 +59,6 @@ CACHE_KEY_DFB_ORDER_INFOS = {
     'expiry_time': DEFAULT_EXPIRY_TIME
 }
 
-CACHE_KEY_MEMBER_INFOS = {
-    'cache_key_converter': lambda cache_prefix, member_id: cache_prefix % member_id,
-    'cache_prefix': 'dfb.member.infos.member_id.%s',
-    'expiry_time': DEFAULT_EXPIRY_TIME
-}
-
 def simple_cache_data(cache_key_converter, cache_prefix, expiry_time=DEFAULT_EXPIRY_TIME):
     def _cache_data(func):
         def _func(*args, **kwargs):
@@ -116,3 +110,19 @@ def combine_key_cache_data(cache_key_converter, cache_prefix, expiry_time=DEFAUL
         return _func
 
     return _cache_data
+
+def delete_simple_cache_data(cache_key_converter, cache_prefix):
+    def _delete_cache_data(func):
+        def _func(*args):
+            cache_key = cache_key_converter(cache_prefix, *args)
+            data = func(*args)
+            cache.delete(cache_key)
+
+            return data
+
+        return _func
+
+    return _delete_cache_data
+
+def invalid_cache_data(cache_key):
+    return cache.delete(cache_key)

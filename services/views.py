@@ -593,7 +593,7 @@ class BookClubStaffCreateOrderView(APIView):
         return Response({'result': 'ok'}, status=status.HTTP_200_OK)
 
 class BookClubBookListView(APIView):
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
 
     def get(self, request):
         user_clubs = membership_manager.get_user_club(request.user)

@@ -1,5 +1,7 @@
+from django.db import transaction
+
 from d_free_book.models import ClubBook, DFreeOrder, DFreeMember, DFreeOrderDetail
-from services.managers.book_manager import get_book_infos
+from services.managers.book_manager import get_book_infos, create_book
 from services.managers.cache_manager import combine_key_cache_data, CACHE_KEY_CLUB_BOOK_INFOS, \
     CACHE_KEY_DFB_ORDER_INFOS, CACHE_KEY_MEMBER_INFOS
 
@@ -113,3 +115,19 @@ def get_order_infos(order_ids):
         }
 
     return result
+
+@transaction.atomic
+def create_club_book(data):
+    book = create_book(
+        name=data['name'],
+        category=data['category'],
+        author=data['author'],
+        image=data['image'],
+    )
+    ClubBook.objects.create(
+        book=book,
+        code=data['code'],
+        club_id=data['club_id'],
+        init_count=data['init_count'],
+        current_count=data['current_count'],
+    )

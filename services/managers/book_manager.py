@@ -3,8 +3,9 @@ from io import BytesIO
 import requests
 from django.core.files import File
 
-from services.managers.cache_manager import simple_cache_data, CACHE_KEY_CATEGORY_INFOS_DICT, \
-    CACHE_KEY_AUTHOR_INFOS_DICT, combine_key_cache_data, CACHE_KEY_BOOK_INFOS, CACHE_KEY_PUBLISHER_INFOS_DICT
+from services.managers.cache_manager import delete_simple_cache_data, simple_cache_data, CACHE_KEY_CATEGORY_INFOS_DICT, \
+    CACHE_KEY_AUTHOR_INFOS_DICT, combine_key_cache_data, CACHE_KEY_BOOK_INFOS, CACHE_KEY_PUBLISHER_INFOS_DICT, \
+    invalid_cache_data
 from services.models import Book, Author, Category, Publisher
 from services.serializers import CategorySerializer, AuthorSerializer, BookSerializer, PublisherSerializer
 
@@ -62,3 +63,24 @@ def get_book_infos(book_ids):
             'image': book.image.url if book.image else None,
         }
     return result
+
+def get_or_create_author(author_name):
+    author, created = Author.objects.get_or_create(name=author_name)
+    if created:
+        invalid_cache_data(CACHE_KEY_AUTHOR_INFOS_DICT['cache_prefix'])
+    return author
+
+def get_or_create_category(category_name):
+    category, created = Category.objects.get_or_create(name=category_name)
+    invalid_cache_data(CACHE_KEY_CATEGORY_INFOS_DICT['cache_prefix'])
+    return category
+
+def create_book(name, category, author, image):
+    author = get_or_create_author(author)
+    category = get_or_create_category(category)
+    return Book.objects.create(
+        name=name,
+        category=category,
+        author=author,
+        image=image,
+    )

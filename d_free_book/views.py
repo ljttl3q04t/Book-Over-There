@@ -42,13 +42,31 @@ class ClubBookGetInfosView(APIView):
         club_book_infos = manager.get_club_book_infos(club_book_ids)
         return Response({'club_book_infos': club_book_infos}, status=status.HTTP_200_OK)
 
-class StaffAddBook(APIView):
+class ClubBookAddView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)
 
+    @swagger_auto_schema(request_body=ClubBookAddSerializer)
     def post(self, request):
         serializer = ClubBookAddSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if get_book_records(serializer.data['name']).exists():
+            return Response({'error': 'Book already exists'}, status=status.HTTP_400_BAD_REQUEST)
+        manager.create_club_book(serializer.data)
+        return Response({'result': 'create book successfully'}, status=status.HTTP_200_OK)
+
+# class ClubBookUpdateView(APIView):
+#     permission_classes = (IsAuthenticated, IsStaff,)
+#
+#     @swagger_auto_schema(request_body=ClubBookAddSerializer)
+#     def post(self, request):
+#         serializer = ClubBookAddSerializer(data=request.data)
+#         if not serializer.is_valid():
+#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#         if get_book_records(serializer.data['name']).exists():
+#             return Response({'error': 'Book already exists'}, status=status.HTTP_400_BAD_REQUEST)
+#         manager.create_club_book(serializer.data)
+#         return Response({'result': 'create book successfully'}, status=status.HTTP_200_OK)
 
 class OrderDetailGetIdsView(APIView):
     # permission_classes = (IsAuthenticated, IsStaff,)
