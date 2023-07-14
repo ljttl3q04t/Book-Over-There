@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.contrib.auth import authenticate
+from django.db.models import Q
 from django_filters import rest_framework as filters
 from rest_framework import serializers
 
@@ -416,3 +417,15 @@ class BookCopyHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = BookCopyHistory
         fields = '__all__'
+
+class PasswordResetSerializer(serializers.Serializer):
+    username_or_email = serializers.CharField()
+
+    def validate_username_or_email(self, value):
+        try:
+            return User.objects.get(Q(username=value) | Q(email=value))
+        except User.DoesNotExist:
+            raise serializers.ValidationError('Invalid username or email')
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    new_password = serializers.CharField()

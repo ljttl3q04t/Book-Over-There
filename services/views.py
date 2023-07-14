@@ -1,8 +1,13 @@
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.tokens import default_token_generator
 from django.db import transaction
 from django.db.models import Count
 from django.http import JsonResponse
+from django.shortcuts import resolve_url
+from django.urls import reverse_lazy
 from django.utils import timezone
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django_filters import rest_framework as filters
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, status, serializers
@@ -17,9 +22,10 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from services.managers import membership_manager, book_manager
 from services.managers.permission_manager import is_staff, IsStaff
 from .managers.crawl_manager import CrawFahasa, CrawTiki
+from .managers.email_manager import send_password_reset_email
 from .models import Book, MemberBookCopy, BookCopy, BookClub, Member, Membership, \
     MembershipOrder, \
-    MembershipOrderDetail, UploadFile, Category, BookCopyHistory
+    MembershipOrderDetail, UploadFile, Category, BookCopyHistory, User
 from .serializers import BookCopySerializer, BookSerializer, \
     UserLoginSerializer, UserRegisterSerializer, BookFilter, BookClubRequestToJoinSerializer, \
     MemberSerializer, MembershipOrderCreateSerializer, UserUpdateSerializer, MembershipSerializer, CategorySerializer, \
@@ -27,7 +33,8 @@ from .serializers import BookCopySerializer, BookSerializer, \
     UserSerializer, BookClubMemberDepositBookSerializer, BookClubMemberWithdrawBookSerializer, \
     BookClubStaffCreateOrderSerializer, MemberBookCopySerializer, ClubBookListFilter, BookCheckSerializer, \
     UserBorrowingBookSerializer, BookClubStaffExtendOrderSerializer, StaffBorrowingSerializer, \
-    BookCopyHistorySerializer, ReturnBookSerializer, StaffOrderConfirmSerializer
+    BookCopyHistorySerializer, ReturnBookSerializer, StaffOrderConfirmSerializer, PasswordResetSerializer, \
+    PasswordResetConfirmSerializer
 
 class UploadFileView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -110,6 +117,44 @@ class BookClubListAPIView(APIView):
                 d['total_book_count'] = total_book_count
                 d['is_member'] = d['id'] in joined_clubs
             return Response(data, status=status.HTTP_200_OK)
+
+class ResetPasswordView(APIView):
+    def post(self, request):
+        serializer = PasswordResetSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        user = serializer.validated_data['username_or_email']
+        token_generator = default_token_generator
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = token_generator.make_token(user)
+        reset_url = reverse_lazy('reset_password_confirm', kwargs={'uidb64': uid, 'token': token})
+        url = resolve_url(reset_url)
+        absolute_uri = request.build_absolute_uri(url)
+        send_password_reset_email.delay(user.email, absolute_uri)
+        return Response(
+            {'message': 'We have sent you an e-mail. Please contact us if you do not receive it within a few minutes.'},
+            status=status.HTTP_200_OK)
+
+class ResetPasswordConfirmView(APIView):
+    def post(self, request, uidb64, token):
+        serializer = PasswordResetConfirmSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            uid = urlsafe_base64_decode(uidb64).decode()
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            return Response({'error': 'Invalid password reset link.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        token_generator = default_token_generator
+        if not token_generator.check_token(user, token):
+            return Response({'error': 'Invalid token.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.set_password(serializer.validated_data['new_password'])
+        user.save()
+
+        return Response({'message': 'Password reset successful.'}, status=status.HTTP_200_OK)
 
 class LogoutView(APIView):
     permission_classes = (IsAuthenticated,)

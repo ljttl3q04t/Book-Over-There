@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'django_filters',
     'storages',
     'django_crontab',
+    'celery',
 ]
 
 MIDDLEWARE = [
@@ -133,6 +134,9 @@ CACHES = {
         },
     }
 }
+
+CELERY_RESULT_BACKEND = CACHES['default']['LOCATION']
+CELERY_BROKER_URL = CACHES['default']['LOCATION']
 
 # email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

@@ -1,3 +1,4 @@
+from django.contrib.auth.views import PasswordResetConfirmView
 from django.urls import path
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
@@ -22,6 +23,7 @@ urlpatterns = [
     path('user/register', views.UserRegisterView.as_view(), name='user-register'),
     path('user/login', views.UserLoginView.as_view(), name='login'),
     path('user/logout', views.LogoutView.as_view(), name='logout'),
+    path('user/password-reset', views.ResetPasswordView.as_view(), name='reset-password'),
     path('user/info', views.UserInfoView.as_view(), name='user-info'),
     path('user/info/update', views.UpdateUserInfoView.as_view(), name='update-user-info'),
     path('user/my-book', views.MyBookView.as_view(), name='view-my-book'),

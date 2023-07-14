@@ -1,0 +1,8 @@
+---
+- name: Kill celery
+  command: "pkill -f 'celery'"
+
+- name: Run celery
+  command: "/usr/local/bin/pipenv run celery -A book_over_there worker -l info --detach"
+  args:
+    chdir: "{{ django_base_dir }}"

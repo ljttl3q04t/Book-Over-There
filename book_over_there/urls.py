@@ -17,8 +17,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from services.views import ResetPasswordConfirmView
+
 urlpatterns = [
     path("services/", include("services.urls")),
     path("dfree/", include("d_free_book.urls")),
     path('admin/', admin.site.urls),
+
+    path('password-reset/confirm/<str:uidb64>/<str:token>', ResetPasswordConfirmView.as_view(),
+         name='reset_password_confirm'),
 ]

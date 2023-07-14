@@ -27,3 +27,7 @@
         django_base_dir: "/home/Book-Over-There"
 
     - name: gunicorn
+
+    - name: start_celery
+      vars:
+        django_base_dir: "/home/Book-Over-There"
