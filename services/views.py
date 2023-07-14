@@ -131,6 +131,7 @@ class ResetPasswordView(APIView):
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         token = token_generator.make_token(user)
         reset_url = reverse_lazy('reset_password_confirm', kwargs={'uidb64': uid, 'token': token})
+        reset_url = reset_url.replace('/services', '')
         url = resolve_url(reset_url)
         absolute_uri = request.build_absolute_uri(url)
         send_password_reset_email.delay(user.email, absolute_uri)
