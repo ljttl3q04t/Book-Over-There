@@ -120,7 +120,7 @@ class BookClubListAPIView(APIView):
 
 class ResetPasswordView(APIView):
 
-    @swagger_auto_schema(request_body=UserLoginSerializer)
+    @swagger_auto_schema(request_body=PasswordResetSerializer)
     def post(self, request):
         serializer = PasswordResetSerializer(data=request.data)
         if not serializer.is_valid():
