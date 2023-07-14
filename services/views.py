@@ -139,6 +139,8 @@ class ResetPasswordView(APIView):
             status=status.HTTP_200_OK)
 
 class ResetPasswordConfirmView(APIView):
+
+    @swagger_auto_schema(request_body=PasswordResetConfirmSerializer)
     def post(self, request, uidb64, token):
         serializer = PasswordResetConfirmSerializer(data=request.data)
         if not serializer.is_valid():
