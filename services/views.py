@@ -119,6 +119,8 @@ class BookClubListAPIView(APIView):
             return Response(data, status=status.HTTP_200_OK)
 
 class ResetPasswordView(APIView):
+
+    @swagger_auto_schema(request_body=UserLoginSerializer)
     def post(self, request):
         serializer = PasswordResetSerializer(data=request.data)
         if not serializer.is_valid():

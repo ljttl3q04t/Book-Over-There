@@ -1,6 +1,7 @@
 ---
-- name: Kill celery
-  command: "pkill -f 'celery'"
+- name: Kill Celery processes
+  shell: pkill -f 'celery'
+  ignore_errors: yes
 
 - name: Run celery
   command: "/usr/local/bin/pipenv run celery -A book_over_there worker -l info --detach"
