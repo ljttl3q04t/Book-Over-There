@@ -107,7 +107,7 @@ class StaffGetOrderIdsView(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        club_ids = membership_manager.get_membership_records(request.user, is_staff=True).flat_list('book_club_id', flat=True)
+        club_ids = membership_manager.get_membership_records(request.user, is_staff=True).flat_list('book_club_id')
         from_date = serializer.data.get('from_date')
         to_date = serializer.data.get('to_date')
         order_ids = manager.get_order_records(club_ids=club_ids, from_date=from_date, to_date=to_date).pk_list()
