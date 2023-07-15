@@ -77,6 +77,7 @@ def get_order_detail_infos(order_detail_ids):
     for order_detail in order_details:
         club_book_info = club_book_infos.get(order_detail.club_book_id)
         result[order_detail.id] = {
+            'id': order_detail.id,
             'book_code': club_book_info['code'] if club_book_info else None,
             'book_name': club_book_info['book']['name'] if club_book_info else None,
             'order_id': order_detail.order_id,
