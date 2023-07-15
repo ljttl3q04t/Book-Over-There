@@ -17,6 +17,11 @@ def get_member_records(user_id=None):
         user_id=user_id,
     )
 
+def get_membership_records(user=None, is_staff=None):
+    return Membership.objects \
+        .filter(leaved_at=None) \
+        .filter_ignore_none(member__user=user, is_staff=is_staff)
+
 @combine_key_cache_data(**CACHE_KEY_MEMBER_INFOS)
 def get_member_infos():
     results = Member.objects.all()

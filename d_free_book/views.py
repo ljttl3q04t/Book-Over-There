@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from d_free_book.serializers import ClubBookGetIdsSerializer, ClubBookGetInfosSerializer, ClubBookAddSerializer, \
     GetOrderIdsSerializer, GetOrderInfosSerializer, OrderDetailGetIdsSerializer, OrderDetailGetInfosSerializer
 from d_free_book import manager
+from services.managers import membership_manager
 from services.managers.book_manager import get_book_records
 from services.managers.permission_manager import IsStaff
 
@@ -98,7 +99,7 @@ class OrderDetailGetInfosView(APIView):
         return Response({'order_detail_infos': order_detail_infos.values()}, status=status.HTTP_200_OK)
 
 class StaffGetOrderIdsView(APIView):
-    # permission_classes = (IsAuthenticated, IsStaff,)
+    permission_classes = (IsAuthenticated, IsStaff,)
 
     @swagger_auto_schema(request_body=GetOrderIdsSerializer)
     def post(self, request):
@@ -106,14 +107,14 @@ class StaffGetOrderIdsView(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        club_id = serializer.data['club_id']
+        club_ids = membership_manager.get_membership_records(request.user, is_staff=True).flat_list('book_club_id', flat=True)
         from_date = serializer.data.get('from_date')
         to_date = serializer.data.get('to_date')
-        order_ids = manager.get_order_records(club_id=club_id, from_date=from_date, to_date=to_date).pk_list()
+        order_ids = manager.get_order_records(club_ids=club_ids, from_date=from_date, to_date=to_date).pk_list()
         return Response({'order_ids': order_ids}, status=status.HTTP_200_OK)
 
 class OrderInfosView(APIView):
-    # permission_classes = (IsAuthenticated, IsStaff,)
+    permission_classes = (IsAuthenticated, IsStaff,)
 
     @swagger_auto_schema(request_body=GetOrderInfosSerializer)
     def post(self, request):
