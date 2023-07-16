@@ -83,6 +83,8 @@ def get_order_detail_infos(order_detail_ids):
             'book_name': club_book_info['book']['name'] if club_book_info else None,
             'order_id': order_detail.order_id,
             'return_date': order_detail.return_date,
+            'order_status': order_detail.order_status,
+            'overdue_day_count': order_detail.overdue_day_count,
         }
     return result
 
@@ -112,7 +114,6 @@ def get_order_infos(order_ids):
             'club_id': order.club_id,
             'order_date': order.order_date,
             'due_date': order.due_date,
-            'order_status': order.order_status,
             'order_details': order_details
         }
 
