@@ -33,9 +33,9 @@ ERROR_ORDERS = ['2301_1_1', '2301_1_2', '2301_2_2', '2301_6_1', '2301_8_2', '230
                 '2307_12_4']
 
 MAP_ORDER_STATUS = {
-    'Đang mượn': DFreeOrder.CREATED,
-    'Đã trả': DFreeOrder.COMPLETE,
-    'Quá hạn': DFreeOrder.OVERDUE,
+    'Đang mượn': DFreeOrderDetail.CREATED,
+    'Đã trả': DFreeOrderDetail.COMPLETE,
+    'Quá hạn': DFreeOrderDetail.OVERDUE,
 }
 
 class ImportException(Exception):
@@ -165,12 +165,24 @@ def import_order_from_csv(file_path, fcode, club_id):
                     order_date=data['order_date'],
                     due_date=data['due_date'],
                 )
+            order_status = data['order_status']
+            overdue_day_count = 0
+            if order_status == DFreeOrderDetail.COMPLETE:
+                if data['return_date']:
+                    overdue_day_count = max((data['return_date'] - current_order.due_date).days, 0)
+            else:
+                overdue_day_count = max((today - current_order.due_date).days, 0)
+                if overdue_day_count:
+                    order_status = DFreeOrderDetail.OVERDUE
+
             if data['club_book']:
                 DFreeOrderDetail.objects.create(
                     order=current_order,
                     club_book=data['club_book'],
                     return_date=data['return_date'],
                     note=data['note'],
+                    order_status=order_status,
+                    overdue_day_count=overdue_day_count,
                 )
             else:
                 DFreeOrderDetail.objects.create(
@@ -178,6 +190,8 @@ def import_order_from_csv(file_path, fcode, club_id):
                     book_note=data['book_note'],
                     return_date=data['return_date'],
                     note=data['note'],
+                    order_status=order_status,
+                    overdue_day_count=overdue_day_count,
                 )
             success_rows += 1
 
