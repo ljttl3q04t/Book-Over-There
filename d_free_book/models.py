@@ -21,6 +21,15 @@ class DFreeMember(BaseModel):
         db_table = 'dfree_member_tab'
 
 class DFreeOrder(BaseModel):
+    member = models.ForeignKey(DFreeMember, on_delete=models.CASCADE)
+    club = models.ForeignKey(BookClub, on_delete=models.CASCADE)
+    order_date = models.DateField()
+    due_date = models.DateField()
+
+    class Meta:
+        db_table = 'dfree_order_tab'
+
+class DFreeOrderDetail(BaseModel):
     CREATED = 'created'
     OVERDUE = 'overdue'
     COMPLETE = 'complete'
@@ -30,20 +39,13 @@ class DFreeOrder(BaseModel):
         (COMPLETE, 'Complete'),
     )
 
-    member = models.ForeignKey(DFreeMember, on_delete=models.CASCADE)
-    club = models.ForeignKey(BookClub, on_delete=models.CASCADE)
-    order_date = models.DateField()
-    due_date = models.DateField()
-    order_status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default=CREATED)
-
-    class Meta:
-        db_table = 'dfree_order_tab'
-
-class DFreeOrderDetail(BaseModel):
     order = models.ForeignKey(DFreeOrder, on_delete=models.CASCADE)
-    club_book = models.ForeignKey(ClubBook, on_delete=models.CASCADE)
+    club_book = models.ForeignKey(ClubBook, on_delete=models.CASCADE, null=True, blank=True)
+    book_note = models.CharField(max_length=200, blank=True, null=True)
     return_date = models.DateTimeField(null=True, blank=True)
     overdue_day_count = models.IntegerField(null=True, blank=True)
+    note = models.CharField(max_length=200, blank=True, null=True)
+    order_status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default=CREATED)
 
     class Meta:
         db_table = 'dfree_order_detail_tab'

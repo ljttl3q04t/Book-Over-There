@@ -89,9 +89,9 @@ class Publisher(BaseModel):
 
 class Book(BaseModel):
     name = models.CharField(max_length=200, db_index=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, blank=True, null=True)
     image = models.FileField(storage=BookCoverStorage(), default=None, blank=True, null=True)
-    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE, blank=True, null=True)
     publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE, default=None, blank=True, null=True)
     description = models.TextField(null=True)
 
