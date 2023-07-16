@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -5,7 +6,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from d_free_book.serializers import ClubBookGetIdsSerializer, ClubBookGetInfosSerializer, ClubBookAddSerializer, \
-    GetOrderIdsSerializer, GetOrderInfosSerializer, OrderDetailGetIdsSerializer, OrderDetailGetInfosSerializer
+    GetOrderIdsSerializer, GetOrderInfosSerializer, OrderDetailGetIdsSerializer, OrderDetailGetInfosSerializer, \
+    OrderCreateSerializer, MemberGetIdsSerializer, MemberGetInfosSerializer, MemberCreateSerializer, \
+    MemberUpdateSerializer, ClubBookUpdateSerializer
 from d_free_book import manager
 from services.managers import membership_manager
 from services.managers.book_manager import get_book_records
@@ -51,23 +54,50 @@ class ClubBookAddView(APIView):
         serializer = ClubBookAddSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        if get_book_records(serializer.data['name']).exists():
-            return Response({'error': 'Book already exists'}, status=status.HTTP_400_BAD_REQUEST)
-        manager.create_club_book(serializer.data)
+        club_ids = membership_manager.get_membership_records(request.user, is_staff=True).flat_list('book_club_id')
+        if serializer.data.get('club_id') not in club_ids:
+            return Response({'error': 'Permission denied'}, status=status.HTTP_400_BAD_REQUEST)
+        book = get_book_records(book_name=serializer.data.get('name')).first()
+
+        if manager.get_club_book_records(code=serializer.data.get('code'), club_id=serializer.data.get('club_id')).exists():
+            return Response({'error': 'Book code is duplicated'}, status=status.HTTP_400_BAD_REQUEST)
+
+        manager.create_club_book(serializer.data, book)
         return Response({'result': 'create book successfully'}, status=status.HTTP_200_OK)
 
-# class ClubBookUpdateView(APIView):
-#     permission_classes = (IsAuthenticated, IsStaff,)
-#
-#     @swagger_auto_schema(request_body=ClubBookAddSerializer)
-#     def post(self, request):
-#         serializer = ClubBookAddSerializer(data=request.data)
-#         if not serializer.is_valid():
-#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#         if get_book_records(serializer.data['name']).exists():
-#             return Response({'error': 'Book already exists'}, status=status.HTTP_400_BAD_REQUEST)
-#         manager.create_club_book(serializer.data)
-#         return Response({'result': 'create book successfully'}, status=status.HTTP_200_OK)
+class ClubBookUpdateView(APIView):
+    permission_classes = (IsAuthenticated, IsStaff,)
+
+    @swagger_auto_schema(request_body=ClubBookUpdateSerializer)
+    def post(self, request):
+        serializer = ClubBookUpdateSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        data = serializer.data
+        club_ids = membership_manager.get_membership_records(request.user, is_staff=True).flat_list('book_club_id')
+        club_book_id = data.pop('club_book_id')
+        club_book = manager.get_club_book_records(
+            club_book_ids=[club_book_id],
+            club_ids=club_ids,
+        ).first()
+
+        if not club_book:
+            return Response({'error': 'Book not found'}, status=status.HTTP_400_BAD_REQUEST)
+
+        club_book_data = club_book.as_dict()
+        updated_data = {}
+        for k, v in data.items():
+            if club_book_data.get(k) != v:
+                updated_data[k] = v
+
+        if updated_data.get('code') and manager.get_club_book_records(code=updated_data.get('code'), club_id=club_book.club_id).exists():
+            return Response({'error': 'Book code is duplicated'}, status=status.HTTP_400_BAD_REQUEST)
+
+        affected_count = manager.update_club_book(club_book_id, **updated_data)
+        if affected_count:
+            return Response({'message': 'Update Book successfully'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'Update Book failed'}, status=status.HTTP_400_BAD_REQUEST)
 
 class OrderDetailGetIdsView(APIView):
     # permission_classes = (IsAuthenticated, IsStaff,)
@@ -124,3 +154,81 @@ class OrderInfosView(APIView):
 
         order_infos = manager.get_order_infos(serializer.data['order_ids'])
         return Response({'order_infos': order_infos.values()}, status=status.HTTP_200_OK)
+
+class OrderCreateView(APIView):
+    permission_classes = (IsAuthenticated, IsStaff,)
+
+    @swagger_auto_schema(request_body=MemberGetIdsSerializer)
+    def post(self, request):
+        serializer = MemberGetIdsSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class MemberGetIdsView(APIView):
+    permission_classes = (IsAuthenticated, IsStaff,)
+
+    @swagger_auto_schema(request_body=MemberGetIdsSerializer)
+    def post(self, request):
+        serializer = MemberGetIdsSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        club_ids = membership_manager.get_membership_records(request.user, is_staff=True).flat_list('book_club_id')
+        member_ids = manager.get_member_records(
+            club_ids=club_ids,
+            code=serializer.data.get('code'),
+            phone_number=serializer.data.get('phone_number'),
+            full_name=serializer.data.get('full_name'),
+        )[:MAX_QUERY_SIZE].pk_list()
+        return Response({'member_ids': member_ids}, status=status.HTTP_200_OK)
+
+class MemberGetInfosView(APIView):
+    permission_classes = (IsAuthenticated, IsStaff,)
+
+    @swagger_auto_schema(request_body=MemberGetInfosSerializer)
+    def post(self, request):
+        serializer = MemberGetInfosSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        member_ids = serializer.data.get('member_ids')
+        member_infos = manager.get_member_infos(member_ids)
+        return Response({'member_infos': member_infos}, status=status.HTTP_200_OK)
+
+class MemberAddView(APIView):
+    permission_classes = (IsAuthenticated, IsStaff,)
+
+    @swagger_auto_schema(request_body=MemberCreateSerializer)
+    def post(self, request):
+        serializer = MemberCreateSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        club_ids = membership_manager.get_membership_records(request.user, is_staff=True).flat_list('book_club_id')
+        if serializer.data.get('club_id') not in club_ids:
+            return Response({'error': 'Invalid Club'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            manager.create_member(**serializer.data)
+        except IntegrityError:
+            return Response({'error': 'Duplicated member code'}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'message': 'Create member successfully'}, status=status.HTTP_200_OK)
+
+class MemberUpdateView(APIView):
+    permission_classes = (IsAuthenticated, IsStaff,)
+
+    @swagger_auto_schema(request_body=MemberUpdateSerializer)
+    def post(self, request):
+        serializer = MemberUpdateSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        club_ids = membership_manager.get_membership_records(request.user, is_staff=True).flat_list('book_club_id')
+        data = serializer.data
+        member_id = data.pop('member_id')
+        affected_count = manager.update_member(member_id, club_ids, **data)
+        if affected_count:
+            return Response({'message': 'Update member successfully'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'Update member failed'}, status=status.HTTP_400_BAD_REQUEST)

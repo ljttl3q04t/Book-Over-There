@@ -3,21 +3,42 @@ from django.db import transaction
 from d_free_book.models import ClubBook, DFreeOrder, DFreeMember, DFreeOrderDetail
 from services.managers.book_manager import get_book_infos, create_book
 from services.managers.cache_manager import combine_key_cache_data, CACHE_KEY_CLUB_BOOK_INFOS, \
-    CACHE_KEY_DFB_ORDER_INFOS, CACHE_KEY_MEMBER_INFOS
+    CACHE_KEY_DFB_ORDER_INFOS, CACHE_KEY_MEMBER_INFOS, invalid_cache_data
 
-def get_club_book_records(club_book_ids=None, club_id=None, book_ids=None):
+def get_club_book_records(club_book_ids=None, club_id=None, book_ids=None, code=None, club_ids=None):
     return ClubBook.objects.filter_ignore_none(
         id__in=club_book_ids,
         club_id=club_id,
+        club_id__in=club_ids,
         book_id__in=book_ids,
-    )
-
-def get_member_records(phone_number=None, code=None, member_ids=None):
-    return DFreeMember.objects.filter_ignore_none(
-        id__in=member_ids,
-        phone_number=phone_number,
         code=code,
     )
+
+def get_member_records(phone_number=None, code=None, member_ids=None, full_name=None, club_ids=None):
+    print(phone_number, code, member_ids, full_name, club_ids)
+    return DFreeMember.objects.filter_ignore_none(
+        id__in=member_ids,
+        club_id__in=club_ids,
+        phone_number=phone_number,
+        code=code,
+        full_name=full_name,
+    )
+
+def create_member(club_id, full_name, code, phone_number=None):
+    return DFreeMember.objects.create(
+        club_id=club_id,
+        full_name=full_name,
+        code=code,
+        phone_number=phone_number
+    )
+
+def update_member(member_id, club_ids, **kwargs):
+    affected_count = DFreeMember.objects.filter(id=member_id, club_id__in=club_ids).update(**kwargs)
+    if affected_count:
+        cache_key = CACHE_KEY_MEMBER_INFOS['cache_key_converter'](CACHE_KEY_MEMBER_INFOS['cache_prefix'], member_id)
+        invalid_cache_data(cache_key)
+
+    return affected_count
 
 @combine_key_cache_data(**CACHE_KEY_MEMBER_INFOS)
 def get_member_infos(member_ids):
@@ -25,13 +46,16 @@ def get_member_infos(member_ids):
     result = {}
     for member in members:
         result[member.id] = {
+            'id': member.id,
+            'club_id': member.club_id,
             'phone_number': member.phone_number,
             'full_name': member.full_name,
             'code': member.code,
         }
     return result
 
-def get_order_records(order_ids=None, club_id=None, member_ids=None, from_date=None, to_date=None, order_status=None, club_ids=None):
+def get_order_records(order_ids=None, club_id=None, member_ids=None, from_date=None, to_date=None, order_status=None,
+                      club_ids=None):
     return DFreeOrder.objects.filter_ignore_none(
         id__in=order_ids,
         club_id=club_id,
@@ -120,13 +144,14 @@ def get_order_infos(order_ids):
     return result
 
 @transaction.atomic
-def create_club_book(data):
-    book = create_book(
-        name=data['name'],
-        category=data['category'],
-        author=data['author'],
-        image=data['image'],
-    )
+def create_club_book(data, book=None):
+    if not book:
+        book = create_book(
+            name=data.get('name'),
+            category=data.get('category'),
+            author=data.get('author'),
+            image=data.get('image'),
+        )
     ClubBook.objects.create(
         book=book,
         code=data['code'],
@@ -134,3 +159,7 @@ def create_club_book(data):
         init_count=data['init_count'],
         current_count=data['current_count'],
     )
+
+def update_club_book(club_book_id, **kwargs):
+    affected_count = ClubBook.objects.filter(id=club_book_id).update(**kwargs)
+    return affected_count

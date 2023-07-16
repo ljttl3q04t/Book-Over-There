@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.core.cache import cache
 
 from services import models
+from d_free_book import models as dfb_models
 
 class CustomModelAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
@@ -28,6 +29,8 @@ models_to_register = [
     models.BookCopyHistory,
     models.MembershipOrder,
     models.MembershipOrderDetail,
+    dfb_models.DFreeMember,
+    dfb_models.ClubBook,
 ]
 
 for model in models_to_register:

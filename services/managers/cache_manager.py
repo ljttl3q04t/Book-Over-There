@@ -48,8 +48,8 @@ CACHE_CLUB_GET_INFOS_DICT = {
 }
 
 CACHE_KEY_MEMBER_INFOS = {
-    'cache_key_converter': lambda cache_prefix, user_id: cache_prefix % user_id,
-    'cache_prefix': 'member.infos.user_id.%s',
+    'cache_key_converter': lambda cache_prefix, member_id: cache_prefix % member_id,
+    'cache_prefix': 'member.infos.member_id.%s',
     'expiry_time': DEFAULT_EXPIRY_TIME
 }
 

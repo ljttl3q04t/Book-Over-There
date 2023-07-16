@@ -1,5 +1,4 @@
-from services.managers.cache_manager import simple_cache_data, CACHE_CLUB_GET_INFOS_DICT, CACHE_KEY_MEMBER_INFOS, \
-    combine_key_cache_data
+from services.managers.cache_manager import simple_cache_data, CACHE_CLUB_GET_INFOS_DICT
 from services.models import User, Membership, BookClub, Member
 from services.serializers import BookClubSerializer
 
@@ -22,7 +21,6 @@ def get_membership_records(user=None, is_staff=None):
         .filter(leaved_at=None) \
         .filter_ignore_none(member__user=user, is_staff=is_staff)
 
-@combine_key_cache_data(**CACHE_KEY_MEMBER_INFOS)
 def get_member_infos():
     results = Member.objects.all()
     data = {}
@@ -31,7 +29,6 @@ def get_member_infos():
         data[item_infos['user']] = item_infos
 
     return data
-    # return {item['id']: item.as_dict() for item in results}
 
 def get_membership_by_user(user):
     return Membership.objects.filter(member__user=user, leaved_at=None)

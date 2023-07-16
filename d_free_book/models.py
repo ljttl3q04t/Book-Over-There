@@ -4,18 +4,26 @@ from services.models import BaseModel, Book, BookClub
 
 class ClubBook(BaseModel):
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
-    code = models.CharField(max_length=10, db_index=True, null=True, blank=True)
+    code = models.CharField(max_length=10, db_index=True)
     club = models.ForeignKey(BookClub, on_delete=models.CASCADE)
     init_count = models.IntegerField(null=True, blank=True)
     current_count = models.IntegerField(null=True, blank=True)
 
+    def __str__(self):
+        return f'{self.id} - {self.code}'
+
     class Meta:
         db_table = 'dfree_book_tab'
+        # unique_together = ['code', 'club']
 
 class DFreeMember(BaseModel):
+    club = models.ForeignKey(BookClub, on_delete=models.CASCADE, null=True, blank=True)
     full_name = models.CharField(max_length=200)
     code = models.CharField(max_length=20, unique=True)
     phone_number = models.CharField(max_length=20, null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.id} - {self.club_id} - {self.code} - {self.full_name}'
 
     class Meta:
         db_table = 'dfree_member_tab'

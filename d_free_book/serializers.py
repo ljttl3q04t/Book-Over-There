@@ -29,6 +29,12 @@ class ClubBookAddSerializer(serializers.Serializer):
     init_count = serializers.IntegerField(default=1)
     current_count = serializers.IntegerField(default=1)
 
+class ClubBookUpdateSerializer(serializers.Serializer):
+    club_book_id = serializers.IntegerField()
+    code = serializers.CharField(required=False)
+    init_count = serializers.IntegerField(required=False)
+    current_count = serializers.IntegerField(required=False)
+
 class OrderDetailGetIdsSerializer(serializers.Serializer):
     club_id = serializers.IntegerField(required=False)
     from_date = serializers.DateField(required=False)
@@ -36,3 +42,35 @@ class OrderDetailGetIdsSerializer(serializers.Serializer):
 
 class OrderDetailGetInfosSerializer(serializers.Serializer):
     order_detail_ids = ListIntegerField()
+
+class OrderCreateSerializer(serializers.Serializer):
+    member_full_name = serializers.CharField()
+    member_code = serializers.CharField()
+    member_phone_number = serializers.CharField()
+    order_date = serializers.DateField()
+    due_date = serializers.DateField()
+    club_id = serializers.IntegerField()
+    note = serializers.CharField(required=False)
+    book_note = serializers.CharField(required=False)
+    club_book_ids = ListIntegerField(required=False)
+    book_notes = serializers.ListSerializer(child=serializers.CharField(), required=False)
+
+class MemberGetIdsSerializer(serializers.Serializer):
+    code = serializers.CharField(required=False)
+    phone_number = serializers.CharField(required=False)
+    full_name = serializers.CharField(required=False)
+
+class MemberGetInfosSerializer(serializers.Serializer):
+    member_ids = ListIntegerField()
+
+class MemberCreateSerializer(serializers.Serializer):
+    club_id = serializers.IntegerField()
+    code = serializers.CharField()
+    phone_number = serializers.CharField(required=False)
+    full_name = serializers.CharField()
+
+class MemberUpdateSerializer(serializers.Serializer):
+    member_id = serializers.IntegerField()
+    code = serializers.CharField(required=False)
+    phone_number = serializers.CharField(required=False)
+    full_name = serializers.CharField(required=False)
