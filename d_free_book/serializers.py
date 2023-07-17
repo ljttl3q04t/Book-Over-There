@@ -4,6 +4,7 @@ from services.serializers import ListIntegerField
 
 class ClubBookGetIdsSerializer(serializers.Serializer):
     club_id = serializers.IntegerField(required=False)
+    club_ids = ListIntegerField(required=False)
     book_name = serializers.CharField(required=False)
     book_category_ids = ListIntegerField(required=False)
     book_author_ids = ListIntegerField(required=False)

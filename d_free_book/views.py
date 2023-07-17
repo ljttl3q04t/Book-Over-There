@@ -24,6 +24,7 @@ class ClubBookGetIdsView(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         club_id = serializer.data.get('club_id')
+        club_ids = serializer.data.get('club_ids')
 
         book_category_ids = serializer.data.get('book_category_ids')
         book_author_ids = serializer.data.get('book_author_ids')
@@ -31,7 +32,7 @@ class ClubBookGetIdsView(APIView):
         book_ids = get_book_records(author_ids=book_author_ids, category_ids=book_category_ids,
                                     book_name=book_name).pk_list()
 
-        club_books = manager.get_club_book_records(club_id=club_id, book_ids=book_ids)
+        club_books = manager.get_club_book_records(club_id=club_id, club_ids=club_ids, book_ids=book_ids)
         club_book_ids = club_books.order_by('-id')[:MAX_QUERY_SIZE].pk_list()
         return Response({'club_book_ids': club_book_ids}, status=status.HTTP_200_OK)
 
