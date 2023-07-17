@@ -44,7 +44,7 @@ class UserLoginSerializer(serializers.Serializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'follower']
 
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:

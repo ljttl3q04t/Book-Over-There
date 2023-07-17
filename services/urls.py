@@ -33,7 +33,7 @@ urlpatterns = [
     path('user/book/borrowing', views.UserBorrowingBookView.as_view(), name='user-view-borrowing-book'),
     path('user/book/history', views.BookHistoryView.as_view(), name='book-history-view'),
 
-    path('category/list', views.CategoryListView.as_view(), name='view-category'),
+    path('category/list/<str:follower>', views.CategoryListView.as_view(), name='view-category'),
 
     # book and book copies
     path('book/<int:book_id>/update/', views.BookUpdateAPIView.as_view(), name='book-update'),

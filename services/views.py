@@ -21,6 +21,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from services.managers import membership_manager, book_manager
 from services.managers.permission_manager import is_staff, IsStaff
+from .managers.book_manager import get_category_infos
 from .managers.crawl_manager import CrawFahasa, CrawTiki
 from .managers.email_manager import send_password_reset_email
 from .models import Book, MemberBookCopy, BookCopy, BookClub, Member, Membership, \
@@ -90,11 +91,12 @@ class MyBookView(generics.ListAPIView):
         data = serializer.data
         return Response(data)
 
-class CategoryListView(generics.ListAPIView):
-    permission_classes = (IsAuthenticated,)
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
-    pagination_class = CustomPagination
+class CategoryListView(APIView):
+
+    def get(self, request, follower):
+        category_infos = get_category_infos().values()
+        data = [category for category in category_infos if category.get('follower') == follower]
+        return Response(data, status=status.HTTP_200_OK)
 
 class BookClubListAPIView(APIView):
 
