@@ -96,7 +96,7 @@ class CategoryListView(APIView):
     def get(self, request, follower):
         category_infos = get_category_infos().values()
         data = [category for category in category_infos if category.get('follower') == follower]
-        return Response(data, status=status.HTTP_200_OK)
+        return Response({'result': data}, status=status.HTTP_200_OK)
 
 class BookClubListAPIView(APIView):
 
