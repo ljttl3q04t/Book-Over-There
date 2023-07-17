@@ -14,7 +14,7 @@ from services.managers import membership_manager
 from services.managers.book_manager import get_book_records
 from services.managers.permission_manager import IsStaff
 
-MAX_QUERY_SIZE = 2000
+MAX_QUERY_SIZE = 300
 
 class ClubBookGetIdsView(APIView):
 
