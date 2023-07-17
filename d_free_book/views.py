@@ -44,7 +44,7 @@ class ClubBookGetInfosView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         club_book_ids = serializer.data['club_book_ids']
         club_book_infos = manager.get_club_book_infos(club_book_ids)
-        return Response({'club_book_infos': club_book_infos}, status=status.HTTP_200_OK)
+        return Response({'club_book_infos': club_book_infos.values()}, status=status.HTTP_200_OK)
 
 class ClubBookAddView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)
