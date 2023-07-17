@@ -227,7 +227,11 @@ class MemberUpdateView(APIView):
         club_ids = membership_manager.get_membership_records(request.user, is_staff=True).flat_list('book_club_id')
         data = serializer.data
         member_id = data.pop('member_id')
-        affected_count = manager.update_member(member_id, club_ids, **data)
+        try:
+            affected_count = manager.update_member(member_id, club_ids, **data)
+        except IntegrityError:
+            return Response({'error': 'Duplicated member code'}, status=status.HTTP_400_BAD_REQUEST)
+
         if affected_count:
             return Response({'message': 'Update member successfully'}, status=status.HTTP_200_OK)
         else:
