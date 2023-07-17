@@ -193,7 +193,7 @@ class MemberGetInfosView(APIView):
 
         member_ids = serializer.data.get('member_ids')
         member_infos = manager.get_member_infos(member_ids)
-        return Response({'member_infos': member_infos}, status=status.HTTP_200_OK)
+        return Response({'member_infos': member_infos.values()}, status=status.HTTP_200_OK)
 
 class MemberAddView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)
