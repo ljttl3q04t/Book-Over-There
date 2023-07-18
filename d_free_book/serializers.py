@@ -48,6 +48,7 @@ class OrderCreateSerializer(serializers.Serializer):
     member_full_name = serializers.CharField()
     member_code = serializers.CharField()
     member_phone_number = serializers.CharField()
+    member_id = serializers.IntegerField(required=False)
     order_date = serializers.DateField()
     due_date = serializers.DateField()
     club_id = serializers.IntegerField()

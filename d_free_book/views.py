@@ -159,11 +159,14 @@ class OrderInfosView(APIView):
 class OrderCreateView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)
 
-    @swagger_auto_schema(request_body=MemberGetIdsSerializer)
+    @swagger_auto_schema(request_body=OrderCreateSerializer)
     def post(self, request):
-        serializer = MemberGetIdsSerializer(data=request.data)
+        serializer = OrderCreateSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        manager.create_new_order(serializer.data)
+        return Response({'message': 'Create order successfully'}, status=status.HTTP_200_OK)
 
 class MemberGetIdsView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)

@@ -72,6 +72,20 @@ def get_order_detail_records(order_ids=None, order_detail_ids=None):
         order_id__in=order_ids
     )
 
+@transaction.atomic
+def create_new_order(data):
+    order = DFreeOrder.objects.create(
+        member_id=data.get('member_id'),
+        club_id=data.get('club_id'),
+        order_date=data.get('order_date'),
+        due_date=data.get('due_date'),
+    )
+    for detail in data.get('club_book_ids'):
+        DFreeOrderDetail.objects.create(
+            order_id=order,
+            club_book_id=detail.get('club_book_id'),
+        )
+
 @combine_key_cache_data(**CACHE_KEY_CLUB_BOOK_INFOS)
 def get_club_book_infos(club_book_ids):
     if not club_book_ids:
@@ -82,6 +96,7 @@ def get_club_book_infos(club_book_ids):
     result = {}
     for club_book in club_books:
         result[club_book.id] = {
+            'id': club_book.id,
             'book': book_infos.get(club_book.book_id, {}),
             'code': club_book.code,
             'club_id': club_book.club_id,
