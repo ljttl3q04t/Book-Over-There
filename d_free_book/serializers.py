@@ -45,9 +45,9 @@ class OrderDetailGetInfosSerializer(serializers.Serializer):
     order_detail_ids = ListIntegerField()
 
 class OrderCreateSerializer(serializers.Serializer):
-    member_full_name = serializers.CharField()
-    member_code = serializers.CharField()
-    member_phone_number = serializers.CharField()
+    member_full_name = serializers.CharField(required=False)
+    member_code = serializers.CharField(required=False)
+    member_phone_number = serializers.CharField(required=False)
     member_id = serializers.IntegerField(required=False)
     order_date = serializers.DateField()
     due_date = serializers.DateField()
