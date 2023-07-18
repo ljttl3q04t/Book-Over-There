@@ -82,7 +82,7 @@ def create_new_order(data):
     )
     for club_book_id in data.get('club_book_ids'):
         DFreeOrderDetail.objects.create(
-            order_id=order,
+            order=order,
             club_book_id=club_book_id,
         )
 
