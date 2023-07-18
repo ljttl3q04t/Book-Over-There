@@ -86,6 +86,9 @@ def create_new_order(data):
             club_book_id=club_book_id,
         )
 
+def return_books(order_detail_ids, return_date):
+    return DFreeOrderDetail.objects.filter(id__in=order_detail_ids).update(return_date=return_date, order_status=DFreeOrderDetail.COMPLETE)
+
 @combine_key_cache_data(**CACHE_KEY_CLUB_BOOK_INFOS)
 def get_club_book_infos(club_book_ids):
     if not club_book_ids:

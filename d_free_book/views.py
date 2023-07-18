@@ -1,4 +1,5 @@
 from django.db import IntegrityError
+from django.utils import timezone
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -8,7 +9,7 @@ from rest_framework.views import APIView
 from d_free_book.serializers import ClubBookGetIdsSerializer, ClubBookGetInfosSerializer, ClubBookAddSerializer, \
     GetOrderIdsSerializer, GetOrderInfosSerializer, OrderDetailGetIdsSerializer, OrderDetailGetInfosSerializer, \
     OrderCreateSerializer, MemberGetIdsSerializer, MemberGetInfosSerializer, MemberCreateSerializer, \
-    MemberUpdateSerializer, ClubBookUpdateSerializer
+    MemberUpdateSerializer, ClubBookUpdateSerializer, OrderReturnBooksSerializer
 from d_free_book import manager
 from services.managers import membership_manager
 from services.managers.book_manager import get_book_records
@@ -167,6 +168,20 @@ class OrderCreateView(APIView):
 
         manager.create_new_order(serializer.data)
         return Response({'message': 'Create order successfully'}, status=status.HTTP_200_OK)
+
+class OrderReturnBooksView(APIView):
+    permission_classes = (IsAuthenticated, IsStaff,)
+
+    @swagger_auto_schema(request_body=OrderReturnBooksSerializer)
+    def post(self, request):
+        serializer = OrderReturnBooksSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        order_detail_ids = serializer.data.get('order_detail_ids')
+        return_date = serializer.data.get('return_date', timezone.now())
+        manager.return_books(order_detail_ids, return_date)
+        return Response({'message': 'Return books successfully'}, status=status.HTTP_200_OK)
 
 class MemberGetIdsView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)
