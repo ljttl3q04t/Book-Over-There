@@ -80,10 +80,10 @@ def create_new_order(data):
         order_date=data.get('order_date'),
         due_date=data.get('due_date'),
     )
-    for detail in data.get('club_book_ids'):
+    for club_book_id in data.get('club_book_ids'):
         DFreeOrderDetail.objects.create(
             order_id=order,
-            club_book_id=detail.get('club_book_id'),
+            club_book_id=club_book_id,
         )
 
 @combine_key_cache_data(**CACHE_KEY_CLUB_BOOK_INFOS)
