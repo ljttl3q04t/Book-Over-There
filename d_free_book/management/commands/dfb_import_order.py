@@ -156,7 +156,7 @@ def import_order_from_csv(file_path, fcode, club_id):
                 # print("error|{}|{}|{}".format(order_code, "check_order_detail", row))
                 continue
 
-            dfb_member, _ = DFreeMember.objects.get_or_create(code=data['member_code'], full_name=data['full_name'])
+            dfb_member, _ = DFreeMember.objects.get_or_create(club_id=club_id, code=data['member_code'], full_name=data['full_name'])
             if data['order_index'] != new_order:
                 new_order = data['order_index']
                 current_order = DFreeOrder.objects.create(
@@ -207,7 +207,7 @@ class Command(BaseCommand):
         club_id = BookClub.objects.get(code='dfb_caugiay').id
 
         for fn in file_names:
-            file_path = '/home/tintin/Downloads/' + fn + '.csv'
+            file_path = '/home/' + fn + '.csv'
             try:
                 error_orders = error_orders + import_order_from_csv(file_path, fn, club_id)
             except Exception as e:
