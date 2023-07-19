@@ -179,6 +179,17 @@ class OrderCreateNewMemberView(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+        club_ids = membership_manager.get_membership_records(request.user, is_staff=True).flat_list('book_club_id')
+        if serializer.data.get('club_id') not in club_ids:
+            return Response({'error': 'Permission Denied'}, status=status.HTTP_400_BAD_REQUEST)
+
+        exist_member = manager.get_member_records(
+            code=serializer.data.get('new_member').get('code'),
+            club_ids=[serializer.data.get('club_id')],
+        ).exists()
+        if exist_member:
+            return Response({'error': 'Duplicated member code'}, status=status.HTTP_400_BAD_REQUEST)
+
         manager.create_new_order_by_new_member(serializer.data)
         return Response({'message': 'Create order successfully'}, status=status.HTTP_200_OK)
 
