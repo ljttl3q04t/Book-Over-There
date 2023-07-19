@@ -70,7 +70,6 @@ class MemberGetInfosSerializer(serializers.Serializer):
     member_ids = ListIntegerField()
 
 class MemberCreateSerializer(serializers.Serializer):
-    club_id = serializers.IntegerField()
     code = serializers.CharField()
     phone_number = serializers.CharField(required=False)
     full_name = serializers.CharField()
@@ -80,3 +79,14 @@ class MemberUpdateSerializer(serializers.Serializer):
     code = serializers.CharField(required=False)
     phone_number = serializers.CharField(required=False)
     full_name = serializers.CharField(required=False)
+
+
+class OrderCreateNewMemberSerializer(serializers.Serializer):
+    club_id = serializers.IntegerField()
+    new_member = MemberCreateSerializer()
+    order_date = serializers.DateField()
+    due_date = serializers.DateField()
+    note = serializers.CharField(required=False)
+    book_note = serializers.CharField(required=False)
+    club_book_ids = ListIntegerField(required=False)
+    book_notes = serializers.ListSerializer(child=serializers.CharField(), required=False)

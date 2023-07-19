@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from d_free_book.serializers import ClubBookGetIdsSerializer, ClubBookGetInfosSerializer, ClubBookAddSerializer, \
     GetOrderIdsSerializer, GetOrderInfosSerializer, OrderDetailGetIdsSerializer, OrderDetailGetInfosSerializer, \
     OrderCreateSerializer, MemberGetIdsSerializer, MemberGetInfosSerializer, MemberCreateSerializer, \
-    MemberUpdateSerializer, ClubBookUpdateSerializer, OrderReturnBooksSerializer
+    MemberUpdateSerializer, ClubBookUpdateSerializer, OrderReturnBooksSerializer, OrderCreateNewMemberSerializer
 from d_free_book import manager
 from services.managers import membership_manager
 from services.managers.book_manager import get_book_records
@@ -167,6 +167,19 @@ class OrderCreateView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         manager.create_new_order(serializer.data)
+        return Response({'message': 'Create order successfully'}, status=status.HTTP_200_OK)
+
+
+class OrderCreateNewMemberView(APIView):
+    permission_classes = (IsAuthenticated, IsStaff,)
+
+    @swagger_auto_schema(request_body=OrderCreateNewMemberSerializer)
+    def post(self, request):
+        serializer = OrderCreateNewMemberSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        manager.create_new_order_by_new_member(serializer.data)
         return Response({'message': 'Create order successfully'}, status=status.HTTP_200_OK)
 
 class OrderReturnBooksView(APIView):

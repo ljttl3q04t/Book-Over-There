@@ -15,7 +15,6 @@ def get_club_book_records(club_book_ids=None, club_id=None, book_ids=None, code=
     )
 
 def get_member_records(phone_number=None, code=None, member_ids=None, full_name=None, club_ids=None):
-    print(phone_number, code, member_ids, full_name, club_ids)
     return DFreeMember.objects.filter_ignore_none(
         id__in=member_ids,
         club_id__in=club_ids,
@@ -76,6 +75,28 @@ def get_order_detail_records(order_ids=None, order_detail_ids=None):
 def create_new_order(data):
     order = DFreeOrder.objects.create(
         member_id=data.get('member_id'),
+        club_id=data.get('club_id'),
+        order_date=data.get('order_date'),
+        due_date=data.get('due_date'),
+    )
+    for club_book_id in data.get('club_book_ids'):
+        DFreeOrderDetail.objects.create(
+            order=order,
+            club_book_id=club_book_id,
+        )
+
+
+@transaction.atomic
+def create_new_order_by_new_member(data):
+    new_member = data.get('new_member')
+    new_member = DFreeMember.objects.create(
+        club_id=data.get('club_id'),
+        full_name=new_member.get('full_name'),
+        code=new_member.get('code'),
+        phone_number=new_member.get('phone_number')
+    )
+    order = DFreeOrder.objects.create(
+        member_id=new_member.id,
         club_id=data.get('club_id'),
         order_date=data.get('order_date'),
         due_date=data.get('due_date'),

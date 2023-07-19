@@ -17,6 +17,7 @@ urlpatterns = [
     path('order/get_ids', views.StaffGetOrderIdsView.as_view()),
     path('order/get_infos', views.OrderInfosView.as_view()),
     path('order/create', views.OrderCreateView.as_view()),
+    path('order/create/new_member', views.OrderCreateNewMemberView.as_view()),
     path('order/return_books', views.OrderReturnBooksView.as_view()),
 
     path('club_book/add', views.ClubBookAddView.as_view()),
