@@ -1,6 +1,7 @@
 from django.db import transaction
 
 from d_free_book.models import ClubBook, DFreeOrder, DFreeMember, DFreeOrderDetail
+from services.managers import membership_manager
 from services.managers.book_manager import get_book_infos, create_book
 from services.managers.cache_manager import combine_key_cache_data, CACHE_KEY_CLUB_BOOK_INFOS, \
     CACHE_KEY_DFB_ORDER_INFOS, CACHE_KEY_MEMBER_INFOS, invalid_cache_data
@@ -141,6 +142,7 @@ def get_order_detail_infos(order_detail_ids):
     order_details = list(get_order_detail_records(order_detail_ids=order_detail_ids))
     club_book_ids = list(set([o.club_book_id for o in order_details]))
     club_book_infos = get_club_book_infos(club_book_ids)
+    membership_infos = membership_manager.get_membership_infos()
     result = {}
     for order_detail in order_details:
         club_book_info = club_book_infos.get(order_detail.club_book_id)
@@ -152,8 +154,7 @@ def get_order_detail_infos(order_detail_ids):
             'return_date': order_detail.return_date,
             'order_status': order_detail.order_status,
             'overdue_day_count': order_detail.overdue_day_count,
-            'id_receiver_book': order_detail.receiver_book.member.user_id if order_detail.receiver_book else None,
-            'name_receiver_book': order_detail.receiver_book.member.full_name if order_detail.receiver_book else None,
+            'receiver': membership_infos.get(order_detail.receiver_id)
         }
     return result
 
@@ -174,6 +175,7 @@ def get_order_infos(order_ids):
         else:
             map_order_order_details[order_detail['order_id']].append(order_detail)
 
+    membership_infos = membership_manager.get_membership_infos()
     result = {}
     for order in orders:
         order_details = map_order_order_details.get(order.id)
@@ -184,8 +186,7 @@ def get_order_infos(order_ids):
             'order_date': order.order_date,
             'due_date': order.due_date,
             'order_details': order_details,
-            'id_creator_order': order.creator_order.member.user_id if order.creator_order else None,
-            'name_creator_order': order.creator_order.member.full_name if order.creator_order else None
+            'creator_order': membership_infos.get(order.creator_order.id),
         }
 
     return result

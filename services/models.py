@@ -131,7 +131,7 @@ class BookClub(BaseModel):
     code = models.CharField(max_length=50, null=True, blank=True)
 
     def __str__(self):
-        return self.name
+        return f'{self.id} - {self.name}'
 
 class Member(BaseModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)

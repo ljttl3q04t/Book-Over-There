@@ -56,7 +56,7 @@ class DFreeOrderDetail(BaseModel):
     overdue_day_count = models.IntegerField(null=True, blank=True)
     note = models.CharField(max_length=200, blank=True, null=True)
     order_status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default=CREATED)
-    receiver_book = models.ForeignKey(Membership, on_delete=models.CASCADE, null=True, blank=True)
+    receiver = models.ForeignKey(Membership, on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
         db_table = 'dfree_order_detail_tab'

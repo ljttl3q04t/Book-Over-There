@@ -753,15 +753,6 @@ class BookShareClubView(APIView):
         MemberBookCopy.objects.bulk_create(member_book_copys)
         return Response({'result': 'ok'}, status=status.HTTP_201_CREATED)
 
-class UserBorrowingBookView(APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def get(self, request):
-        user_memberships = membership_manager.get_membership_by_user(request.user)
-        order_details = MembershipOrderDetail.objects.filter(order__membership__in=user_memberships)
-        serializer = UserBorrowingBookSerializer(instance=order_details, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
 class BookHistoryView(APIView):
     permission_classes = (IsAuthenticated,)
 

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
-from services.serializers import ListIntegerField, MembershipSerializer
+from services.managers import membership_manager
+from services.serializers import ListIntegerField
 
 
 class ClubBookGetIdsSerializer(serializers.Serializer):
@@ -17,7 +18,6 @@ class GetOrderIdsSerializer(serializers.Serializer):
     club_id = serializers.IntegerField(required=False)
     from_date = serializers.DateField(required=False)
     to_date = serializers.DateField(required=False)
-    creator_order = MembershipSerializer()
 
 class GetOrderInfosSerializer(serializers.Serializer):
     order_ids = ListIntegerField()
@@ -42,7 +42,6 @@ class OrderDetailGetIdsSerializer(serializers.Serializer):
     club_id = serializers.IntegerField(required=False)
     from_date = serializers.DateField(required=False)
     to_date = serializers.DateField(required=False)
-    receiver_book = MembershipSerializer()
 
 class OrderDetailGetInfosSerializer(serializers.Serializer):
     order_detail_ids = ListIntegerField()
@@ -84,7 +83,6 @@ class MemberUpdateSerializer(serializers.Serializer):
     code = serializers.CharField(required=False)
     phone_number = serializers.CharField(required=False)
     full_name = serializers.CharField(required=False)
-
 
 class OrderCreateNewMemberSerializer(serializers.Serializer):
     club_id = serializers.IntegerField()
