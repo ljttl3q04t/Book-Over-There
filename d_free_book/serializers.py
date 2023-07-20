@@ -38,14 +38,6 @@ class ClubBookUpdateSerializer(serializers.Serializer):
     init_count = serializers.IntegerField(required=False)
     current_count = serializers.IntegerField(required=False)
 
-class OrderDetailGetIdsSerializer(serializers.Serializer):
-    club_id = serializers.IntegerField(required=False)
-    from_date = serializers.DateField(required=False)
-    to_date = serializers.DateField(required=False)
-
-class OrderDetailGetInfosSerializer(serializers.Serializer):
-    order_detail_ids = ListIntegerField()
-
 class OrderCreateSerializer(serializers.Serializer):
     member_full_name = serializers.CharField(required=False)
     member_code = serializers.CharField(required=False)

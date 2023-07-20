@@ -6,11 +6,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from d_free_book.serializers import ClubBookGetIdsSerializer, ClubBookGetInfosSerializer, ClubBookAddSerializer, \
-    GetOrderIdsSerializer, GetOrderInfosSerializer, OrderDetailGetIdsSerializer, OrderDetailGetInfosSerializer, \
-    OrderCreateSerializer, MemberGetIdsSerializer, MemberGetInfosSerializer, MemberCreateSerializer, \
-    MemberUpdateSerializer, ClubBookUpdateSerializer, OrderReturnBooksSerializer, OrderCreateNewMemberSerializer
 from d_free_book import manager
+from d_free_book.serializers import ClubBookGetIdsSerializer, ClubBookGetInfosSerializer, ClubBookAddSerializer, \
+    GetOrderIdsSerializer, GetOrderInfosSerializer, OrderCreateSerializer, MemberGetIdsSerializer, \
+    MemberGetInfosSerializer, MemberCreateSerializer, \
+    MemberUpdateSerializer, ClubBookUpdateSerializer, OrderReturnBooksSerializer, OrderCreateNewMemberSerializer
 from services.managers import membership_manager
 from services.managers.book_manager import get_book_records
 from services.managers.permission_manager import IsStaff
@@ -61,7 +61,8 @@ class ClubBookAddView(APIView):
             return Response({'error': 'Permission denied'}, status=status.HTTP_400_BAD_REQUEST)
         book = get_book_records(book_name=serializer.data.get('name')).first()
 
-        if manager.get_club_book_records(code=serializer.data.get('code'), club_id=serializer.data.get('club_id')).exists():
+        if manager.get_club_book_records(code=serializer.data.get('code'),
+                                         club_id=serializer.data.get('club_id')).exists():
             return Response({'error': 'Book code is duplicated'}, status=status.HTTP_400_BAD_REQUEST)
 
         manager.create_club_book(serializer.data, book)
@@ -92,7 +93,8 @@ class ClubBookUpdateView(APIView):
             if club_book_data.get(k) != v:
                 updated_data[k] = v
 
-        if updated_data.get('code') and manager.get_club_book_records(code=updated_data.get('code'), club_id=club_book.club_id).exists():
+        if updated_data.get('code') and manager.get_club_book_records(code=updated_data.get('code'),
+                                                                      club_id=club_book.club_id).exists():
             return Response({'error': 'Book code is duplicated'}, status=status.HTTP_400_BAD_REQUEST)
 
         affected_count = manager.update_club_book(club_book_id, **updated_data)
@@ -100,35 +102,6 @@ class ClubBookUpdateView(APIView):
             return Response({'message': 'Update Book successfully'}, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'Update Book failed'}, status=status.HTTP_400_BAD_REQUEST)
-
-class OrderDetailGetIdsView(APIView):
-    # permission_classes = (IsAuthenticated, IsStaff,)
-
-    @swagger_auto_schema(request_body=OrderDetailGetIdsSerializer)
-    def post(self, request):
-        serializer = OrderDetailGetIdsSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        club_id = serializer.data['club_id']
-        from_date = serializer.data.get('from_date')
-        to_date = serializer.data.get('to_date')
-
-        order_ids = manager.get_order_records(club_id=club_id, from_date=from_date, to_date=to_date).pk_list()
-        order_detail_ids = manager.get_order_detail_records(order_ids=order_ids).pk_list()
-        return Response({'order_detail_ids': order_detail_ids}, status=status.HTTP_200_OK)
-
-class OrderDetailGetInfosView(APIView):
-    # permission_classes = (IsAuthenticated, IsStaff,)
-
-    @swagger_auto_schema(request_body=OrderDetailGetInfosSerializer)
-    def post(self, request):
-        serializer = OrderDetailGetInfosSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        order_detail_infos = manager.get_order_detail_infos(serializer.data['order_detail_ids'])
-        return Response({'order_detail_infos': order_detail_infos.values()}, status=status.HTTP_200_OK)
 
 class StaffGetOrderIdsView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)
@@ -171,7 +144,6 @@ class OrderCreateView(APIView):
 
         manager.create_new_order(serializer.data)
         return Response({'message': 'Create order successfully'}, status=status.HTTP_200_OK)
-
 
 class OrderCreateNewMemberView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)

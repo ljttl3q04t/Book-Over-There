@@ -11,9 +11,6 @@ urlpatterns = [
     path('member/add', views.MemberAddView.as_view()),
     path('member/update', views.MemberUpdateView.as_view()),
 
-    path('order_detail/get_ids', views.OrderDetailGetIdsView.as_view()),
-    path('order_detail/get_infos', views.OrderDetailGetInfosView.as_view()),
-
     path('order/get_ids', views.StaffGetOrderIdsView.as_view()),
     path('order/get_infos', views.OrderInfosView.as_view()),
     path('order/create', views.OrderCreateView.as_view()),
