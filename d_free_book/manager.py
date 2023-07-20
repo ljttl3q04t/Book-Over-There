@@ -186,7 +186,7 @@ def get_order_infos(order_ids):
             'order_date': order.order_date,
             'due_date': order.due_date,
             'order_details': order_details,
-            'creator_order': membership_infos.get(order.creator_order.id),
+            'creator_order': membership_infos.get(order.creator_order_id),
         }
 
     return result

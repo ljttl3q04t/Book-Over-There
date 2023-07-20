@@ -27,6 +27,7 @@ def get_member_infos():
         result[member.id] = {
             'full_name': member.full_name,
         }
+    return result
 
 @simple_cache_data(**CACHE_CLUB_GET_MEMBERSHIP_INFOS)
 def get_membership_infos():
