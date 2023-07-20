@@ -55,9 +55,7 @@ class OrderCreateSerializer(serializers.Serializer):
     due_date = serializers.DateField()
     club_id = serializers.IntegerField()
     note = serializers.CharField(required=False)
-    book_note = serializers.CharField(required=False)
     club_book_ids = ListIntegerField(required=False)
-    book_notes = serializers.ListSerializer(child=serializers.CharField(), required=False)
     creator_order_id = serializers.IntegerField()
 
 class OrderReturnBooksSerializer(serializers.Serializer):
@@ -90,7 +88,5 @@ class OrderCreateNewMemberSerializer(serializers.Serializer):
     order_date = serializers.DateField()
     due_date = serializers.DateField()
     note = serializers.CharField(required=False)
-    book_note = serializers.CharField(required=False)
     club_book_ids = ListIntegerField(required=False)
-    book_notes = serializers.ListSerializer(child=serializers.CharField(), required=False)
     creator_order_id = serializers.IntegerField()
