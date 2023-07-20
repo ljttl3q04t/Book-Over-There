@@ -165,6 +165,9 @@ class OrderCreateView(APIView):
         serializer = OrderCreateSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        validate_oder, error = manager.validate_oder(serializer.data)
+        if not validate_oder:
+            return Response({'error': error}, status=status.HTTP_400_BAD_REQUEST)
 
         manager.create_new_order(serializer.data)
         return Response({'message': 'Create order successfully'}, status=status.HTTP_200_OK)
@@ -203,8 +206,9 @@ class OrderReturnBooksView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         order_detail_ids = serializer.data.get('order_detail_ids')
+        receiver_id = serializer.data.get('receiver_id')
         return_date = serializer.data.get('return_date', timezone.now())
-        manager.return_books(order_detail_ids, return_date)
+        manager.return_books(order_detail_ids, return_date, receiver_id)
         return Response({'message': 'Return books successfully'}, status=status.HTTP_200_OK)
 
 class MemberGetIdsView(APIView):

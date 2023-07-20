@@ -65,10 +65,12 @@ def get_order_records(order_ids=None, club_id=None, member_ids=None, from_date=N
         order_status=order_status,
     )
 
-def get_order_detail_records(order_ids=None, order_detail_ids=None):
+def get_order_detail_records(order_ids=None, order_detail_ids=None, order_status=None, receiver_book=None):
     return DFreeOrderDetail.objects.filter_ignore_none(
         id__in=order_detail_ids,
-        order_id__in=order_ids
+        order_id__in=order_ids,
+        order_status=order_status,
+        receiver_book=receiver_book,
     )
 
 @transaction.atomic
@@ -78,6 +80,7 @@ def create_new_order(data):
         club_id=data.get('club_id'),
         order_date=data.get('order_date'),
         due_date=data.get('due_date'),
+        creator_order_id=data.get('creator_order_id'),
     )
     for club_book_id in data.get('club_book_ids'):
         DFreeOrderDetail.objects.create(
@@ -100,6 +103,7 @@ def create_new_order_by_new_member(data):
         club_id=data.get('club_id'),
         order_date=data.get('order_date'),
         due_date=data.get('due_date'),
+        creator_order_id=data.get('creator_order_id'),
     )
     for club_book_id in data.get('club_book_ids'):
         DFreeOrderDetail.objects.create(
@@ -107,8 +111,9 @@ def create_new_order_by_new_member(data):
             club_book_id=club_book_id,
         )
 
-def return_books(order_detail_ids, return_date):
-    return DFreeOrderDetail.objects.filter(id__in=order_detail_ids).update(return_date=return_date, order_status=DFreeOrderDetail.COMPLETE)
+def return_books(order_detail_ids, return_date, receiver_id):
+    return DFreeOrderDetail.objects.filter(id__in=order_detail_ids).update(return_date=return_date, order_status=DFreeOrderDetail.COMPLETE,
+                                                                           receiver_book_id=receiver_id)
 
 @combine_key_cache_data(**CACHE_KEY_CLUB_BOOK_INFOS)
 def get_club_book_infos(club_book_ids):
@@ -136,7 +141,6 @@ def get_order_detail_infos(order_detail_ids):
     order_details = list(get_order_detail_records(order_detail_ids=order_detail_ids))
     club_book_ids = list(set([o.club_book_id for o in order_details]))
     club_book_infos = get_club_book_infos(club_book_ids)
-
     result = {}
     for order_detail in order_details:
         club_book_info = club_book_infos.get(order_detail.club_book_id)
@@ -148,6 +152,8 @@ def get_order_detail_infos(order_detail_ids):
             'return_date': order_detail.return_date,
             'order_status': order_detail.order_status,
             'overdue_day_count': order_detail.overdue_day_count,
+            'id_receiver_book': order_detail.receiver_book.member.user_id if order_detail.receiver_book else None,
+            'name_receiver_book': order_detail.receiver_book.member.full_name if order_detail.receiver_book else None,
         }
     return result
 
@@ -177,7 +183,9 @@ def get_order_infos(order_ids):
             'club_id': order.club_id,
             'order_date': order.order_date,
             'due_date': order.due_date,
-            'order_details': order_details
+            'order_details': order_details,
+            'id_creator_order': order.creator_order.member.user_id if order.creator_order else None,
+            'name_creator_order': order.creator_order.member.full_name if order.creator_order else None
         }
 
     return result
@@ -202,3 +210,15 @@ def create_club_book(data, book=None):
 def update_club_book(club_book_id, **kwargs):
     affected_count = ClubBook.objects.filter(id=club_book_id).update(**kwargs)
     return affected_count
+
+
+def validate_oder(data):
+    order_ids = get_order_records(member_ids=[data['member_id']], club_id=data['club_id']).pk_list()
+    has_overdue_order = get_order_detail_records(order_status=DFreeOrderDetail.OVERDUE, order_ids=order_ids).exists()
+    count_created_order = get_order_detail_records(order_status=DFreeOrderDetail.CREATED, order_ids=order_ids).count()
+    if has_overdue_order:
+        return False, 'The User is borrowing overdue'
+    if count_created_order >= 3:
+        return False, 'The User is borrowing {}'.format(count_created_order)
+
+    return True, None

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
-from services.serializers import ListIntegerField
+from services.serializers import ListIntegerField, MembershipSerializer
+
 
 class ClubBookGetIdsSerializer(serializers.Serializer):
     club_id = serializers.IntegerField(required=False)
@@ -16,6 +17,7 @@ class GetOrderIdsSerializer(serializers.Serializer):
     club_id = serializers.IntegerField(required=False)
     from_date = serializers.DateField(required=False)
     to_date = serializers.DateField(required=False)
+    creator_order = MembershipSerializer()
 
 class GetOrderInfosSerializer(serializers.Serializer):
     order_ids = ListIntegerField()
@@ -40,6 +42,7 @@ class OrderDetailGetIdsSerializer(serializers.Serializer):
     club_id = serializers.IntegerField(required=False)
     from_date = serializers.DateField(required=False)
     to_date = serializers.DateField(required=False)
+    receiver_book = MembershipSerializer()
 
 class OrderDetailGetInfosSerializer(serializers.Serializer):
     order_detail_ids = ListIntegerField()
@@ -56,10 +59,12 @@ class OrderCreateSerializer(serializers.Serializer):
     book_note = serializers.CharField(required=False)
     club_book_ids = ListIntegerField(required=False)
     book_notes = serializers.ListSerializer(child=serializers.CharField(), required=False)
+    creator_order_id = serializers.IntegerField()
 
 class OrderReturnBooksSerializer(serializers.Serializer):
     order_detail_ids = ListIntegerField()
     return_date = serializers.DateField(required=False)
+    receiver_id = serializers.IntegerField()
 
 class MemberGetIdsSerializer(serializers.Serializer):
     code = serializers.CharField(required=False)
@@ -90,3 +95,4 @@ class OrderCreateNewMemberSerializer(serializers.Serializer):
     book_note = serializers.CharField(required=False)
     club_book_ids = ListIntegerField(required=False)
     book_notes = serializers.ListSerializer(child=serializers.CharField(), required=False)
+    creator_order_id = serializers.IntegerField()
