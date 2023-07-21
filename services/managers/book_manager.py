@@ -3,11 +3,11 @@ from io import BytesIO
 import requests
 from django.core.files import File
 
-from services.managers.cache_manager import delete_simple_cache_data, simple_cache_data, CACHE_KEY_CATEGORY_INFOS_DICT, \
+from services.managers.cache_manager import simple_cache_data, CACHE_KEY_CATEGORY_INFOS_DICT, \
     CACHE_KEY_AUTHOR_INFOS_DICT, combine_key_cache_data, CACHE_KEY_BOOK_INFOS, CACHE_KEY_PUBLISHER_INFOS_DICT, \
     invalid_cache_data
 from services.models import Book, Author, Category, Publisher
-from services.serializers import CategorySerializer, AuthorSerializer, BookSerializer, PublisherSerializer
+from services.serializers import CategorySerializer, AuthorSerializer, PublisherSerializer
 
 def save_image_from_url(book, image_url):
     response = requests.get(image_url)
