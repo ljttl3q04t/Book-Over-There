@@ -430,8 +430,3 @@ class PasswordResetSerializer(serializers.Serializer):
 
 class PasswordResetConfirmSerializer(serializers.Serializer):
     new_password = serializers.CharField()
-
-
-class UserChangeToStaffSerializer(serializers.Serializer):
-    user_id = serializers.IntegerField()
-    is_staff = serializers.BooleanField()

@@ -65,5 +65,4 @@ urlpatterns = [
 
     # upload file
     path('upload', views.UploadFileView.as_view(), name='upload-file'),
-    path('user/staff/change', views.UserChangeToStaffView.as_view(), name='user-change-staff'),
 ]

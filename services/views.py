@@ -772,20 +772,3 @@ class BookHistoryView(APIView):
         serializer = BookCopyHistorySerializer(instance=records, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-
-class UserChangeToStaffView(APIView):
-    permission_classes = (IsAuthenticated, IsStaff,)
-
-    @swagger_auto_schema(request_body=UserChangeToStaffSerializer)
-    def post(self, request):
-        serializer = UserChangeToStaffSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        user_id = serializer.data.get('user_id')
-        is_staff = serializer.data.get('is_staff')
-        user = User.objects.filter(id=user_id)
-        if user.exists():
-            user.update(is_staff=is_staff)
-            return Response({'message': 'Update user to staff successfully'}, status=status.HTTP_200_OK)
-        else:
-            return Response({'error': 'User dont exist'}, status=status.HTTP_400_BAD_REQUEST)
