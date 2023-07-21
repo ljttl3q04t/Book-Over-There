@@ -198,8 +198,13 @@ def create_club_book(data, book=None):
             author=data.get('author'),
             image=data.get('image'),
         )
+
+    if not book.image or not book.image.name:
         if data.get('image_url'):
             book_manager.save_image_from_url(book, data.get('image_url'))
+        elif data.get('image'):
+            book.image = data.get('image')
+            book.save()
 
     ClubBook.objects.create(
         book=book,
