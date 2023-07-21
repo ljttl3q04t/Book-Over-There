@@ -34,7 +34,8 @@ class ClubBookGetIdsView(APIView):
                                     book_name=book_name).pk_list()
 
         club_books = manager.get_club_book_records(club_id=club_id, club_ids=club_ids, book_ids=book_ids)
-        club_book_ids = club_books.order_by('-id')[:MAX_QUERY_SIZE].pk_list()
+        # club_book_ids = club_books.order_by('-id')[:MAX_QUERY_SIZE].pk_list()
+        club_book_ids = club_books.pk_list()
         return Response({'club_book_ids': club_book_ids}, status=status.HTTP_200_OK)
 
 class ClubBookGetInfosView(APIView):
