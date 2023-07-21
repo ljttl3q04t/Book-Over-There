@@ -20,10 +20,9 @@ def cron_evaluate_overdue_day():
         time_delta = order_detail.order.due_date - today
         if time_delta.days >= 0:
             order_detail.overdue_day_count = time_delta.days + 1
-            order_detail.order_status = DFreeOrderDetail.CREATED
         order_detail.save()
     finish_oder = DFreeOrder.objects.filter(Q(due_date__lt=today))
-    order_detail_over_due = DFreeOrderDetail.objects.filter(order__in=finish_oder, order_status__in=DFreeOrderDetail.CREATED)
+    order_detail_over_due = DFreeOrderDetail.objects.filter(order__in=finish_oder, order_status=DFreeOrderDetail.CREATED)
     for order_detail in order_detail_over_due:
         time_delta = order_detail.order.due_date - today
         if time_delta.days < 0:
