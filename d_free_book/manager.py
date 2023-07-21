@@ -54,8 +54,7 @@ def get_member_infos(member_ids):
         }
     return result
 
-def get_order_records(order_ids=None, club_id=None, member_ids=None, from_date=None, to_date=None, order_status=None,
-                      club_ids=None):
+def get_order_records(order_ids=None, club_id=None, member_ids=None, from_date=None, to_date=None, club_ids=None):
     return DFreeOrder.objects.filter_ignore_none(
         id__in=order_ids,
         club_id=club_id,
@@ -63,7 +62,6 @@ def get_order_records(order_ids=None, club_id=None, member_ids=None, from_date=N
         member_id__in=member_ids,
         order_date__gte=from_date,
         order_date__lte=to_date,
-        order_status=order_status,
     )
 
 def get_order_detail_records(order_ids=None, order_detail_ids=None, order_status=None, receiver_book=None):
