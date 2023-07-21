@@ -18,6 +18,7 @@ class GetOrderIdsSerializer(serializers.Serializer):
     club_id = serializers.IntegerField(required=False)
     from_date = serializers.DateField(required=False)
     to_date = serializers.DateField(required=False)
+    order_status = serializers.CharField(required=False)
 
 class GetOrderInfosSerializer(serializers.Serializer):
     order_ids = ListIntegerField()
