@@ -186,6 +186,7 @@ class UserLoginView(APIView):
             user_serializer = UserSerializer(instance=user)
             user_data = user_serializer.data
             user_data['is_staff'] = is_staff(user)
+            user_data['is_club_admin'] = is_club_admin(user)
 
             data = {
                 'refresh_token': str(refresh),
@@ -372,7 +373,7 @@ class BookClubMemberUpdateView(APIView):
             if membership.member_status == Membership.PENDING and serializer.data['member_status'] == Membership.ACTIVE:
                 membership.member_status = serializer.data['member_status']
                 membership.save()
-                return Response(MembershipSerializer(instance=membership).data, status=status.HTTP_200_OK)
+                return Response({'message': "Approve successfully"}, status=status.HTTP_200_OK)
             else:
                 return Response({'error': 'invalid change member status'}, status=status.HTTP_400_BAD_REQUEST)
         if 'is_staff' in serializer.data:
