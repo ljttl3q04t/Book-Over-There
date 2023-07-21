@@ -20,7 +20,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from services.managers import membership_manager, book_manager
-from services.managers.permission_manager import is_staff, IsStaff, is_club_admin, IsClubAdmin
+from services.managers.permission_manager import is_staff, IsStaff, is_club_admin
 from .managers.book_manager import get_category_infos
 from .managers.crawl_manager import CrawFahasa, CrawTiki
 from .managers.email_manager import send_password_reset_email
