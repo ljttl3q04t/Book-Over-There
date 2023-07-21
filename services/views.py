@@ -7,10 +7,10 @@ from django.shortcuts import resolve_url
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django_filters import rest_framework as filters
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import generics, status, serializers
+from rest_framework import generics, serializers, status
 from rest_framework.filters import SearchFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
@@ -19,24 +19,20 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from services.managers import membership_manager, book_manager
-from services.managers.permission_manager import is_staff, IsStaff, is_club_admin
+from services.managers import book_manager, membership_manager
+from services.managers.permission_manager import IsStaff, is_club_admin, is_staff
 from .managers.book_manager import get_category_infos
 from .managers.crawl_manager import CrawFahasa, CrawTiki
 from .managers.email_manager import send_password_reset_email
-from .models import Book, MemberBookCopy, BookCopy, BookClub, Member, Membership, \
-    MembershipOrder, \
-    MembershipOrderDetail, UploadFile, Category, BookCopyHistory, User
-from .serializers import BookCopySerializer, BookSerializer, \
-    UserLoginSerializer, UserRegisterSerializer, BookFilter, BookClubRequestToJoinSerializer, \
-    MemberSerializer, MembershipOrderCreateSerializer, UserUpdateSerializer, MembershipSerializer, CategorySerializer, \
-    MyBookAddSerializer, ShareBookClubSerializer, BookClubMemberUpdateSerializer, \
-    UserSerializer, BookClubMemberDepositBookSerializer, BookClubMemberWithdrawBookSerializer, \
-    BookClubStaffCreateOrderSerializer, MemberBookCopySerializer, ClubBookListFilter, BookCheckSerializer, \
-    UserBorrowingBookSerializer, BookClubStaffExtendOrderSerializer, StaffBorrowingSerializer, \
-    BookCopyHistorySerializer, ReturnBookSerializer, StaffOrderConfirmSerializer, PasswordResetSerializer, \
-    PasswordResetConfirmSerializer, UserChangeToStaffSerializer
-
+from .models import Book, BookClub, BookCopy, BookCopyHistory, Member, MemberBookCopy, Membership, MembershipOrder, \
+    MembershipOrderDetail, UploadFile, User
+from .serializers import BookCheckSerializer, BookClubMemberDepositBookSerializer, BookClubMemberUpdateSerializer, \
+    BookClubMemberWithdrawBookSerializer, BookClubRequestToJoinSerializer, BookClubStaffCreateOrderSerializer, \
+    BookClubStaffExtendOrderSerializer, BookCopyHistorySerializer, BookCopySerializer, BookFilter, BookSerializer, \
+    ClubBookListFilter, MemberBookCopySerializer, MemberSerializer, MembershipOrderCreateSerializer, \
+    MembershipSerializer, MyBookAddSerializer, PasswordResetConfirmSerializer, PasswordResetSerializer, \
+    ReturnBookSerializer, ShareBookClubSerializer, StaffBorrowingSerializer, StaffOrderConfirmSerializer, \
+    UserBorrowingBookSerializer, UserLoginSerializer, UserRegisterSerializer, UserSerializer, UserUpdateSerializer
 
 class UploadFileView(APIView):
     permission_classes = (IsAuthenticated,)
