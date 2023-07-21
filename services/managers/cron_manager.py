@@ -1,27 +1,43 @@
+import logging
 from datetime import date
 
 from django.db import transaction
+from django.utils import timezone
 
+from d_free_book.models import DFreeOrder, DFreeOrderDetail
 from services.managers.email_manager import send_overdue_notification_email
-from services.models import MembershipOrder, MembershipOrderDetail
-import logging
+from services.models import MembershipOrderDetail
 
 log = logging.getLogger('django')
 
 @transaction.atomic
 def cron_evaluate_overdue_day():
     log.info('started|cron_evaluate_overdue_day')
-
     today = date.today()
-    working_orders = MembershipOrder.objects.filter(
-        order_status__in=[MembershipOrder.CONFIRMED, MembershipOrder.OVERDUE])
-    order_details = MembershipOrderDetail.objects.filter(order__in=working_orders)
+    current_time = timezone.now()
+    map_order_due_date = {item.id: item.due_date for item in DFreeOrder.objects.all()}
+    order_details = DFreeOrderDetail.objects.all()
     for order_detail in order_details:
-        time_delta = today - order_detail.due_date.date()
-        if time_delta.days > 0:
-            order_detail.overdue_day_count = time_delta.days
-            order_detail.order.order_status = MembershipOrder.OVERDUE
-            order_detail.save()
+        order_status = order_detail.order_status
+        new_status = order_status
+        new_overdue_day_count = order_detail.overdue_day_count
+        return_date = order_detail.return_date.date() if order_detail.return_date else None
+        due_date = map_order_due_date.get(order_detail.order_id)
+
+        if order_status == DFreeOrderDetail.CREATED:
+            new_overdue_day_count = max((today - due_date).days, 0)
+            new_status = DFreeOrderDetail.OVERDUE if new_overdue_day_count > 0 else order_status
+        elif order_status == DFreeOrderDetail.OVERDUE:
+            new_overdue_day_count = max((today - due_date).days, 0)
+        elif order_status == DFreeOrderDetail.COMPLETE:
+            if not return_date:
+                continue
+            new_overdue_day_count = max((return_date - due_date).days, 0)
+
+        order_detail.overdue_day_count = new_overdue_day_count
+        order_detail.order_status = new_status
+        order_detail.updated_at = current_time
+        order_detail.save()
 
     log.info('finished|cron_evaluate_overdue_day')
 

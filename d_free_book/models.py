@@ -52,7 +52,6 @@ class DFreeOrderDetail(BaseModel):
 
     order = models.ForeignKey(DFreeOrder, on_delete=models.CASCADE)
     club_book = models.ForeignKey(ClubBook, on_delete=models.CASCADE, null=True, blank=True)
-    book_note = models.CharField(max_length=200, blank=True, null=True)
     return_date = models.DateTimeField(null=True, blank=True)
     overdue_day_count = models.IntegerField(null=True, blank=True)
     note = models.CharField(max_length=200, blank=True, null=True)
