@@ -244,7 +244,8 @@ class ShareBookClubSerializer(serializers.Serializer):
 
 class BookClubMemberUpdateSerializer(serializers.Serializer):
     membership_id = serializers.IntegerField()
-    member_status = serializers.ChoiceField(choices=Membership.MEMBER_STATUS_CHOICES)
+    member_status = serializers.ChoiceField(choices=Membership.MEMBER_STATUS_CHOICES, required=False)
+    is_staff = serializers.BooleanField(required=False)
 
 class BookClubMemberDepositBookSerializer(serializers.Serializer):
     member_book_copy_ids = serializers.CharField()

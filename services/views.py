@@ -20,7 +20,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from services.managers import membership_manager, book_manager
-from services.managers.permission_manager import is_staff, IsStaff
+from services.managers.permission_manager import is_staff, IsStaff, is_club_admin, IsClubAdmin
 from .managers.book_manager import get_category_infos
 from .managers.crawl_manager import CrawFahasa, CrawTiki
 from .managers.email_manager import send_password_reset_email
@@ -372,13 +372,22 @@ class BookClubMemberUpdateView(APIView):
             membership = Membership.objects.get(id=serializer.data['membership_id'])
         except Membership.DoesNotExist:
             return Response({'error': 'member not found'}, status=status.HTTP_400_BAD_REQUEST)
+        if "member_status" in serializer.data:
+            if membership.member_status == Membership.PENDING and serializer.data['member_status'] == Membership.ACTIVE:
+                membership.member_status = serializer.data['member_status']
+                membership.save()
+                return Response(MembershipSerializer(instance=membership).data, status=status.HTTP_200_OK)
+            else:
+                return Response({'error': 'invalid change member status'}, status=status.HTTP_400_BAD_REQUEST)
+        if 'is_staff' in serializer.data:
+            if is_club_admin(request.user):
+                if serializer.data['is_staff']:
+                    membership.is_staff = serializer.data['is_staff']
+                    membership.save()
+                    return Response({'message': 'Update staff successfully'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'error': 'You cant update status staff'}, status=status.HTTP_400_BAD_REQUEST)
 
-        if membership.member_status == Membership.PENDING and serializer.data['member_status'] == Membership.ACTIVE:
-            membership.member_status = serializer.data['member_status']
-            membership.save()
-            return Response(MembershipSerializer(instance=membership).data, status=status.HTTP_200_OK)
-        else:
-            return Response({'error': 'invalid change member status'}, status=status.HTTP_400_BAD_REQUEST)
 
 class BookClubMemberBookDepositView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)
