@@ -113,7 +113,7 @@ def create_new_order_by_new_member(data):
 
 def return_books(order_detail_ids, return_date, receiver_id):
     return DFreeOrderDetail.objects.filter(id__in=order_detail_ids).update(return_date=return_date, order_status=DFreeOrderDetail.COMPLETE,
-                                                                           receiver_book_id=receiver_id)
+                                                                           receiver_id=receiver_id)
 
 @combine_key_cache_data(**CACHE_KEY_CLUB_BOOK_INFOS)
 def get_club_book_infos(club_book_ids):

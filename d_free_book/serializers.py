@@ -52,12 +52,12 @@ class OrderCreateSerializer(serializers.Serializer):
     book_note = serializers.CharField(required=False)
     club_book_ids = ListIntegerField(required=False)
     book_notes = serializers.ListSerializer(child=serializers.CharField(), required=False)
-    creator_order_id = serializers.IntegerField()
+    creator_order_id = serializers.IntegerField(required=False)
 
 class OrderReturnBooksSerializer(serializers.Serializer):
     order_detail_ids = ListIntegerField()
     return_date = serializers.DateField(required=False)
-    receiver_id = serializers.IntegerField()
+    receiver_id = serializers.IntegerField(required=False)
 
 class MemberGetIdsSerializer(serializers.Serializer):
     code = serializers.CharField(required=False)
