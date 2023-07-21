@@ -1,4 +1,3 @@
-import json
 import logging
 from datetime import date
 
@@ -18,7 +17,6 @@ def cron_evaluate_overdue_day():
     current_time = timezone.now()
     map_order_due_date = {item.id: item.due_date for item in DFreeOrder.objects.all()}
     order_details = DFreeOrderDetail.objects.all()
-    data = []
     for order_detail in order_details:
         order_status = order_detail.order_status
         new_status = order_status
@@ -41,8 +39,6 @@ def cron_evaluate_overdue_day():
         order_detail.updated_at = current_time
         order_detail.save()
 
-    with open("./alo.json", "w") as outfile:
-        json.dump(data, outfile)
     log.info('finished|cron_evaluate_overdue_day')
 
 def cron_send_email_noti_overdue():
