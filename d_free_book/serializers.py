@@ -31,6 +31,7 @@ class ClubBookAddSerializer(serializers.Serializer):
     category = serializers.CharField()
     author = serializers.CharField()
     image = serializers.ImageField(required=False)
+    image_url = serializers.CharField(required=False)
     init_count = serializers.IntegerField(default=1)
     current_count = serializers.IntegerField(default=1)
 

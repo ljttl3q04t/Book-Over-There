@@ -20,7 +20,7 @@ class ClubBook(BaseModel):
 class DFreeMember(BaseModel):
     club = models.ForeignKey(BookClub, on_delete=models.CASCADE, null=True, blank=True)
     full_name = models.CharField(max_length=200)
-    code = models.CharField(max_length=20, unique=True)
+    code = models.CharField(max_length=20)
     phone_number = models.CharField(max_length=20, null=True, blank=True)
 
     def __str__(self):
@@ -28,6 +28,7 @@ class DFreeMember(BaseModel):
 
     class Meta:
         db_table = 'dfree_member_tab'
+        unique_together = ['club', 'code']
 
 class DFreeOrder(BaseModel):
     member = models.ForeignKey(DFreeMember, on_delete=models.CASCADE)

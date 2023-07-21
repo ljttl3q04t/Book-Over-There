@@ -34,7 +34,8 @@ class ClubBookGetIdsView(APIView):
                                     book_name=book_name).pk_list()
 
         club_books = manager.get_club_book_records(club_id=club_id, club_ids=club_ids, book_ids=book_ids)
-        club_book_ids = club_books.order_by('-id')[:MAX_QUERY_SIZE].pk_list()
+        # club_book_ids = club_books.order_by('-id')[:MAX_QUERY_SIZE].pk_list()
+        club_book_ids = club_books.pk_list()
         return Response({'club_book_ids': club_book_ids}, status=status.HTTP_200_OK)
 
 class ClubBookGetInfosView(APIView):
@@ -56,9 +57,11 @@ class ClubBookAddView(APIView):
         serializer = ClubBookAddSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
         club_ids = membership_manager.get_membership_records(request.user, is_staff=True).flat_list('book_club_id')
         if serializer.data.get('club_id') not in club_ids:
             return Response({'error': 'Permission denied'}, status=status.HTTP_400_BAD_REQUEST)
+
         book = get_book_records(book_name=serializer.data.get('name')).first()
 
         if manager.get_club_book_records(code=serializer.data.get('code'),

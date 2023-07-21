@@ -1,8 +1,7 @@
 from django.db import transaction
 
 from d_free_book.models import ClubBook, DFreeOrder, DFreeMember, DFreeOrderDetail
-from services.managers import membership_manager
-from services.managers.book_manager import get_book_infos, create_book
+from services.managers import membership_manager, book_manager
 from services.managers.cache_manager import combine_key_cache_data, CACHE_KEY_CLUB_BOOK_INFOS, \
     CACHE_KEY_DFB_ORDER_INFOS, CACHE_KEY_MEMBER_INFOS, invalid_cache_data
 
@@ -121,7 +120,7 @@ def get_club_book_infos(club_book_ids):
         return {}
     club_books = get_club_book_records(club_book_ids=club_book_ids)
     book_ids = [b.book_id for b in club_books]
-    book_infos = get_book_infos(book_ids)
+    book_infos = book_manager.get_book_infos(book_ids)
     result = {}
     for club_book in club_books:
         result[club_book.id] = {
@@ -193,12 +192,20 @@ def get_order_infos(order_ids):
 @transaction.atomic
 def create_club_book(data, book=None):
     if not book:
-        book = create_book(
+        book = book_manager.create_book(
             name=data.get('name'),
             category=data.get('category'),
             author=data.get('author'),
             image=data.get('image'),
         )
+
+    if not book.image or not book.image.name:
+        if data.get('image_url'):
+            book_manager.save_image_from_url(book, data.get('image_url'))
+        elif data.get('image'):
+            book.image = data.get('image')
+            book.save()
+
     ClubBook.objects.create(
         book=book,
         code=data['code'],
