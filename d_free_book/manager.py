@@ -62,7 +62,7 @@ def get_order_records(order_ids=None, club_id=None, member_ids=None, from_date=N
         member_id__in=member_ids,
         order_date__gte=from_date,
         order_date__lte=to_date,
-        order_dat=order_date,
+        order_date=order_date,
     )
 
 def get_order_detail_records(order_ids=None, order_detail_ids=None, order_status=None, receiver_book=None):
