@@ -15,7 +15,8 @@ def cron_evaluate_overdue_day():
     log.info('started|cron_evaluate_overdue_day')
     today = date.today()
     working_orders = DFreeOrder.objects.filter(Q(order_date__lte=today) & Q(due_date__gte=today))
-    order_details = DFreeOrderDetail.objects.filter(order__in=working_orders)
+    order_details = DFreeOrderDetail.objects.filter(order__in=working_orders).filter(
+        Q(order_status=DFreeOrderDetail.OVERDUE) | Q(order_status=DFreeOrderDetail.CREATED))
     for order_detail in order_details:
         time_delta = order_detail.order.due_date - today
         order_detail.order_status = DFreeOrderDetail.CREATED
