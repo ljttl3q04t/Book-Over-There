@@ -1,7 +1,9 @@
 from datetime import date
 
 from django.db import transaction
+from django.db.models import Q
 
+from d_free_book.models import DFreeOrder, DFreeOrderDetail
 from services.managers.email_manager import send_overdue_notification_email
 from services.models import MembershipOrder, MembershipOrderDetail
 import logging
@@ -11,17 +13,19 @@ log = logging.getLogger('django')
 @transaction.atomic
 def cron_evaluate_overdue_day():
     log.info('started|cron_evaluate_overdue_day')
-
     today = date.today()
-    working_orders = MembershipOrder.objects.filter(
-        order_status__in=[MembershipOrder.CONFIRMED, MembershipOrder.OVERDUE])
-    order_details = MembershipOrderDetail.objects.filter(order__in=working_orders)
+    working_orders = DFreeOrder.objects.filter(Q(order_date__lte=today) & Q(due_date__gte=today))
+    order_details = DFreeOrderDetail.objects.filter(order__in=working_orders)
     for order_detail in order_details:
-        time_delta = today - order_detail.due_date.date()
+        time_delta = order_detail.order.due_date - today
+        print(time_delta)
         if time_delta.days > 0:
             order_detail.overdue_day_count = time_delta.days
-            order_detail.order.order_status = MembershipOrder.OVERDUE
-            order_detail.save()
+            order_detail.order_status = DFreeOrderDetail.COMPLETE
+        if time_delta.days == 0:
+            order_detail.order_status = DFreeOrderDetail.OVERDUE
+            order_detail.overdue_day_count = None
+        order_detail.save()
 
     log.info('finished|cron_evaluate_overdue_day')
 
