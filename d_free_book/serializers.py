@@ -87,4 +87,4 @@ class OrderCreateNewMemberSerializer(serializers.Serializer):
     book_note = serializers.CharField(required=False)
     club_book_ids = ListIntegerField(required=False)
     book_notes = serializers.ListSerializer(child=serializers.CharField(), required=False)
-    creator_order_id = serializers.IntegerField()
+    creator_order_id = serializers.IntegerField(required=False)
