@@ -239,7 +239,9 @@ class MemberAddView(APIView):
         if serializer.data.get('club_id') not in club_ids:
             return Response({'error': 'Invalid Club'}, status=status.HTTP_400_BAD_REQUEST)
 
-        valid_member, error = manager.validate_member(**serializer.data)
+        valid_member, error = manager.validate_member(club_id=serializer.data.get('club_id'),
+                                                      phone_number=serializer.data.get('phone_number'),
+                                                      code=serializer.data.get('code'),)
         if not valid_member:
             return Response({'error': error}, status=status.HTTP_400_BAD_REQUEST)
         else:
