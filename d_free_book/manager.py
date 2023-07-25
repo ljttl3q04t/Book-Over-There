@@ -53,10 +53,12 @@ def create_member(club_id, full_name, code, phone_number=None):
         phone_number=phone_number
     )
 
+def validate_member(phone_number):
+    has_phone_number = DFreeMember.objects.filter(phone_number=phone_number).exists()
+    if has_phone_number:
+        return True, 'Duplicated phone number'
 
-def check_member_have_phone_number(phone_number):
-    return DFreeMember.objects.filter(phone_number=phone_number)
-
+    return False, None
 
 def update_member(member_id, club_ids, **kwargs):
     affected_count = DFreeMember.objects.filter(id=member_id, club_id__in=club_ids).update(**kwargs)
