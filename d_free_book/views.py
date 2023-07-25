@@ -165,23 +165,20 @@ class OrderCreateNewMemberView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         club_ids = membership_manager.get_membership_records(request.user, is_staff=True).flat_list('book_club_id')
-        if serializer.data.get('new_member').get('club_id') not in club_ids:
+        club_id = serializer.data.get('new_member').get('club_id')
+        if club_id not in club_ids:
             return Response({'error': 'Permission Denied'}, status=status.HTTP_400_BAD_REQUEST)
 
-        exist_member = manager.get_member_records(
+        valid_member, error = manager.validate_member(
+            club_id=club_id,
+            phone_number=serializer.data.get('new_member').get('phone_number'),
             code=serializer.data.get('new_member').get('code'),
-            club_ids=[serializer.data.get('new_member').get('club_id')],
-        ).exists()
-        if exist_member:
-            return Response({'error': 'Duplicated member code'}, status=status.HTTP_400_BAD_REQUEST)
-        if serializer.data.get('new_member').get('phone_number'):
-            validate_member, error = manager.validate_member(serializer.data.get('new_member').get('phone_number'),
-                                                             serializer.data.get('new_member').get('club_id'))
-            if validate_member:
-                return Response({'error': error}, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                manager.create_new_order_by_new_member(serializer.data)
-        return Response({'message': 'Create order successfully'}, status=status.HTTP_200_OK)
+        )
+        if not valid_member:
+            return Response({'error': error}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            manager.create_new_order_by_new_member(serializer.data)
+            return Response({'message': 'Create order successfully'}, status=status.HTTP_200_OK)
 
 class OrderReturnBooksView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)
@@ -242,16 +239,11 @@ class MemberAddView(APIView):
         if serializer.data.get('club_id') not in club_ids:
             return Response({'error': 'Invalid Club'}, status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            if serializer.data.get('phone_number'):
-                validate_member, error = manager.validate_member(serializer.data.get('phone_number'),
-                                                                 serializer.data.get('club_id'))
-                if validate_member:
-                    return Response({'error': error}, status=status.HTTP_400_BAD_REQUEST)
-                else:
-                    manager.create_member(**serializer.data)
-        except IntegrityError:
-            return Response({'error': 'Duplicated member code'}, status=status.HTTP_400_BAD_REQUEST)
+        valid_member, error = manager.validate_member(**serializer.data)
+        if not valid_member:
+            return Response({'error': error}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            manager.create_member(**serializer.data)
 
         return Response({'message': 'Create member successfully'}, status=status.HTTP_200_OK)
 
@@ -267,17 +259,18 @@ class MemberUpdateView(APIView):
         club_ids = membership_manager.get_membership_records(request.user, is_staff=True).flat_list('book_club_id')
         data = serializer.data
         member_id = data.pop('member_id')
-        try:
-            if serializer.data.get('phone_number'):
-                validate_member, error = manager.validate_member(
-                    serializer.data.get('phone_number'), None)
-                if validate_member:
-                    return Response({'error': error}, status=status.HTTP_400_BAD_REQUEST)
-                else:
-                    affected_count = manager.update_member(member_id, club_ids, **data)
-                    if affected_count:
-                        return Response({'message': 'Update member successfully'}, status=status.HTTP_200_OK)
-                    else:
-                        return Response({'error': 'Update member failed'}, status=status.HTTP_400_BAD_REQUEST)
-        except IntegrityError:
-            return Response({'error': 'Duplicated member code'}, status=status.HTTP_400_BAD_REQUEST)
+        club_id = data.pop('club_id')
+
+        valid_member, error = manager.validate_member(
+            club_id=club_id,
+            phone_number=data.get('phone_number'),
+            code=data.get('code'),
+        )
+        if not valid_member:
+            return Response({'error': error}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            affected_count = manager.update_member(member_id, club_ids, **data)
+            if affected_count:
+                return Response({'message': 'Update member successfully'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'error': 'Update member failed'}, status=status.HTTP_400_BAD_REQUEST)

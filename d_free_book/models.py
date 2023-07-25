@@ -28,8 +28,7 @@ class DFreeMember(BaseModel):
 
     class Meta:
         db_table = 'dfree_member_tab'
-        unique_together = ['club', 'code']
-        unique_together = ['club', 'phone_number']
+        unique_together = [['club', 'code'], ['club', 'phone_number']]
 
 class DFreeOrder(BaseModel):
     member = models.ForeignKey(DFreeMember, on_delete=models.CASCADE)
