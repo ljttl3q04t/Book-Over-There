@@ -53,9 +53,9 @@ def create_member(club_id, full_name, code, phone_number=None):
         phone_number=phone_number
     )
 
-def validate_member(phone_number):
-    has_phone_number = DFreeMember.objects.filter(phone_number=phone_number).exists()
-    if has_phone_number:
+def validate_member(phone_number, club_id=None):
+    phone_number_duplicate = DFreeMember.objects.filter_ignore_none(club_id=club_id, phone_number=phone_number).exists()
+    if phone_number_duplicate:
         return True, 'Duplicated phone number'
 
     return False, None
