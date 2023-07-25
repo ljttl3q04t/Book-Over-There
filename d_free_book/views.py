@@ -270,7 +270,7 @@ class MemberUpdateView(APIView):
         try:
             if serializer.data.get('phone_number'):
                 validate_member, error = manager.validate_member(
-                    serializer.data.get('phone_number'))
+                    serializer.data.get('phone_number'), None)
                 if validate_member:
                     return Response({'error': error}, status=status.HTTP_400_BAD_REQUEST)
                 else:
