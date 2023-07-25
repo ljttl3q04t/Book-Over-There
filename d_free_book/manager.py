@@ -52,6 +52,14 @@ def create_member(club_id, full_name, code, phone_number=None):
         phone_number=phone_number
     )
 
+def validate_member(club_id, code=None, phone_number=None):
+    if phone_number and get_member_records(phone_number=phone_number, club_ids=[club_id]).exists():
+        return False, 'Duplicated phone number'
+    if code and get_member_records(code=code, club_ids=[club_id]).exists():
+        return False, 'Duplicated member code'
+
+    return True, None
+
 def update_member(member_id, club_ids, **kwargs):
     affected_count = DFreeMember.objects.filter(id=member_id, club_id__in=club_ids).update(**kwargs)
     if affected_count:
@@ -93,14 +101,14 @@ def get_member_infos(member_ids):
 def create_new_order_by_new_member(data):
     new_member = data.get('new_member')
     new_member = DFreeMember.objects.create(
-        club_id=data.get('club_id'),
+        club_id=new_member.get('club_id'),
         full_name=new_member.get('full_name'),
         code=new_member.get('code'),
         phone_number=new_member.get('phone_number')
     )
     order = DFreeOrder.objects.create(
         member_id=new_member.id,
-        club_id=data.get('club_id'),
+        club_id=new_member.club_id,
         order_date=data.get('order_date'),
         due_date=data.get('due_date'),
         creator_order_id=data.get('creator_order_id'),

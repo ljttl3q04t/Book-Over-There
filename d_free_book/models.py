@@ -28,7 +28,7 @@ class DFreeMember(BaseModel):
 
     class Meta:
         db_table = 'dfree_member_tab'
-        unique_together = ['club', 'code']
+        unique_together = [['club', 'code'], ['club', 'phone_number']]
 
 class DFreeOrder(BaseModel):
     member = models.ForeignKey(DFreeMember, on_delete=models.CASCADE)
@@ -36,7 +36,6 @@ class DFreeOrder(BaseModel):
     order_date = models.DateField()
     due_date = models.DateField()
     creator_order = models.ForeignKey(Membership, on_delete=models.CASCADE, null=True, blank=True)
-
     class Meta:
         db_table = 'dfree_order_tab'
 
