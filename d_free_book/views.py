@@ -165,17 +165,23 @@ class OrderCreateNewMemberView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         club_ids = membership_manager.get_membership_records(request.user, is_staff=True).flat_list('book_club_id')
-        if serializer.data.get('club_id') not in club_ids:
+        if serializer.data.get('new_member').get('club_id') not in club_ids:
             return Response({'error': 'Permission Denied'}, status=status.HTTP_400_BAD_REQUEST)
 
         exist_member = manager.get_member_records(
             code=serializer.data.get('new_member').get('code'),
-            club_ids=[serializer.data.get('club_id')],
+            club_ids=[serializer.data.get('new_member').get('club_id')],
         ).exists()
         if exist_member:
             return Response({'error': 'Duplicated member code'}, status=status.HTTP_400_BAD_REQUEST)
-
-        manager.create_new_order_by_new_member(serializer.data)
+        check_phone_number = None
+        if serializer.data.get('new_member').get('phone_number'):
+            check_phone_number = manager.check_member_have_phone_number(
+                serializer.data.get('new_member').get('phone_number'))
+        if check_phone_number:
+            return Response({'error': 'Phone number has have used member'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            manager.create_new_order_by_new_member(serializer.data)
         return Response({'message': 'Create order successfully'}, status=status.HTTP_200_OK)
 
 class OrderReturnBooksView(APIView):
@@ -238,7 +244,14 @@ class MemberAddView(APIView):
             return Response({'error': 'Invalid Club'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            manager.create_member(**serializer.data)
+            check_phone_number = None
+            if serializer.data.get('phone_number'):
+                check_phone_number = manager.check_member_have_phone_number(
+                    serializer.data.get('phone_number'))
+            if check_phone_number:
+                return Response({'error': 'Phone number has have used member'}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                manager.create_member(**serializer.data)
         except IntegrityError:
             return Response({'error': 'Duplicated member code'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -257,11 +270,17 @@ class MemberUpdateView(APIView):
         data = serializer.data
         member_id = data.pop('member_id')
         try:
-            affected_count = manager.update_member(member_id, club_ids, **data)
+            check_phone_number = None
+            if serializer.data.get('phone_number'):
+                check_phone_number = manager.check_member_have_phone_number(
+                    serializer.data.get('phone_number'))
+            if check_phone_number:
+                return Response({'error': 'Phone number has have used member'}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                affected_count = manager.update_member(member_id, club_ids, **data)
+                if affected_count:
+                    return Response({'message': 'Update member successfully'}, status=status.HTTP_200_OK)
+                else:
+                    return Response({'error': 'Update member failed'}, status=status.HTTP_400_BAD_REQUEST)
         except IntegrityError:
             return Response({'error': 'Duplicated member code'}, status=status.HTTP_400_BAD_REQUEST)
-
-        if affected_count:
-            return Response({'message': 'Update member successfully'}, status=status.HTTP_200_OK)
-        else:
-            return Response({'error': 'Update member failed'}, status=status.HTTP_400_BAD_REQUEST)

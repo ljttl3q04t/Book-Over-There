@@ -44,6 +44,7 @@ def get_order_detail_records(order_ids=None, order_detail_ids=None, order_status
         receiver_book=receiver_book,
     )
 
+
 def create_member(club_id, full_name, code, phone_number=None):
     return DFreeMember.objects.create(
         club_id=club_id,
@@ -51,6 +52,11 @@ def create_member(club_id, full_name, code, phone_number=None):
         code=code,
         phone_number=phone_number
     )
+
+
+def check_member_have_phone_number(phone_number):
+    return DFreeMember.objects.filter(phone_number=phone_number)
+
 
 def update_member(member_id, club_ids, **kwargs):
     affected_count = DFreeMember.objects.filter(id=member_id, club_id__in=club_ids).update(**kwargs)
@@ -93,14 +99,14 @@ def get_member_infos(member_ids):
 def create_new_order_by_new_member(data):
     new_member = data.get('new_member')
     new_member = DFreeMember.objects.create(
-        club_id=data.get('club_id'),
+        club_id=new_member.get('club_id'),
         full_name=new_member.get('full_name'),
         code=new_member.get('code'),
         phone_number=new_member.get('phone_number')
     )
     order = DFreeOrder.objects.create(
         member_id=new_member.id,
-        club_id=data.get('club_id'),
+        club_id=new_member.club_id,
         order_date=data.get('order_date'),
         due_date=data.get('due_date'),
         creator_order_id=data.get('creator_order_id'),
