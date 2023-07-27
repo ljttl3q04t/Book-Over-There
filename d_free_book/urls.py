@@ -18,6 +18,7 @@ urlpatterns = [
     path('order/create/new_member', views.OrderCreateNewMemberView.as_view()),
     path('order/return_books', views.OrderReturnBooksView.as_view()),
     path('order/draft/create', views.DraftOrderCreateOnlineView.as_view()),
+    path('order/draft/update', views.DraftOrderUpdateOnlineView.as_view()),
     path('order/draft/get_infos', views.DraftOrderInfosSerializer.as_view()),
     path('order/create/from_draft', views.OrderCreateFromDraftView.as_view()),
     path('order/create/from_draft/new_member', views.OrderCreateFromDraftNewMemberView.as_view()),

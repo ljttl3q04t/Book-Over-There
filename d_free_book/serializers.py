@@ -63,6 +63,8 @@ class DraftOrderCreateSerializer(serializers.Serializer):
     order_date = serializers.DateField()
     due_date = serializers.DateField()
     club_books = serializers.CharField(required=True)
+    user_id = serializers.IntegerField()
+    club_id = serializers.IntegerField()
 
 class OrderReturnBooksSerializer(serializers.Serializer):
     order_detail_ids = ListIntegerField()
@@ -123,3 +125,13 @@ class OrderCreateFromDraftNewMemberSerializer(serializers.Serializer):
     address = serializers.CharField(required=True)
     club_book_ids = ListIntegerField(required=False)
     creator_order_id = serializers.IntegerField(required=False)
+
+class DraftOrderUpdateSerializer(serializers.Serializer):
+    draft_order_id = serializers.IntegerField()
+    club_id = serializers.IntegerField()
+    order_date = serializers.DateField(required=False)
+    due_date = serializers.DateField(required=False)
+    phone_number = serializers.CharField(required=False)
+    full_name = serializers.CharField(required=False)
+    club_books = serializers.CharField(required=False)
+    address = serializers.CharField(required=False)

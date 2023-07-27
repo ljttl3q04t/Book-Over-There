@@ -12,7 +12,7 @@ from d_free_book.serializers import ClubBookGetIdsSerializer, ClubBookGetInfosSe
     MemberGetInfosSerializer, MemberCreateSerializer, \
     MemberUpdateSerializer, ClubBookUpdateSerializer, OrderReturnBooksSerializer, OrderCreateNewMemberSerializer, \
     DraftOrderCreateSerializer, GetDraftOrderInfosSerializer, MemberCheckSerializer, OrderCreateFromDraftSerializer, \
-    OrderCreateFromDraftNewMemberSerializer
+    OrderCreateFromDraftNewMemberSerializer, DraftOrderUpdateSerializer
 from services.managers import membership_manager
 from services.managers.book_manager import get_book_records
 from services.managers.permission_manager import IsStaff
@@ -180,6 +180,24 @@ class DraftOrderCreateOnlineView(APIView):
         manager.create_new_draft_order(serializer.data)
         return Response({'message': 'Create Draft successfully'}, status=status.HTTP_200_OK)
 
+class DraftOrderUpdateOnlineView(APIView):
+    permission_classes = (IsAuthenticated, IsStaff,)
+
+    @swagger_auto_schema(request_body=DraftOrderUpdateSerializer)
+    def post(self, request):
+        serializer = DraftOrderUpdateSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        data = serializer.data
+        draft_order_id = data.pop('draft_order_id')
+        club_id = data.pop('club_id')
+        affected_count = manager.update_draft(draft_order_id, club_id, **data)
+        if affected_count:
+            return Response({'message': 'Update draft successfully'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'Update draft failed'}, status=status.HTTP_400_BAD_REQUEST)
+
 class OrderCreateNewMemberView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)
 
@@ -312,7 +330,7 @@ class MemberCheckView(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         check_member, status_member = manager.check_member(phone_number=serializer.data.get('phone_number'),
-                                                           club_ids=serializer.data.get('club_id'))
+                                                           club_id=serializer.data.get('club_id'))
         if check_member:
             return Response({'status_member': status_member})
         else:

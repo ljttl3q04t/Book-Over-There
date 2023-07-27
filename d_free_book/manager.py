@@ -68,8 +68,8 @@ def update_member(member_id, club_ids, **kwargs):
 
     return affected_count
 
-def check_member(phone_number, club_ids):
-    df_member = DFreeMember.objects.filter(phone_number=phone_number, club_id__in=[club_ids]).exists()
+def check_member(phone_number, club_id):
+    df_member = DFreeMember.objects.filter(phone_number=phone_number, club_id=club_id).exists()
     if df_member:
         return False, 'Member existed'
     else:
@@ -98,6 +98,8 @@ def create_new_draft_order(data):
         order_date=data.get('order_date'),
         due_date=data.get('due_date'),
         club_books=data.get('club_books'),
+        user_id=data.get('user_id'),
+        club_id=data.get('club_id'),
     )
 
 @combine_key_cache_data(**CACHE_KEY_MEMBER_INFOS)
@@ -239,6 +241,8 @@ def get_draft_order_infos(order_draft_ids):
             'address': draft_order.address,
             'order_date': draft_order.order_date,
             'due_date': draft_order.due_date,
+            'club_id': draft_order.club.id,
+            'user_id': draft_order.user.id,
             'books': book_ids,
         }
     return result
@@ -269,7 +273,7 @@ def create_club_book(data, book=None):
     )
 
 def get_draft_order_records(draft_order_ids=None, full_name=None, phone_number=None, address=None, order_date=None, due_date=None,
-                      club_books=None):
+                            club_books=None, user=None,club_id=None):
     return DFreeDraffOrder.objects.filter_ignore_none(
         id__in=draft_order_ids,
         full_name__in=full_name,
@@ -278,6 +282,8 @@ def get_draft_order_records(draft_order_ids=None, full_name=None, phone_number=N
         order_date__gte=order_date,
         order_date__lte=due_date,
         club_books=club_books,
+        user_id=user,
+        club_id=club_id,
     )
 
 def update_club_book(club_book_id, **kwargs):
@@ -339,3 +345,10 @@ def create_new_order_from_draft_by_new_member(data):
     DFreeDraffOrder.objects.filter(id=data.get('draft_id')) \
         .update(draft_status=DFreeDraffOrder.CREATED,
                 order_id=order.id)
+
+def update_draft(draft_order_ids, club_id, **kwargs):
+    affected_count = DFreeDraffOrder.objects.filter(id=draft_order_ids, club_id__in=[club_id]).update(**kwargs)
+    if affected_count:
+        cache_key = CACHE_KEY_MEMBER_INFOS['cache_key_converter'](CACHE_KEY_MEMBER_INFOS['cache_prefix'], draft_order_ids)
+        invalid_cache_data(cache_key)
+    return affected_count
