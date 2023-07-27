@@ -210,7 +210,7 @@ class MemberGetIdsView(APIView):
             code=serializer.data.get('code'),
             phone_number=serializer.data.get('phone_number'),
             full_name=serializer.data.get('full_name'),
-        )[:MAX_QUERY_SIZE].pk_list()
+        ).pk_list()
         return Response({'member_ids': member_ids}, status=status.HTTP_200_OK)
 
 class MemberGetInfosView(APIView):
