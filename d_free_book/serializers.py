@@ -24,6 +24,9 @@ class GetOrderIdsSerializer(serializers.Serializer):
 class GetOrderInfosSerializer(serializers.Serializer):
     order_ids = ListIntegerField()
 
+class GetDraftOrderInfosSerializer(serializers.Serializer):
+    draft_order_ids = ListIntegerField()
+
 class ClubBookAddSerializer(serializers.Serializer):
     club_id = serializers.IntegerField()
     name = serializers.CharField()
@@ -54,6 +57,14 @@ class OrderCreateSerializer(serializers.Serializer):
     club_book_ids = ListIntegerField(required=False)
     book_notes = serializers.ListSerializer(child=serializers.CharField(), required=False)
     creator_order_id = serializers.IntegerField(required=False)
+
+class DraftOrderCreateSerializer(serializers.Serializer):
+    full_name = serializers.CharField(required=True)
+    phone_number = serializers.CharField(required=True)
+    address = serializers.CharField(required=True)
+    order_date = serializers.DateField()
+    due_date = serializers.DateField()
+    club_books = serializers.CharField(required=True)
 
 class OrderReturnBooksSerializer(serializers.Serializer):
     order_detail_ids = ListIntegerField()

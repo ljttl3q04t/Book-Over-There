@@ -10,7 +10,8 @@ from d_free_book import manager
 from d_free_book.serializers import ClubBookGetIdsSerializer, ClubBookGetInfosSerializer, ClubBookAddSerializer, \
     GetOrderIdsSerializer, GetOrderInfosSerializer, OrderCreateSerializer, MemberGetIdsSerializer, \
     MemberGetInfosSerializer, MemberCreateSerializer, \
-    MemberUpdateSerializer, ClubBookUpdateSerializer, OrderReturnBooksSerializer, OrderCreateNewMemberSerializer
+    MemberUpdateSerializer, ClubBookUpdateSerializer, OrderReturnBooksSerializer, OrderCreateNewMemberSerializer, \
+    DraftOrderCreateSerializer, GetDraftOrderInfosSerializer
 from services.managers import membership_manager
 from services.managers.book_manager import get_book_records
 from services.managers.permission_manager import IsStaff
@@ -140,6 +141,18 @@ class OrderInfosView(APIView):
         order_infos = manager.get_order_infos(serializer.data['order_ids'])
         return Response({'order_infos': order_infos.values()}, status=status.HTTP_200_OK)
 
+class DraftOrderInfosSerializer(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    @swagger_auto_schema(request_body=GetDraftOrderInfosSerializer)
+    def post(self, request):
+        serializer = GetDraftOrderInfosSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        order_draft_infos = manager.get_draft_order_infos(serializer.data['draft_order_ids'])
+        return Response({'order_draft_infos': order_draft_infos.values()}, status=status.HTTP_200_OK)
+
 class OrderCreateView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)
 
@@ -154,6 +167,17 @@ class OrderCreateView(APIView):
 
         manager.create_new_order(serializer.data)
         return Response({'message': 'Create order successfully'}, status=status.HTTP_200_OK)
+
+class DraftOrderCreateOnlineView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    @swagger_auto_schema(request_body=DraftOrderCreateSerializer)
+    def post(self, request):
+        serializer = DraftOrderCreateSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        manager.create_new_draft_order(serializer.data)
+        return Response({'message': 'Create Draft successfully'}, status=status.HTTP_200_OK)
 
 class OrderCreateNewMemberView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)

@@ -1,6 +1,6 @@
 from django.db import transaction
 
-from d_free_book.models import ClubBook, DFreeOrder, DFreeMember, DFreeOrderDetail
+from d_free_book.models import ClubBook, DFreeOrder, DFreeMember, DFreeOrderDetail, DFreeDraffOrder
 from services.managers import membership_manager, book_manager
 from services.managers.cache_manager import combine_key_cache_data, CACHE_KEY_CLUB_BOOK_INFOS, \
     CACHE_KEY_DFB_ORDER_INFOS, CACHE_KEY_MEMBER_INFOS, invalid_cache_data, CACHE_KEY_DFB_ORDER_DETAIL_INFOS, \
@@ -82,6 +82,16 @@ def create_new_order(data):
             order=order,
             club_book_id=club_book_id,
         )
+
+def create_new_draft_order(data):
+    DFreeDraffOrder.objects.create(
+        full_name=data.get('full_name'),
+        phone_number=data.get('phone_number'),
+        address=data.get('address'),
+        order_date=data.get('order_date'),
+        due_date=data.get('due_date'),
+        club_books=data.get('club_books'),
+    )
 
 @combine_key_cache_data(**CACHE_KEY_MEMBER_INFOS)
 def get_member_infos(member_ids):
@@ -207,6 +217,25 @@ def get_order_infos(order_ids):
 
     return result
 
+def get_draft_order_infos(order_draft_ids):
+    if not order_draft_ids:
+        return None
+
+    draft_orders = list(get_draft_order_records(order_draft_ids))
+    result = {}
+    for draft_order in draft_orders:
+        book_ids = (draft_order.club_books).split(",")
+        result[draft_order.id] = {
+            'id': draft_order.id,
+            'full_name': draft_order.full_name,
+            'phone_number': draft_order.phone_number,
+            'address': draft_order.address,
+            'order_date': draft_order.order_date,
+            'due_date': draft_order.due_date,
+            'books': book_ids,
+        }
+    return result
+
 @transaction.atomic
 def create_club_book(data, book=None):
     if not book:
@@ -230,6 +259,18 @@ def create_club_book(data, book=None):
         club_id=data['club_id'],
         init_count=data['init_count'],
         current_count=data['current_count'],
+    )
+
+def get_draft_order_records(draft_order_ids=None, full_name=None, phone_number=None, address=None, order_date=None, due_date=None,
+                      club_books=None):
+    return DFreeDraffOrder.objects.filter_ignore_none(
+        id__in=draft_order_ids,
+        full_name__in=full_name,
+        phone_number__in=phone_number,
+        address__in=address,
+        order_date__gte=order_date,
+        order_date__lte=due_date,
+        club_books=club_books,
     )
 
 def update_club_book(club_book_id, **kwargs):

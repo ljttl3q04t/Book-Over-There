@@ -39,6 +39,17 @@ class DFreeOrder(BaseModel):
     class Meta:
         db_table = 'dfree_order_tab'
 
+class DFreeDraffOrder(BaseModel):
+    full_name = models.CharField(max_length=200)
+    phone_number = models.CharField(max_length=20)
+    address = models.CharField(max_length=30)
+    order_date = models.DateField()
+    due_date = models.DateField()
+    club_books = models.CharField(max_length=8)
+
+    class Meta:
+        db_table = 'dfree_draff_tab'
+
 class DFreeOrderDetail(BaseModel):
     CREATED = 'created'
     OVERDUE = 'overdue'
