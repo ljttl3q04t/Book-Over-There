@@ -53,9 +53,7 @@ class OrderCreateSerializer(serializers.Serializer):
     due_date = serializers.DateField()
     club_id = serializers.IntegerField()
     note = serializers.CharField(required=False)
-    book_note = serializers.CharField(required=False)
     club_book_ids = ListIntegerField(required=False)
-    book_notes = serializers.ListSerializer(child=serializers.CharField(), required=False)
     creator_order_id = serializers.IntegerField(required=False)
 
 class DraftOrderCreateSerializer(serializers.Serializer):
@@ -92,12 +90,36 @@ class MemberUpdateSerializer(serializers.Serializer):
     phone_number = serializers.CharField(required=False)
     full_name = serializers.CharField(required=False)
 
+class MemberCheckSerializer(serializers.Serializer):
+    phone_number = serializers.CharField(required=True)
+    club_id = serializers.IntegerField()
+
 class OrderCreateNewMemberSerializer(serializers.Serializer):
     new_member = MemberCreateSerializer()
     order_date = serializers.DateField()
     due_date = serializers.DateField()
     note = serializers.CharField(required=False)
-    book_note = serializers.CharField(required=False)
     club_book_ids = ListIntegerField(required=False)
-    book_notes = serializers.ListSerializer(child=serializers.CharField(), required=False)
+    creator_order_id = serializers.IntegerField(required=False)
+
+class OrderCreateFromDraftSerializer(serializers.Serializer):
+    draft_id = serializers.IntegerField(required=True)
+    member_full_name = serializers.CharField(required=False)
+    member_code = serializers.CharField(required=False)
+    member_phone_number = serializers.CharField(required=False)
+    member_id = serializers.IntegerField(required=False)
+    order_date = serializers.DateField()
+    due_date = serializers.DateField()
+    club_id = serializers.IntegerField()
+    address = serializers.CharField(required=True)
+    club_book_ids = ListIntegerField(required=False)
+    creator_order_id = serializers.IntegerField(required=False)
+
+class OrderCreateFromDraftNewMemberSerializer(serializers.Serializer):
+    draft_id = serializers.IntegerField(required=True)
+    new_member = MemberCreateSerializer()
+    order_date = serializers.DateField()
+    due_date = serializers.DateField()
+    address = serializers.CharField(required=True)
+    club_book_ids = ListIntegerField(required=False)
     creator_order_id = serializers.IntegerField(required=False)

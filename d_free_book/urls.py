@@ -10,6 +10,7 @@ urlpatterns = [
     path('member/get_infos', views.MemberGetInfosView.as_view()),
     path('member/add', views.MemberAddView.as_view()),
     path('member/update', views.MemberUpdateView.as_view()),
+    path('member/check', views.MemberCheckView.as_view()),
 
     path('order/get_ids', views.StaffGetOrderIdsView.as_view()),
     path('order/get_infos', views.OrderInfosView.as_view()),
@@ -18,6 +19,8 @@ urlpatterns = [
     path('order/return_books', views.OrderReturnBooksView.as_view()),
     path('order/draft/create', views.DraftOrderCreateOnlineView.as_view()),
     path('order/draft/get_infos', views.DraftOrderInfosSerializer.as_view()),
+    path('order/create/from_draft', views.OrderCreateFromDraftView.as_view()),
+    path('order/create/from_draft/new_member', views.OrderCreateFromDraftNewMemberView.as_view()),
 
     path('club_book/add', views.ClubBookAddView.as_view()),
     path('club_book/update', views.ClubBookUpdateView.as_view()),

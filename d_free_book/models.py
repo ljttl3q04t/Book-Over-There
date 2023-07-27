@@ -40,15 +40,23 @@ class DFreeOrder(BaseModel):
         db_table = 'dfree_order_tab'
 
 class DFreeDraffOrder(BaseModel):
+    CREATED = 'created'
+    PENDING = 'pending'
+    DRAFT_STATUS_CHOICES = (
+        (CREATED, 'Created'),
+        (PENDING, 'pending'),
+    )
     full_name = models.CharField(max_length=200)
     phone_number = models.CharField(max_length=20)
-    address = models.CharField(max_length=30)
+    address = models.CharField(max_length=200)
     order_date = models.DateField()
     due_date = models.DateField()
-    club_books = models.CharField(max_length=8)
+    club_books = models.CharField(max_length=50)
+    order_id = models.IntegerField(null=True, blank=True)
+    draft_status = models.CharField(max_length=20, choices=DRAFT_STATUS_CHOICES, default=PENDING)
 
     class Meta:
-        db_table = 'dfree_draff_tab'
+        db_table = 'dfree_draff_order_tab'
 
 class DFreeOrderDetail(BaseModel):
     CREATED = 'created'

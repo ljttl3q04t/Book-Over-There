@@ -11,7 +11,8 @@ from d_free_book.serializers import ClubBookGetIdsSerializer, ClubBookGetInfosSe
     GetOrderIdsSerializer, GetOrderInfosSerializer, OrderCreateSerializer, MemberGetIdsSerializer, \
     MemberGetInfosSerializer, MemberCreateSerializer, \
     MemberUpdateSerializer, ClubBookUpdateSerializer, OrderReturnBooksSerializer, OrderCreateNewMemberSerializer, \
-    DraftOrderCreateSerializer, GetDraftOrderInfosSerializer
+    DraftOrderCreateSerializer, GetDraftOrderInfosSerializer, MemberCheckSerializer, OrderCreateFromDraftSerializer, \
+    OrderCreateFromDraftNewMemberSerializer
 from services.managers import membership_manager
 from services.managers.book_manager import get_book_records
 from services.managers.permission_manager import IsStaff
@@ -300,3 +301,60 @@ class MemberUpdateView(APIView):
                 return Response({'message': 'Update member successfully'}, status=status.HTTP_200_OK)
             else:
                 return Response({'error': 'Update member failed'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class MemberCheckView(APIView):
+    permission_classes = (IsAuthenticated, IsStaff,)
+
+    @swagger_auto_schema(request_body=MemberCheckSerializer)
+    def post(self, request):
+        serializer = MemberCheckSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        check_member, status_member = manager.check_member(phone_number=serializer.data.get('phone_number'),
+                                                           club_ids=serializer.data.get('club_id'))
+        if check_member:
+            return Response({'status_member': status_member})
+        else:
+            return Response({'status_member': status_member})
+
+class OrderCreateFromDraftView(APIView):
+    permission_classes = (IsAuthenticated, IsStaff,)
+
+    @swagger_auto_schema(request_body=OrderCreateFromDraftSerializer)
+    def post(self, request):
+        serializer = OrderCreateFromDraftSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        validate_oder, error = manager.validate_oder(serializer.data)
+        if not validate_oder:
+            return Response({'error': error}, status=status.HTTP_400_BAD_REQUEST)
+
+        manager.create_new_order_from_draft(serializer.data)
+        return Response({'message': 'Create order successfully'}, status=status.HTTP_200_OK)
+
+
+class OrderCreateFromDraftNewMemberView(APIView):
+    permission_classes = (IsAuthenticated, IsStaff,)
+
+    @swagger_auto_schema(request_body=OrderCreateFromDraftNewMemberSerializer)
+    def post(self, request):
+        serializer = OrderCreateFromDraftNewMemberSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        club_ids = membership_manager.get_membership_records(request.user, is_staff=True).flat_list('book_club_id')
+        club_id = serializer.data.get('new_member').get('club_id')
+        if club_id not in club_ids:
+            return Response({'error': 'Permission Denied'}, status=status.HTTP_400_BAD_REQUEST)
+
+        valid_member, error = manager.validate_member(
+            club_id=club_id,
+            phone_number=serializer.data.get('new_member').get('phone_number'),
+            code=serializer.data.get('new_member').get('code'),
+        )
+        if not valid_member:
+            return Response({'error': error}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            manager.create_new_order_from_draft_by_new_member(serializer.data)
+            return Response({'message': 'Create order successfully'}, status=status.HTTP_200_OK)
