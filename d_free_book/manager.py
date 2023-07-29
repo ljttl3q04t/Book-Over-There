@@ -94,6 +94,7 @@ def get_member_infos(member_ids):
             'phone_number': member.phone_number,
             'full_name': member.full_name,
             'code': member.code,
+            'notes': member.notes,
         }
     return result
 

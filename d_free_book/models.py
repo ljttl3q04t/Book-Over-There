@@ -22,6 +22,7 @@ class DFreeMember(BaseModel):
     full_name = models.CharField(max_length=200)
     code = models.CharField(max_length=20)
     phone_number = models.CharField(max_length=20, null=True, blank=True)
+    notes = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return f'{self.id} - {self.club_id} - {self.code} - {self.full_name}'
