@@ -1,6 +1,7 @@
 from django.db import models
 
 from services.models import BaseModel, Book, BookClub, Membership, User
+from django.contrib.postgres.fields import ArrayField
 
 
 class ClubBook(BaseModel):
@@ -52,7 +53,7 @@ class DFreeDraftOrder(BaseModel):
     address = models.CharField(max_length=200)
     order_date = models.DateField()
     due_date = models.DateField()
-    club_books = models.CharField(max_length=50)
+    club_book_ids = ArrayField(models.IntegerField())
     order_id = models.IntegerField(null=True, blank=True)
     draft_status = models.CharField(max_length=20, choices=DRAFT_STATUS_CHOICES, default=PENDING)
     user = models.ForeignKey(User, on_delete=models.CASCADE)

@@ -15,7 +15,8 @@ def get_club_book_records(club_book_ids=None, club_id=None, book_ids=None, code=
         code=code,
     )
 
-def get_member_records(phone_number=None, code=None, member_ids=None, full_name=None, club_ids=None, club_id=None, member_id=None):
+def get_member_records(phone_number=None, code=None, member_ids=None, full_name=None, club_ids=None, club_id=None,
+                       member_id=None):
     return DFreeMember.objects.filter_ignore_none(
         id__in=member_ids,
         id=member_id,
@@ -44,6 +45,22 @@ def get_order_detail_records(order_ids=None, order_detail_ids=None, order_status
         order_id__in=order_ids,
         order_status=order_status,
         receiver_book=receiver_book,
+    )
+
+def get_draft_order_records(draft_order_ids=None, full_name=None, phone_number=None, address=None, order_date=None,
+                            due_date=None,
+                            club_books=None, user=None, club_id=None, club_ids=None):
+    return DFreeDraftOrder.objects.filter_ignore_none(
+        id__in=draft_order_ids,
+        full_name__in=full_name,
+        phone_number__in=phone_number,
+        address__in=address,
+        order_date__gte=order_date,
+        order_date__lte=due_date,
+        club_books=club_books,
+        user_id=user,
+        club_id=club_id,
+        club_id__in=club_ids,
     )
 
 def create_member(club_id, full_name, code, phone_number=None):
@@ -93,16 +110,7 @@ def create_new_order(data):
         )
 
 def create_new_draft_order(data):
-    DFreeDraftOrder.objects.create(
-        full_name=data.get('full_name'),
-        phone_number=data.get('phone_number'),
-        address=data.get('address'),
-        order_date=data.get('order_date'),
-        due_date=data.get('due_date'),
-        club_books=data.get('club_books'),
-        user_id=data.get('user_id'),
-        club_id=data.get('club_id'),
-    )
+    DFreeDraftOrder.objects.create(**data)
 
 @combine_key_cache_data(**CACHE_KEY_MEMBER_INFOS)
 def get_member_infos(member_ids):
@@ -230,13 +238,9 @@ def get_order_infos(order_ids):
     return result
 
 def get_draft_order_infos(order_draft_ids):
-    if not order_draft_ids:
-        return None
-
     draft_orders = list(get_draft_order_records(order_draft_ids))
     result = {}
     for draft_order in draft_orders:
-        book_ids = (draft_order.club_books).split(",")
         result[draft_order.id] = {
             'id': draft_order.id,
             'full_name': draft_order.full_name,
@@ -246,7 +250,7 @@ def get_draft_order_infos(order_draft_ids):
             'due_date': draft_order.due_date,
             'club_id': draft_order.club.id,
             'user_id': draft_order.user.id,
-            'books': book_ids,
+            'club_book_ids': draft_order.club_book_ids,
         }
     return result
 
@@ -273,20 +277,6 @@ def create_club_book(data, book=None):
         club_id=data['club_id'],
         init_count=data['init_count'],
         current_count=data['current_count'],
-    )
-
-def get_draft_order_records(draft_order_ids=None, full_name=None, phone_number=None, address=None, order_date=None, due_date=None,
-                            club_books=None, user=None,club_id=None):
-    return DFreeDraftOrder.objects.filter_ignore_none(
-        id__in=draft_order_ids,
-        full_name__in=full_name,
-        phone_number__in=phone_number,
-        address__in=address,
-        order_date__gte=order_date,
-        order_date__lte=due_date,
-        club_books=club_books,
-        user_id=user,
-        club_id=club_id,
     )
 
 def update_club_book(club_book_id, **kwargs):
@@ -352,6 +342,7 @@ def create_new_order_from_draft_by_new_member(data):
 def update_draft(draft_order_ids, club_id, **kwargs):
     affected_count = DFreeDraftOrder.objects.filter(id=draft_order_ids, club_id__in=[club_id]).update(**kwargs)
     if affected_count:
-        cache_key = CACHE_KEY_MEMBER_INFOS['cache_key_converter'](CACHE_KEY_MEMBER_INFOS['cache_prefix'], draft_order_ids)
+        cache_key = CACHE_KEY_MEMBER_INFOS['cache_key_converter'](CACHE_KEY_MEMBER_INFOS['cache_prefix'],
+                                                                  draft_order_ids)
         invalid_cache_data(cache_key)
     return affected_count

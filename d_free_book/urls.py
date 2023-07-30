@@ -17,11 +17,13 @@ urlpatterns = [
     path('order/create', views.OrderCreateView.as_view()),
     path('order/create/new_member', views.OrderCreateNewMemberView.as_view()),
     path('order/return_books', views.OrderReturnBooksView.as_view()),
-    path('order/draft/create', views.DraftOrderCreateOnlineView.as_view()),
-    path('order/draft/update', views.DraftOrderUpdateOnlineView.as_view()),
-    path('order/draft/get_infos', views.DraftOrderInfosSerializer.as_view()),
     path('order/create/from_draft', views.OrderCreateFromDraftView.as_view()),
     path('order/create/from_draft/new_member', views.OrderCreateFromDraftNewMemberView.as_view()),
+
+    path('order/draft/get_ids', views.GetDraftOrderIdsView.as_view()),
+    path('order/draft/get_infos', views.GetDraftOrderInfosView.as_view()),
+    path('order/draft/create', views.DraftOrderCreateOnlineView.as_view()),
+    path('order/draft/update', views.DraftOrderUpdateOnlineView.as_view()),
 
     path('club_book/add', views.ClubBookAddView.as_view()),
     path('club_book/update', views.ClubBookUpdateView.as_view()),

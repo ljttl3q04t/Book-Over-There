@@ -57,12 +57,12 @@ class OrderCreateSerializer(serializers.Serializer):
     creator_order_id = serializers.IntegerField(required=False)
 
 class DraftOrderCreateSerializer(serializers.Serializer):
-    full_name = serializers.CharField(required=True)
-    phone_number = serializers.CharField(required=True)
-    address = serializers.CharField(required=True)
+    full_name = serializers.CharField()
+    phone_number = serializers.CharField()
+    address = serializers.CharField()
     order_date = serializers.DateField()
     due_date = serializers.DateField()
-    club_books = serializers.CharField(required=True)
+    club_book_ids = ListIntegerField()
     user_id = serializers.IntegerField()
     club_id = serializers.IntegerField()
 

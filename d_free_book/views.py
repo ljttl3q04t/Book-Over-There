@@ -142,7 +142,15 @@ class OrderInfosView(APIView):
         order_infos = manager.get_order_infos(serializer.data['order_ids'])
         return Response({'order_infos': order_infos.values()}, status=status.HTTP_200_OK)
 
-class DraftOrderInfosSerializer(APIView):
+class GetDraftOrderIdsView(APIView):
+    permission_classes = (IsAuthenticated, IsStaff,)
+
+    def post(self, request):
+        club_ids = membership_manager.get_membership_records(request.user, is_staff=True).flat_list('book_club_id')
+        draft_order_ids = manager.get_draft_order_records(club_ids=club_ids).pk_list()
+        return Response({'draft_order_ids': draft_order_ids}, status=status.HTTP_200_OK)
+
+class GetDraftOrderInfosView(APIView):
     permission_classes = (IsAuthenticated,)
 
     @swagger_auto_schema(request_body=GetDraftOrderInfosSerializer)
@@ -151,8 +159,8 @@ class DraftOrderInfosSerializer(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        order_draft_infos = manager.get_draft_order_infos(serializer.data['draft_order_ids'])
-        return Response({'order_draft_infos': order_draft_infos.values()}, status=status.HTTP_200_OK)
+        draft_order_infos = manager.get_draft_order_infos(serializer.data.get('draft_order_ids'))
+        return Response({'draft_order_infos': draft_order_infos.values()}, status=status.HTTP_200_OK)
 
 class OrderCreateView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)
@@ -178,7 +186,7 @@ class DraftOrderCreateOnlineView(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         manager.create_new_draft_order(serializer.data)
-        return Response({'message': 'Create Draft successfully'}, status=status.HTTP_200_OK)
+        return Response({'message': 'Create draft order successfully'}, status=status.HTTP_200_OK)
 
 class DraftOrderUpdateOnlineView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)
