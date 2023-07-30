@@ -1,6 +1,6 @@
 from django.db import models
 
-from services.models import BaseModel, Book, BookClub, Membership
+from services.models import BaseModel, Book, BookClub, Membership, User
 
 
 class ClubBook(BaseModel):
@@ -39,6 +39,27 @@ class DFreeOrder(BaseModel):
     creator_order = models.ForeignKey(Membership, on_delete=models.CASCADE, null=True, blank=True)
     class Meta:
         db_table = 'dfree_order_tab'
+
+class DFreeDraffOrder(BaseModel):
+    CREATED = 'created'
+    PENDING = 'pending'
+    DRAFT_STATUS_CHOICES = (
+        (CREATED, 'created'),
+        (PENDING, 'pending'),
+    )
+    full_name = models.CharField(max_length=200)
+    phone_number = models.CharField(max_length=20)
+    address = models.CharField(max_length=200)
+    order_date = models.DateField()
+    due_date = models.DateField()
+    club_books = models.CharField(max_length=50)
+    order_id = models.IntegerField(null=True, blank=True)
+    draft_status = models.CharField(max_length=20, choices=DRAFT_STATUS_CHOICES, default=PENDING)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    club = models.ForeignKey(BookClub, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = 'dfree_draff_order_tab'
 
 class DFreeOrderDetail(BaseModel):
     CREATED = 'created'

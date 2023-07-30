@@ -1,6 +1,6 @@
 from django.db import transaction
 
-from d_free_book.models import ClubBook, DFreeOrder, DFreeMember, DFreeOrderDetail
+from d_free_book.models import ClubBook, DFreeOrder, DFreeMember, DFreeOrderDetail, DFreeDraffOrder
 from services.managers import membership_manager, book_manager
 from services.managers.cache_manager import combine_key_cache_data, CACHE_KEY_CLUB_BOOK_INFOS, \
     CACHE_KEY_DFB_ORDER_INFOS, CACHE_KEY_MEMBER_INFOS, invalid_cache_data, CACHE_KEY_DFB_ORDER_DETAIL_INFOS, \
@@ -68,6 +68,13 @@ def update_member(member_id, club_ids, **kwargs):
 
     return affected_count
 
+def check_member(phone_number, club_id):
+    df_member = DFreeMember.objects.filter(phone_number=phone_number, club_id=club_id).exists()
+    if df_member:
+        return False, 'Member existed'
+    else:
+        return True, 'Member not existed'
+
 @transaction.atomic
 def create_new_order(data):
     order = DFreeOrder.objects.create(
@@ -82,6 +89,18 @@ def create_new_order(data):
             order=order,
             club_book_id=club_book_id,
         )
+
+def create_new_draft_order(data):
+    DFreeDraffOrder.objects.create(
+        full_name=data.get('full_name'),
+        phone_number=data.get('phone_number'),
+        address=data.get('address'),
+        order_date=data.get('order_date'),
+        due_date=data.get('due_date'),
+        club_books=data.get('club_books'),
+        user_id=data.get('user_id'),
+        club_id=data.get('club_id'),
+    )
 
 @combine_key_cache_data(**CACHE_KEY_MEMBER_INFOS)
 def get_member_infos(member_ids):
@@ -208,6 +227,27 @@ def get_order_infos(order_ids):
 
     return result
 
+def get_draft_order_infos(order_draft_ids):
+    if not order_draft_ids:
+        return None
+
+    draft_orders = list(get_draft_order_records(order_draft_ids))
+    result = {}
+    for draft_order in draft_orders:
+        book_ids = (draft_order.club_books).split(",")
+        result[draft_order.id] = {
+            'id': draft_order.id,
+            'full_name': draft_order.full_name,
+            'phone_number': draft_order.phone_number,
+            'address': draft_order.address,
+            'order_date': draft_order.order_date,
+            'due_date': draft_order.due_date,
+            'club_id': draft_order.club.id,
+            'user_id': draft_order.user.id,
+            'books': book_ids,
+        }
+    return result
+
 @transaction.atomic
 def create_club_book(data, book=None):
     if not book:
@@ -233,6 +273,20 @@ def create_club_book(data, book=None):
         current_count=data['current_count'],
     )
 
+def get_draft_order_records(draft_order_ids=None, full_name=None, phone_number=None, address=None, order_date=None, due_date=None,
+                            club_books=None, user=None,club_id=None):
+    return DFreeDraffOrder.objects.filter_ignore_none(
+        id__in=draft_order_ids,
+        full_name__in=full_name,
+        phone_number__in=phone_number,
+        address__in=address,
+        order_date__gte=order_date,
+        order_date__lte=due_date,
+        club_books=club_books,
+        user_id=user,
+        club_id=club_id,
+    )
+
 def update_club_book(club_book_id, **kwargs):
     affected_count = ClubBook.objects.filter(id=club_book_id).update(**kwargs)
     return affected_count
@@ -247,3 +301,55 @@ def validate_oder(data):
         return False, 'The User is borrowing {}'.format(count_created_order)
 
     return True, None
+
+@transaction.atomic
+def create_new_order_from_draft(data):
+    order = DFreeOrder.objects.create(
+        member_id=data.get('member_id'),
+        club_id=data.get('club_id'),
+        order_date=data.get('order_date'),
+        due_date=data.get('due_date'),
+        creator_order_id=data.get('creator_order_id'),
+    )
+    for club_book_id in data.get('club_book_ids'):
+        DFreeOrderDetail.objects.create(
+            order=order,
+            club_book_id=club_book_id,
+            note=data.get('address'),
+        )
+    DFreeDraffOrder.objects.filter(id=data.get('draft_id')) \
+        .update(draft_status=DFreeDraffOrder.CREATED,
+                order_id=order.id)
+
+@transaction.atomic
+def create_new_order_from_draft_by_new_member(data):
+    new_member = data.get('new_member')
+    new_member = DFreeMember.objects.create(
+        club_id=new_member.get('club_id'),
+        full_name=new_member.get('full_name'),
+        code=new_member.get('code'),
+        phone_number=new_member.get('phone_number')
+    )
+    order = DFreeOrder.objects.create(
+        member_id=new_member.id,
+        club_id=new_member.club_id,
+        order_date=data.get('order_date'),
+        due_date=data.get('due_date'),
+        creator_order_id=data.get('creator_order_id'),
+    )
+    for club_book_id in data.get('club_book_ids'):
+        DFreeOrderDetail.objects.create(
+            order=order,
+            club_book_id=club_book_id,
+            note=data.get('address'),
+        )
+    DFreeDraffOrder.objects.filter(id=data.get('draft_id')) \
+        .update(draft_status=DFreeDraffOrder.CREATED,
+                order_id=order.id)
+
+def update_draft(draft_order_ids, club_id, **kwargs):
+    affected_count = DFreeDraffOrder.objects.filter(id=draft_order_ids, club_id__in=[club_id]).update(**kwargs)
+    if affected_count:
+        cache_key = CACHE_KEY_MEMBER_INFOS['cache_key_converter'](CACHE_KEY_MEMBER_INFOS['cache_prefix'], draft_order_ids)
+        invalid_cache_data(cache_key)
+    return affected_count
