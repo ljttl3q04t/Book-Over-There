@@ -304,22 +304,26 @@ class MemberUpdateView(APIView):
         club_ids = membership_manager.get_membership_records(request.user, is_staff=True).flat_list('book_club_id')
         data = serializer.data
         member_id = data.pop('member_id')
-        club_id = data.pop('club_id')
 
-        valid_member, error = manager.validate_member(
-            club_id=club_id,
-            phone_number=data.get('phone_number'),
-            code=data.get('code'),
-        )
+        member = manager.get_member_records(member_id=member_id, club_ids=club_ids).first()
+        if not member:
+            return Response({'error': 'Member not found'}, status=status.HTTP_200_OK)
+
+        member_data = member.as_dict()
+        updated_data = {}
+        for k, v in data.items():
+            if member_data.get(k) != v:
+                updated_data[k] = v
+
+        valid_member, error = manager.validate_member(club_id=member.club_id, **updated_data)
         if not valid_member:
             return Response({'error': error}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            affected_count = manager.update_member(member_id, club_ids, **data)
+            affected_count = manager.update_member(member_id, club_ids, **updated_data)
             if affected_count:
                 return Response({'message': 'Update member successfully'}, status=status.HTTP_200_OK)
             else:
                 return Response({'error': 'Update member failed'}, status=status.HTTP_400_BAD_REQUEST)
-
 
 class MemberCheckView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)

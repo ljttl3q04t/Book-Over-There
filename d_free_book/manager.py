@@ -15,10 +15,12 @@ def get_club_book_records(club_book_ids=None, club_id=None, book_ids=None, code=
         code=code,
     )
 
-def get_member_records(phone_number=None, code=None, member_ids=None, full_name=None, club_ids=None):
+def get_member_records(phone_number=None, code=None, member_ids=None, full_name=None, club_ids=None, club_id=None, member_id=None):
     return DFreeMember.objects.filter_ignore_none(
         id__in=member_ids,
+        id=member_id,
         club_id__in=club_ids,
+        club_id=club_id,
         phone_number=phone_number,
         code=code,
         full_name=full_name,
@@ -52,7 +54,7 @@ def create_member(club_id, full_name, code, phone_number=None):
         phone_number=phone_number
     )
 
-def validate_member(club_id, code=None, phone_number=None):
+def validate_member(club_id, code=None, phone_number=None, **kwargs):
     if phone_number and get_member_records(phone_number=phone_number, club_ids=[club_id]).exists():
         return False, 'Duplicated phone number'
     if code and get_member_records(code=code, club_ids=[club_id]).exists():

@@ -88,11 +88,10 @@ class MemberCreateSerializer(serializers.Serializer):
 
 class MemberUpdateSerializer(serializers.Serializer):
     member_id = serializers.IntegerField()
-    club_id = serializers.IntegerField()
     code = serializers.CharField(required=False)
     phone_number = serializers.CharField(required=False)
     full_name = serializers.CharField(required=False)
-    notes = serializers.CharField(max_length=500, required=False)
+    notes = serializers.CharField(max_length=500, required=False, allow_blank=True)
 
 class MemberCheckSerializer(serializers.Serializer):
     phone_number = serializers.CharField(required=True)
