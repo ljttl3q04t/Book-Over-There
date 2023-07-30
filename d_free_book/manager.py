@@ -1,6 +1,6 @@
 from django.db import transaction
 
-from d_free_book.models import ClubBook, DFreeOrder, DFreeMember, DFreeOrderDetail, DFreeDraffOrder
+from d_free_book.models import ClubBook, DFreeOrder, DFreeMember, DFreeOrderDetail, DFreeDraftOrder
 from services.managers import membership_manager, book_manager
 from services.managers.cache_manager import combine_key_cache_data, CACHE_KEY_CLUB_BOOK_INFOS, \
     CACHE_KEY_DFB_ORDER_INFOS, CACHE_KEY_MEMBER_INFOS, invalid_cache_data, CACHE_KEY_DFB_ORDER_DETAIL_INFOS, \
@@ -91,7 +91,7 @@ def create_new_order(data):
         )
 
 def create_new_draft_order(data):
-    DFreeDraffOrder.objects.create(
+    DFreeDraftOrder.objects.create(
         full_name=data.get('full_name'),
         phone_number=data.get('phone_number'),
         address=data.get('address'),
@@ -275,7 +275,7 @@ def create_club_book(data, book=None):
 
 def get_draft_order_records(draft_order_ids=None, full_name=None, phone_number=None, address=None, order_date=None, due_date=None,
                             club_books=None, user=None,club_id=None):
-    return DFreeDraffOrder.objects.filter_ignore_none(
+    return DFreeDraftOrder.objects.filter_ignore_none(
         id__in=draft_order_ids,
         full_name__in=full_name,
         phone_number__in=phone_number,
@@ -317,8 +317,8 @@ def create_new_order_from_draft(data):
             club_book_id=club_book_id,
             note=data.get('address'),
         )
-    DFreeDraffOrder.objects.filter(id=data.get('draft_id')) \
-        .update(draft_status=DFreeDraffOrder.CREATED,
+    DFreeDraftOrder.objects.filter(id=data.get('draft_id')) \
+        .update(draft_status=DFreeDraftOrder.CREATED,
                 order_id=order.id)
 
 @transaction.atomic
@@ -343,12 +343,12 @@ def create_new_order_from_draft_by_new_member(data):
             club_book_id=club_book_id,
             note=data.get('address'),
         )
-    DFreeDraffOrder.objects.filter(id=data.get('draft_id')) \
-        .update(draft_status=DFreeDraffOrder.CREATED,
+    DFreeDraftOrder.objects.filter(id=data.get('draft_id')) \
+        .update(draft_status=DFreeDraftOrder.CREATED,
                 order_id=order.id)
 
 def update_draft(draft_order_ids, club_id, **kwargs):
-    affected_count = DFreeDraffOrder.objects.filter(id=draft_order_ids, club_id__in=[club_id]).update(**kwargs)
+    affected_count = DFreeDraftOrder.objects.filter(id=draft_order_ids, club_id__in=[club_id]).update(**kwargs)
     if affected_count:
         cache_key = CACHE_KEY_MEMBER_INFOS['cache_key_converter'](CACHE_KEY_MEMBER_INFOS['cache_prefix'], draft_order_ids)
         invalid_cache_data(cache_key)

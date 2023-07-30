@@ -40,7 +40,7 @@ class DFreeOrder(BaseModel):
     class Meta:
         db_table = 'dfree_order_tab'
 
-class DFreeDraffOrder(BaseModel):
+class DFreeDraftOrder(BaseModel):
     CREATED = 'created'
     PENDING = 'pending'
     DRAFT_STATUS_CHOICES = (
@@ -59,7 +59,7 @@ class DFreeDraffOrder(BaseModel):
     club = models.ForeignKey(BookClub, on_delete=models.CASCADE)
 
     class Meta:
-        db_table = 'dfree_draff_order_tab'
+        db_table = 'dfree_draft_order_tab'
 
 class DFreeOrderDetail(BaseModel):
     CREATED = 'created'
