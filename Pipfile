@@ -26,6 +26,7 @@ pillow = "*"
 install = "*"
 django-crontab = "*"
 celery = "*"
+twilio = "*"
 
 [requires]
 python_version = "3.10"

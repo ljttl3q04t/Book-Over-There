@@ -69,6 +69,20 @@ class User(AbstractUser, BaseModel):
     birth_date = models.DateField(null=True)
     avatar = models.FileField(storage=UserAvatarStorage(), default=None, blank=True, null=True)
 
+class OTP(BaseModel):
+    OTP_CODE_LENGTH = 6
+    OTP_EXPIRY_LENGTH = 5  # minutes
+
+    phone_number = models.CharField(max_length=15)
+    otp_code = models.CharField(max_length=OTP_CODE_LENGTH)
+    expiry_date = models.DateTimeField()
+    message_sid = models.CharField(max_length=50, null=True, blank=True)
+    enable = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = 'services_otp'
+        index_together = ['phone_number', 'enable']
+
 class Category(BaseModel):
     name = models.CharField(max_length=200, unique=True)
     follower = models.CharField(max_length=20, null=True, blank=True)

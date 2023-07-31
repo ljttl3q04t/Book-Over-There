@@ -75,6 +75,7 @@ class MemberGetIdsSerializer(serializers.Serializer):
     code = serializers.CharField(required=False)
     phone_number = serializers.CharField(required=False)
     full_name = serializers.CharField(required=False)
+    club_id = serializers.IntegerField(required=False)
 
 class MemberGetInfosSerializer(serializers.Serializer):
     member_ids = ListIntegerField()

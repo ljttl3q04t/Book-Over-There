@@ -24,6 +24,7 @@ class DFreeMember(BaseModel):
     code = models.CharField(max_length=20)
     phone_number = models.CharField(max_length=20, null=True, blank=True)
     notes = models.TextField(null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return f'{self.id} - {self.club_id} - {self.code} - {self.full_name}'
@@ -40,27 +41,6 @@ class DFreeOrder(BaseModel):
     creator_order = models.ForeignKey(Membership, on_delete=models.CASCADE, null=True, blank=True)
     class Meta:
         db_table = 'dfree_order_tab'
-
-class DFreeDraftOrder(BaseModel):
-    CREATED = 'created'
-    PENDING = 'pending'
-    DRAFT_STATUS_CHOICES = (
-        (CREATED, 'created'),
-        (PENDING, 'pending'),
-    )
-    full_name = models.CharField(max_length=200)
-    phone_number = models.CharField(max_length=20)
-    address = models.CharField(max_length=200)
-    order_date = models.DateField()
-    due_date = models.DateField()
-    club_book_ids = ArrayField(models.IntegerField())
-    order_id = models.IntegerField(null=True, blank=True)
-    draft_status = models.CharField(max_length=20, choices=DRAFT_STATUS_CHOICES, default=PENDING)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    club = models.ForeignKey(BookClub, on_delete=models.CASCADE)
-
-    class Meta:
-        db_table = 'dfree_draft_order_tab'
 
 class DFreeOrderDetail(BaseModel):
     CREATED = 'created'
@@ -82,3 +62,24 @@ class DFreeOrderDetail(BaseModel):
 
     class Meta:
         db_table = 'dfree_order_detail_tab'
+
+class DFreeDraftOrder(BaseModel):
+    CREATED = 'created'
+    PENDING = 'pending'
+    DRAFT_STATUS_CHOICES = (
+        (CREATED, 'created'),
+        (PENDING, 'pending'),
+    )
+    full_name = models.CharField(max_length=200)
+    phone_number = models.CharField(max_length=20)
+    address = models.CharField(max_length=200)
+    order_date = models.DateField()
+    due_date = models.DateField()
+    club_book_ids = ArrayField(models.IntegerField())
+    order_id = models.IntegerField(null=True, blank=True)
+    draft_status = models.CharField(max_length=20, choices=DRAFT_STATUS_CHOICES, default=PENDING)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    club = models.ForeignKey(BookClub, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = 'dfree_draft_order_tab'

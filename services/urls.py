@@ -18,6 +18,10 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+
+    path('otp/generate', views.OtpGenerateView.as_view(), name='generate_otp'),
+    path('otp/verify/<str:otp_code>', views.OtpVerifyView.as_view(), name='generate_otp'),
+
     # user
     path('user/register', views.UserRegisterView.as_view(), name='user-register'),
     path('user/login', views.UserLoginView.as_view(), name='login'),

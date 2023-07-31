@@ -19,7 +19,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from services.managers import book_manager, membership_manager
+from services.managers import book_manager, membership_manager, otp_manager
 from services.managers.permission_manager import IsStaff, is_club_admin, is_staff
 from .managers.book_manager import get_category_infos
 from .managers.crawl_manager import CrawFahasa, CrawTiki
@@ -769,3 +769,33 @@ class BookHistoryView(APIView):
         serializer = BookCopyHistorySerializer(instance=records, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class OtpGenerateView(APIView):
+    permission_classes = (IsAuthenticated, )
+
+    def post(self, request):
+        phone_number = request.user.phone_number
+        if not phone_number:
+            return Response({'error': 'user has no phone number'}, status=status.HTTP_400_BAD_REQUEST)
+        otp_manager.remove_expired_otp(phone_number)
+        new_otp, error = otp_manager.generate_otp(phone_number)
+        if error:
+            return Response({'error': error}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            otp_manager.send_otp(new_otp)
+        except Exception:
+            return Response({'error': 'send otp failed. Try again!'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response({'message': "send otp successful"}, status=status.HTTP_200_OK)
+
+class OtpVerifyView(APIView):
+    permission_classes = (IsAuthenticated, )
+
+    def post(self, request, otp_code):
+        phone_number = request.user.phone_number
+        if not phone_number:
+            return Response({'error': 'user has no phone number'}, status=status.HTTP_400_BAD_REQUEST)
+        result, error = otp_manager.verify_otp_code(phone_number, otp_code)
+        if not result:
+            return Response({'error': error}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'message': 'verify OTP success'}, status=status.HTTP_200_OK)
