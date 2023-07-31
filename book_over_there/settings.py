@@ -99,11 +99,11 @@ WSGI_APPLICATION = 'book_over_there.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": 'django.db.backends.postgresql',
-        "NAME": os.environ.get("SQL_DA1TABASE", "book_db"),
-        "USER": os.environ.get("SQL_1USER", "postgres"),
-        "PASSWORD": os.environ.get("SQL_P1ASSWORD", "123456"),
-        "HOST": os.environ.get("SQL_1HOST", "localhost"),
-        "PORT": os.environ.get("SQL1_PORT", "5432"),
+        "NAME": os.environ.get("SQL_DATABASE", "book_db"),
+        "USER": os.environ.get("SQL_USER", "postgres"),
+        "PASSWORD": os.environ.get("SQL_PASSWORD", "123456"),
+        "HOST": os.environ.get("SQL_HOST", "localhost"),
+        "PORT": os.environ.get("SQL_PORT", "5432"),
     }
 }
 

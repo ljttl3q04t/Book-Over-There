@@ -15,8 +15,8 @@ class OtpClient:
     @classmethod
     def get_client(cls):
         if cls._client is None:
-            cls._instance = cls._create_instance()
-        return cls._instance
+            cls._client = cls._create_instance()
+        return cls._client
 
     @classmethod
     def _create_instance(cls):
