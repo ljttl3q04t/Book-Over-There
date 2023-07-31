@@ -228,9 +228,12 @@ class UserInfoView(APIView):
 class UpdateUserInfoView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @transaction.atomic()
     def put(self, request):
         serializer = UserUpdateSerializer(request.user, data=request.data, partial=True)
         if serializer.is_valid():
+            if User.objects.filter(phone_number=serializer.validated_data.get('phone_number')).exists():
+                return Response({'error': 'Duplicated phone number'}, status=status.HTTP_400_BAD_REQUEST)
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=400)

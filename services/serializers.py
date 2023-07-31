@@ -59,7 +59,7 @@ class PublisherSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['phone_number', 'email', 'address', 'full_name', 'birth_date', 'avatar', 'username']
+        fields = ['phone_number', 'email', 'address', 'full_name', 'birth_date', 'avatar', 'username', 'is_verify']
 
 class ImageSerializer(serializers.Serializer):
     image = serializers.ImageField()
