@@ -16,7 +16,7 @@ def get_club_book_records(club_book_ids=None, club_id=None, book_ids=None, code=
     )
 
 def get_member_records(phone_number=None, code=None, member_ids=None, full_name=None, club_ids=None, club_id=None,
-                       member_id=None):
+                       member_id=None, user_id=None):
     return DFreeMember.objects.filter_ignore_none(
         id__in=member_ids,
         id=member_id,
@@ -25,6 +25,7 @@ def get_member_records(phone_number=None, code=None, member_ids=None, full_name=
         phone_number=phone_number,
         code=code,
         full_name=full_name,
+        user_id=user_id,
     )
 
 def get_order_records(order_ids=None, club_id=None, member_ids=None, from_date=None, to_date=None, club_ids=None,
@@ -79,8 +80,8 @@ def validate_member(club_id, code=None, phone_number=None, **kwargs):
 
     return True, None
 
-def update_member(member_id, club_ids, **kwargs):
-    affected_count = DFreeMember.objects.filter(id=member_id, club_id__in=club_ids).update(**kwargs)
+def update_member(member_id, **kwargs):
+    affected_count = DFreeMember.objects.filter(id=member_id).update(**kwargs)
     if affected_count:
         cache_key = CACHE_KEY_MEMBER_INFOS['cache_key_converter'](CACHE_KEY_MEMBER_INFOS['cache_prefix'], member_id)
         invalid_cache_data(cache_key)
@@ -346,3 +347,14 @@ def update_draft(draft_order_ids, club_id, **kwargs):
                                                                   draft_order_ids)
         invalid_cache_data(cache_key)
     return affected_count
+
+@transaction.atomic()
+def link_user_member(user):
+    user.is_verify = True
+    user.save()
+    member_ids = get_member_records(phone_number=user.phone_number, user_id=None).pk_list()
+    affected_count = get_member_records(member_ids=member_ids).update(user=user)
+    if affected_count:
+        cache_keys = [CACHE_KEY_MEMBER_INFOS['cache_key_converter'](CACHE_KEY_MEMBER_INFOS['cache_prefix'], member_id)
+                      for member_id in member_ids]
+        invalid_many_cache_data(cache_keys)

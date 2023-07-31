@@ -19,6 +19,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from d_free_book.manager import link_user_member
 from services.managers import book_manager, membership_manager, otp_manager
 from services.managers.permission_manager import IsStaff, is_club_admin, is_staff
 from .managers.book_manager import get_category_infos
@@ -202,15 +203,18 @@ class UserRegisterView(APIView):
     @swagger_auto_schema(request_body=UserRegisterSerializer)
     def post(self, request):
         serializer = UserRegisterSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.validated_data['password'] = make_password(serializer.validated_data['password'])
-            serializer.save()
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-            return JsonResponse({
-                'message': 'Register successful!'
-            }, status=status.HTTP_201_CREATED)
+        if User.objects.filter(phone_number=serializer.data.get('phone_number')).exists():
+            return Response({'error': 'Duplicated phone number'}, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.validated_data['password'] = make_password(serializer.validated_data['password'])
+        serializer.save()
+
+        return Response({
+            'message': 'Register successful!'
+        }, status=status.HTTP_201_CREATED)
 
 class UserInfoView(APIView):
     permission_classes = [IsAuthenticated]
@@ -798,4 +802,5 @@ class OtpVerifyView(APIView):
         if not result:
             return Response({'error': error}, status=status.HTTP_400_BAD_REQUEST)
         else:
+            link_user_member(request.user)
             return Response({'message': 'verify OTP success'}, status=status.HTTP_200_OK)

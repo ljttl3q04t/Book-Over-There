@@ -327,7 +327,7 @@ class MemberUpdateView(APIView):
         if not valid_member:
             return Response({'error': error}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            affected_count = manager.update_member(member_id, club_ids, **updated_data)
+            affected_count = manager.update_member(member_id, **updated_data)
             if affected_count:
                 return Response({'message': 'Update member successfully'}, status=status.HTTP_200_OK)
             else:
@@ -388,3 +388,12 @@ class OrderCreateFromDraftNewMemberView(APIView):
         else:
             manager.create_new_order_from_draft_by_new_member(serializer.data)
             return Response({'message': 'Create order successfully'}, status=status.HTTP_200_OK)
+
+class UserOrderHistoryView(APIView):
+    permission_classes = (IsAuthenticated, )
+
+    def post(self, request):
+        member_ids = manager.get_member_records(user_id=request.user.id).pk_list()
+        order_ids = manager.get_order_records(member_ids=member_ids).pk_list()
+        order_infos = manager.get_order_infos(order_ids)
+        return Response({'order_infos': order_infos.values()}, status=status.HTTP_200_OK)

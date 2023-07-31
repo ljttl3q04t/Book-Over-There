@@ -27,6 +27,9 @@ urlpatterns = [
 
     path('club_book/add', views.ClubBookAddView.as_view()),
     path('club_book/update', views.ClubBookUpdateView.as_view()),
+
+    path('user/order_history', views.UserOrderHistoryView.as_view()),
+
     # path('club_book/update', views.ClubBookUpdateView.as_view()),
     # path('book/update', views.BookListAPIView.as_view()),
     # path('order/create', views.BookListAPIView.as_view()),

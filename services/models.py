@@ -62,12 +62,13 @@ class User(AbstractUser, BaseModel):
     # Add related_name arguments to avoid clashes with auth.User model
     groups = models.ManyToManyField(Group, related_name='service_users')
     user_permissions = models.ManyToManyField(Permission, related_name='service_users')
-    phone_number = models.CharField(max_length=200, null=True, blank=True)
+    phone_number = models.CharField(max_length=200, null=True, unique=True)
     email = models.EmailField(max_length=100, unique=True)
     address = models.CharField(max_length=200, null=True, blank=True)
     full_name = models.CharField(max_length=200, null=True, blank=True)
     birth_date = models.DateField(null=True)
     avatar = models.FileField(storage=UserAvatarStorage(), default=None, blank=True, null=True)
+    is_verify = models.BooleanField(default=False)
 
 class OTP(BaseModel):
     OTP_CODE_LENGTH = 6
