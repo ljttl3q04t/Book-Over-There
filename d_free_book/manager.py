@@ -256,6 +256,7 @@ def get_draft_order_infos(order_draft_ids):
             'club_id': draft_order.club.id,
             'user_id': draft_order.user.id,
             'club_book_ids': draft_order.club_book_ids,
+            'draft_status': draft_order.draft_status,
         }
     return result
 
