@@ -1,7 +1,7 @@
 from django.db import transaction
 
 from d_free_book.models import ClubBook, DFreeOrder, DFreeMember, DFreeOrderDetail, DFreeDraftOrder
-from services.managers import membership_manager, book_manager
+from services.managers import membership_manager, book_manager, user_manager
 from services.managers.cache_manager import combine_key_cache_data, CACHE_KEY_CLUB_BOOK_INFOS, \
     CACHE_KEY_DFB_ORDER_INFOS, CACHE_KEY_MEMBER_INFOS, invalid_cache_data, CACHE_KEY_DFB_ORDER_DETAIL_INFOS, \
     delete_key_cache_data, build_cache_key, invalid_many_cache_data
@@ -131,11 +131,13 @@ def get_member_infos(member_ids):
 @transaction.atomic
 def create_new_order_by_new_member(data):
     new_member = data.get('new_member')
+    user = user_manager.get_user_records(phone_number=new_member.get('phone_number'), is_verify=True).first()
     new_member = DFreeMember.objects.create(
         club_id=new_member.get('club_id'),
         full_name=new_member.get('full_name'),
         code=new_member.get('code'),
-        phone_number=new_member.get('phone_number')
+        phone_number=new_member.get('phone_number'),
+        user=user,
     )
     order = DFreeOrder.objects.create(
         member_id=new_member.id,
