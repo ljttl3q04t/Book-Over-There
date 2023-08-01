@@ -152,6 +152,7 @@ def create_new_order_by_new_member(data):
             order=order,
             club_book_id=club_book_id,
         )
+    return order
 
 @delete_key_cache_data([CACHE_KEY_DFB_ORDER_DETAIL_INFOS])
 def return_books(order_detail_ids, return_date, receiver_id):
@@ -307,26 +308,7 @@ def create_new_order_from_draft(data):
 
 @transaction.atomic
 def create_new_order_from_draft_by_new_member(data):
-    new_member = data.get('new_member')
-    new_member = DFreeMember.objects.create(
-        club_id=new_member.get('club_id'),
-        full_name=new_member.get('full_name'),
-        code=new_member.get('code'),
-        phone_number=new_member.get('phone_number')
-    )
-    order = DFreeOrder.objects.create(
-        member_id=new_member.id,
-        club_id=new_member.club_id,
-        order_date=data.get('order_date'),
-        due_date=data.get('due_date'),
-        creator_order_id=data.get('creator_order_id'),
-    )
-    for club_book_id in data.get('club_book_ids'):
-        DFreeOrderDetail.objects.create(
-            order=order,
-            club_book_id=club_book_id,
-            note=data.get('address'),
-        )
+    order = create_new_order_by_new_member(data)
     DFreeDraftOrder.objects.filter(id=data.get('draft_id')) \
         .update(draft_status=DFreeDraftOrder.CREATED,
                 order_id=order.id)
