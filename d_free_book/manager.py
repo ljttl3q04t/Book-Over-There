@@ -109,6 +109,7 @@ def create_new_order(data):
             order=order,
             club_book_id=club_book_id,
         )
+    return order
 
 def create_new_draft_order(data):
     DFreeDraftOrder.objects.create(**data)
@@ -299,22 +300,10 @@ def validate_oder(data):
 
 @transaction.atomic
 def create_new_order_from_draft(data):
-    order = DFreeOrder.objects.create(
-        member_id=data.get('member_id'),
-        club_id=data.get('club_id'),
-        order_date=data.get('order_date'),
-        due_date=data.get('due_date'),
-        creator_order_id=data.get('creator_order_id'),
-    )
-    for club_book_id in data.get('club_book_ids'):
-        DFreeOrderDetail.objects.create(
-            order=order,
-            club_book_id=club_book_id,
-            note=data.get('address'),
-        )
-    DFreeDraftOrder.objects.filter(id=data.get('draft_id')) \
-        .update(draft_status=DFreeDraftOrder.CREATED,
-                order_id=order.id)
+    order = create_new_order(data)
+    DFreeDraftOrder.objects \
+        .filter(id=data.get('draft_id')) \
+        .update(draft_status=DFreeDraftOrder.CREATED, order_id=order.id)
 
 @transaction.atomic
 def create_new_order_from_draft_by_new_member(data):
