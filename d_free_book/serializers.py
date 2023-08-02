@@ -123,7 +123,6 @@ class OrderCreateFromDraftNewMemberSerializer(serializers.Serializer):
 
 class DraftOrderUpdateSerializer(serializers.Serializer):
     draft_order_id = serializers.IntegerField()
-    club_id = serializers.IntegerField()
     order_date = serializers.DateField(required=False)
     due_date = serializers.DateField(required=False)
     phone_number = serializers.CharField(required=False)

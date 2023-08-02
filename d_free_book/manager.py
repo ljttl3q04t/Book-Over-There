@@ -314,8 +314,8 @@ def create_new_order_from_draft_by_new_member(data):
         .update(draft_status=DFreeDraftOrder.CREATED,
                 order_id=order.id)
 
-def update_draft(draft_order_ids, club_id, **kwargs):
-    affected_count = DFreeDraftOrder.objects.filter(id=draft_order_ids, club_id__in=[club_id]).update(**kwargs)
+def update_draft(draft_order_ids, **kwargs):
+    affected_count = DFreeDraftOrder.objects.filter(id=draft_order_ids).update(**kwargs)
     if affected_count:
         cache_key = CACHE_KEY_MEMBER_INFOS['cache_key_converter'](CACHE_KEY_MEMBER_INFOS['cache_prefix'],
                                                                   draft_order_ids)

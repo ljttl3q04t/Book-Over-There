@@ -199,8 +199,7 @@ class DraftOrderUpdateOnlineView(APIView):
 
         data = serializer.data
         draft_order_id = data.pop('draft_order_id')
-        club_id = data.pop('club_id')
-        affected_count = manager.update_draft(draft_order_id, club_id, **data)
+        affected_count = manager.update_draft(draft_order_id, **data)
         if affected_count:
             return Response({'message': 'Update draft successfully'}, status=status.HTTP_200_OK)
         else:
