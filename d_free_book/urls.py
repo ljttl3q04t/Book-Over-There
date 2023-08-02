@@ -5,6 +5,8 @@ from d_free_book import views
 urlpatterns = [
     path('club_book/get_ids', views.ClubBookGetIdsView.as_view()),
     path('club_book/get_infos', views.ClubBookGetInfosView.as_view()),
+    path('club_book/add', views.ClubBookAddView.as_view()),
+    path('club_book/update', views.ClubBookUpdateView.as_view()),
 
     path('member/get_ids', views.MemberGetIdsView.as_view()),
     path('member/get_infos', views.MemberGetInfosView.as_view()),
@@ -25,10 +27,9 @@ urlpatterns = [
     path('order/draft/create', views.DraftOrderCreateOnlineView.as_view()),
     path('order/draft/update', views.DraftOrderUpdateOnlineView.as_view()),
 
-    path('club_book/add', views.ClubBookAddView.as_view()),
-    path('club_book/update', views.ClubBookUpdateView.as_view()),
-
     path('user/order_history', views.UserOrderHistoryView.as_view()),
+
+    path('report/<str:club_id>', views.ReportView.as_view()),
 
     # path('club_book/update', views.ClubBookUpdateView.as_view()),
     # path('book/update', views.BookListAPIView.as_view()),

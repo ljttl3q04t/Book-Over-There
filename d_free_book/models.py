@@ -25,6 +25,7 @@ class DFreeMember(BaseModel):
     phone_number = models.CharField(max_length=20, null=True, blank=True)
     notes = models.TextField(null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    first_order_date = models.DateField(db_index=True, null=True)
 
     def __str__(self):
         return f'{self.id} - {self.club_id} - {self.code} - {self.full_name}'

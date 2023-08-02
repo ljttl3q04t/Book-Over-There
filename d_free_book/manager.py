@@ -1,4 +1,6 @@
 from django.db import transaction
+from django.db.models import Count
+from django.db.models.functions import TruncMonth
 
 from d_free_book.models import ClubBook, DFreeOrder, DFreeMember, DFreeOrderDetail, DFreeDraftOrder
 from services.managers import membership_manager, book_manager, user_manager
@@ -332,3 +334,28 @@ def link_user_member(user):
         cache_keys = [CACHE_KEY_MEMBER_INFOS['cache_key_converter'](CACHE_KEY_MEMBER_INFOS['cache_prefix'], member_id)
                       for member_id in member_ids]
         invalid_many_cache_data(cache_keys)
+
+def gen_report(club_id):
+    order_by_months = get_order_records(club_id=club_id) \
+        .annotate(month=TruncMonth('order_date')) \
+        .values('month') \
+        .annotate(total_orders=Count('id')) \
+        .order_by('month')
+
+    new_member_by_months = get_member_records(club_id=club_id) \
+        .annotate(month=TruncMonth('first_order_date')) \
+        .values('month') \
+        .annotate(total_new_members=Count('id')) \
+        .order_by('month')
+
+    books_by_months = DFreeOrderDetail.objects.filter(order__club_id=4) \
+        .annotate(month=TruncMonth('order__order_date')) \
+        .values('month') \
+        .annotate(total_books=Count('id')) \
+        .order_by('month')
+
+    return {
+        'order': order_by_months,
+        'new_member': new_member_by_months,
+        'books_by_months': books_by_months,
+    }

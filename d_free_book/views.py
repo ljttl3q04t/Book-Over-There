@@ -122,12 +122,13 @@ class StaffGetOrderIdsView(APIView):
         to_date = serializer.data.get('to_date')
         order_date = serializer.data.get('order_date')
         order_status = serializer.data.get('order_status')
-        order_ids = manager\
-            .get_order_records(club_ids=club_ids, from_date=from_date, to_date=to_date, order_date=order_date)\
+        order_ids = manager \
+            .get_order_records(club_ids=club_ids, from_date=from_date, to_date=to_date, order_date=order_date) \
             .order_by('-order_date', '-id') \
             .pk_list()
         if order_status:
-            order_ids = manager.get_order_detail_records(order_ids=order_ids, order_status=order_status).flat_list('order_id')
+            order_ids = manager.get_order_detail_records(order_ids=order_ids, order_status=order_status).flat_list(
+                'order_id')
         return Response({'order_ids': order_ids}, status=status.HTTP_200_OK)
 
 class OrderInfosView(APIView):
@@ -291,7 +292,7 @@ class MemberAddView(APIView):
 
         valid_member, error = manager.validate_member(club_id=serializer.data.get('club_id'),
                                                       phone_number=serializer.data.get('phone_number'),
-                                                      code=serializer.data.get('code'),)
+                                                      code=serializer.data.get('code'), )
         if not valid_member:
             return Response({'error': error}, status=status.HTTP_400_BAD_REQUEST)
         else:
@@ -362,7 +363,6 @@ class OrderCreateFromDraftView(APIView):
         manager.create_new_order_from_draft(serializer.data)
         return Response({'message': 'Create order successfully'}, status=status.HTTP_200_OK)
 
-
 class OrderCreateFromDraftNewMemberView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)
 
@@ -389,10 +389,16 @@ class OrderCreateFromDraftNewMemberView(APIView):
             return Response({'message': 'Create order successfully'}, status=status.HTTP_200_OK)
 
 class UserOrderHistoryView(APIView):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request):
         member_ids = manager.get_member_records(user_id=request.user.id).pk_list()
         order_ids = manager.get_order_records(member_ids=member_ids).pk_list()
         order_infos = manager.get_order_infos(order_ids)
         return Response({'order_infos': order_infos.values()}, status=status.HTTP_200_OK)
+
+class ReportView(APIView):
+    permission_classes = (IsAuthenticated, IsStaff,)
+
+    def post(self, request, club_id):
+        return Response({'data': manager.gen_report(club_id)}, status=status.HTTP_200_OK)
