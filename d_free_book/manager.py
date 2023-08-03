@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db import transaction
 from django.db.models import Count
 from django.db.models.functions import TruncMonth
@@ -31,8 +33,8 @@ def get_member_records(phone_number=None, code=None, member_ids=None, full_name=
     )
 
 def get_order_records(order_ids=None, club_id=None, member_ids=None, from_date=None, to_date=None, club_ids=None,
-                      order_date=None):
-    return DFreeOrder.objects.filter_ignore_none(
+                      order_date=None, order_month=None):
+    query = DFreeOrder.objects.filter_ignore_none(
         id__in=order_ids,
         club_id=club_id,
         club_id__in=club_ids,
@@ -41,6 +43,11 @@ def get_order_records(order_ids=None, club_id=None, member_ids=None, from_date=N
         order_date__lte=to_date,
         order_date=order_date,
     )
+    if order_month:
+        target_date = datetime.strptime(order_month, "%Y-%m-%d")
+        query = query.filter(order_date__year=target_date.year, order_date__month=target_date.month)
+
+    return query
 
 def get_order_detail_records(order_ids=None, order_detail_ids=None, order_status=None, receiver_book=None):
     return DFreeOrderDetail.objects.filter_ignore_none(

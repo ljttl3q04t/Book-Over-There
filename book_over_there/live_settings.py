@@ -24,15 +24,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-3yh%g8m447p!d5gr9a^d%#ka7e0jv47@7t6c22aa=8quey&1ry")
+SECRET_KEY = os.environ.get("SECRET_KEY")
 KEY_PREFIX = 'bot'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = int(os.environ.get("DEBUG", default=1))
+DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['https://bookoverthere.com']
 
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOWED_ORIGINS = [
+    "https://bookoverthere.com",
+]
+
 CORS_ALLOW_HEADERS = [
     'access-control-allow-origin',
     'content-type',
@@ -263,3 +266,10 @@ LOGGING = {
         },
     },
 }
+
+SECURE_HSTS_SECONDS = 31536000
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True

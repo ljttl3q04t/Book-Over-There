@@ -20,6 +20,8 @@ class GetOrderIdsSerializer(serializers.Serializer):
     to_date = serializers.DateField(required=False)
     order_date = serializers.DateField(required=False)
     order_status = serializers.CharField(required=False)
+    order_month = serializers.DateField(required=False)
+    member = serializers.IntegerField(required=False)
 
 class GetOrderInfosSerializer(serializers.Serializer):
     order_ids = ListIntegerField()

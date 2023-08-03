@@ -30,9 +30,4 @@ urlpatterns = [
     path('user/order_history', views.UserOrderHistoryView.as_view()),
 
     path('report/<str:club_id>', views.ReportView.as_view()),
-
-    # path('club_book/update', views.ClubBookUpdateView.as_view()),
-    # path('book/update', views.BookListAPIView.as_view()),
-    # path('order/create', views.BookListAPIView.as_view()),
-    # path('order/return', views.BookListAPIView.as_view()),
 ]

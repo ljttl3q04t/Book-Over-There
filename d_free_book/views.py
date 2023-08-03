@@ -121,9 +121,12 @@ class StaffGetOrderIdsView(APIView):
         from_date = serializer.data.get('from_date')
         to_date = serializer.data.get('to_date')
         order_date = serializer.data.get('order_date')
+        order_month = serializer.data.get('order_month')
         order_status = serializer.data.get('order_status')
-        order_ids = manager \
-            .get_order_records(club_ids=club_ids, from_date=from_date, to_date=to_date, order_date=order_date) \
+        member_id = serializer.data.get('member')
+        order_ids = manager\
+            .get_order_records(club_ids=club_ids, from_date=from_date, to_date=to_date, order_date=order_date,
+                               order_month=order_month, member_ids=[member_id])\
             .order_by('-order_date', '-id') \
             .pk_list()
         if order_status:
