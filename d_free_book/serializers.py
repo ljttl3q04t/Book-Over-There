@@ -119,7 +119,6 @@ class OrderCreateFromDraftNewMemberSerializer(serializers.Serializer):
     new_member = MemberCreateSerializer()
     order_date = serializers.DateField()
     due_date = serializers.DateField()
-    address = serializers.CharField(required=True)
     club_book_ids = ListIntegerField(required=False)
     creator_order_id = serializers.IntegerField(required=False)
 
