@@ -126,7 +126,7 @@ class StaffGetOrderIdsView(APIView):
         member_id = serializer.data.get('member')
         order_ids = manager\
             .get_order_records(club_ids=club_ids, from_date=from_date, to_date=to_date, order_date=order_date,
-                               order_month=order_month, member_ids=[member_id])\
+                               order_month=order_month, member_id=member_id)\
             .order_by('-order_date', '-id') \
             .pk_list()
         if order_status:

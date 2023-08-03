@@ -33,7 +33,7 @@ def get_member_records(phone_number=None, code=None, member_ids=None, full_name=
     )
 
 def get_order_records(order_ids=None, club_id=None, member_ids=None, from_date=None, to_date=None, club_ids=None,
-                      order_date=None, order_month=None):
+                      order_date=None, order_month=None, member_id=None):
     query = DFreeOrder.objects.filter_ignore_none(
         id__in=order_ids,
         club_id=club_id,
@@ -42,6 +42,7 @@ def get_order_records(order_ids=None, club_id=None, member_ids=None, from_date=N
         order_date__gte=from_date,
         order_date__lte=to_date,
         order_date=order_date,
+        member_id=member_id,
     )
     if order_month:
         target_date = datetime.strptime(order_month, "%Y-%m-%d")
