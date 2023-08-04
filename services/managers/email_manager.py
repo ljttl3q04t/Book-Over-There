@@ -36,3 +36,17 @@ def send_password_reset_email(email, reset_url):
         html_message=email_body,
         fail_silently=False
     )
+
+@shared_task
+def send_new_order_email(email):
+    recipient_email = email
+    email_subject = '[Book Over There] Password Reset E-mail'
+    email_body = render_to_string('new_order_email.html')
+    send_mail(
+        email_subject,
+        '',
+        settings.EMAIL_HOST_USER,
+        [recipient_email],
+        html_message=email_body,
+        fail_silently=False
+    )

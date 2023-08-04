@@ -9,6 +9,7 @@ from services.managers import membership_manager, book_manager, user_manager
 from services.managers.cache_manager import combine_key_cache_data, CACHE_KEY_CLUB_BOOK_INFOS, \
     CACHE_KEY_DFB_ORDER_INFOS, CACHE_KEY_MEMBER_INFOS, invalid_cache_data, CACHE_KEY_DFB_ORDER_DETAIL_INFOS, \
     delete_key_cache_data, build_cache_key, invalid_many_cache_data
+from services.managers.email_manager import send_new_order_email
 
 def get_club_book_records(club_book_ids=None, club_id=None, book_ids=None, code=None, club_ids=None):
     return ClubBook.objects.filter_ignore_none(
@@ -122,7 +123,11 @@ def create_new_order(data):
     return order
 
 def create_new_draft_order(data):
-    DFreeDraftOrder.objects.create(**data)
+    draft_order = DFreeDraftOrder.objects.create(**data)
+    member_ids = membership_manager.get_membership_records(club_id=draft_order.club_id, is_staff=True).flat_list('member_id')
+    staff_emails = membership_manager.get_member_records(member_ids=member_ids).flat_list('email')
+    for email in staff_emails:
+        send_new_order_email.delay(email)
 
 @combine_key_cache_data(**CACHE_KEY_MEMBER_INFOS)
 def get_member_infos(member_ids):

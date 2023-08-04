@@ -41,7 +41,7 @@ def get_membership_infos():
         }
     return result
 
-def get_membership_records(user=None, is_staff=None, membership_id=None):
+def get_membership_records(user=None, is_staff=None, membership_id=None, club_id=None):
     return Membership.objects \
         .filter(leaved_at=None) \
-        .filter_ignore_none(member__user=user, is_staff=is_staff, id=membership_id)
+        .filter_ignore_none(member__user=user, is_staff=is_staff, id=membership_id, book_club_id=club_id)
