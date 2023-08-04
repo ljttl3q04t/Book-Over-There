@@ -172,7 +172,6 @@ class LogoutView(APIView):
                 token.blacklist()
                 return Response({'message': 'Logout successful.'}, status=status.HTTP_200_OK)
             except Exception as err:
-                print(err)
                 return Response({'error': 'Invalid token.'}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({'error': 'Refresh token is required.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -232,8 +231,12 @@ class UpdateUserInfoView(APIView):
     def put(self, request):
         serializer = UserUpdateSerializer(request.user, data=request.data, partial=True)
         if serializer.is_valid():
-            if User.objects.filter(phone_number=serializer.validated_data.get('phone_number')).exists():
-                return Response({'error': 'Duplicated phone number'}, status=status.HTTP_400_BAD_REQUEST)
+            change_phone_number = serializer.validated_data.get('phone_number')
+            if change_phone_number:
+                if User.objects.filter(phone_number=change_phone_number).exists():
+                    return Response({'error': 'Duplicated phone number'}, status=status.HTTP_400_BAD_REQUEST)
+            for attr, value in serializer.validated_data.items():
+                setattr(serializer, attr, value)
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
