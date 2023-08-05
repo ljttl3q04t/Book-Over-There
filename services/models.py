@@ -141,6 +141,7 @@ class BookCopy(BaseModel):
 class BookClub(BaseModel):
     name = models.CharField(max_length=100)
     description = models.TextField()
+    details = models.JSONField(default=dict)
     address = models.TextField(default='', null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     code = models.CharField(max_length=50, null=True, blank=True)
