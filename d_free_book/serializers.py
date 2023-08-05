@@ -128,5 +128,5 @@ class DraftOrderUpdateSerializer(serializers.Serializer):
     due_date = serializers.DateField(required=False)
     phone_number = serializers.CharField(required=False)
     full_name = serializers.CharField(required=False)
-    club_books = serializers.CharField(required=False)
+    club_book_ids = ListIntegerField()
     address = serializers.CharField(required=False)
