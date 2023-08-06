@@ -14,7 +14,7 @@ urlpatterns = [
     path('member/update', views.MemberUpdateView.as_view()),
     path('member/check', views.MemberCheckView.as_view()),
 
-    path('order/get_ids', views.StaffGetOrderIdsView.as_view()),
+    path('order/get_ids', views.OrderGetIdsView.as_view()),
     path('order/get_infos', views.OrderInfosView.as_view()),
     path('order/create', views.OrderCreateView.as_view()),
     path('order/create/new_member', views.OrderCreateNewMemberView.as_view()),
@@ -22,10 +22,10 @@ urlpatterns = [
     path('order/create/from_draft', views.OrderCreateFromDraftView.as_view()),
     path('order/create/from_draft/new_member', views.OrderCreateFromDraftNewMemberView.as_view()),
 
-    path('order/draft/get_ids', views.GetDraftOrderIdsView.as_view()),
-    path('order/draft/get_infos', views.GetDraftOrderInfosView.as_view()),
-    path('order/draft/create', views.DraftOrderCreateOnlineView.as_view()),
-    path('order/draft/update', views.DraftOrderUpdateOnlineView.as_view()),
+    path('order/draft/get_ids', views.DraftOrderGetIdsView.as_view()),
+    path('order/draft/get_infos', views.DraftOrderGetInfosView.as_view()),
+    path('order/draft/create', views.DraftOrderCreateView.as_view()),
+    path('order/draft/update', views.DraftOrderUpdateView.as_view()),
 
     path('user/order_history', views.UserOrderHistoryView.as_view()),
 
