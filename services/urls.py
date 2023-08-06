@@ -21,52 +21,54 @@ urlpatterns = [
 
     path('otp/generate', views.OtpGenerateView.as_view(), name='generate_otp'),
     path('otp/verify/<str:otp_code>', views.OtpVerifyView.as_view(), name='generate_otp'),
-
-    # user
     path('user/register', views.UserRegisterView.as_view(), name='user-register'),
     path('user/login', views.UserLoginView.as_view(), name='login'),
-    path('user/logout', views.LogoutView.as_view(), name='logout'),
     path('user/password-reset', views.ResetPasswordView.as_view(), name='reset-password'),
     path('password-reset/confirm/<str:uidb64>/<str:token>', views.ResetPasswordConfirmView.as_view(), name='reset_password_confirm'),
     path('user/info', views.UserInfoView.as_view(), name='user-info'),
     path('user/info/update', views.UpdateUserInfoView.as_view(), name='update-user-info'),
-    path('user/my-book', views.MyBookView.as_view(), name='view-my-book'),
     path('user/membership', views.MyMembershipView.as_view(), name='view-my-membership'),
-    path('user/book/add', views.MyBookAddView.as_view(), name='user-add-book'),
-    path('user/book/share-club', views.BookShareClubView.as_view(), name='share-book-to-club'),
-    path('user/book/history', views.BookHistoryView.as_view(), name='book-history-view'),
-
     path('category/list/<str:follower>', views.CategoryListView.as_view(), name='view-category'),
 
+    # user
+
+    # path('user/logout', views.LogoutView.as_view(), name='logout'),
+
+    # path('user/my-book', views.MyBookView.as_view(), name='view-my-book'),
+    # path('user/book/add', views.MyBookAddView.as_view(), name='user-add-book'),
+    # path('user/book/share-club', views.BookShareClubView.as_view(), name='share-book-to-club'),
+    # path('user/book/history', views.BookHistoryView.as_view(), name='book-history-view'),
+
+
     # book and book copies
-    path('book/<int:book_id>/update/', views.BookUpdateAPIView.as_view(), name='book-update'),
-    path('book/check', views.BookCheckView.as_view(), name='book-check'),
-    path('book/list/', views.BookListAPIView.as_view(), name='book-list'),
-    path('book-copies/create/', views.BookCopyCreateAPIView.as_view(), name='book-copy-create'),
-    path('bookcopies/<int:pk>/', views.BookCopyUpdateView.as_view(), name='bookcopy-update'),
+    # path('book/<int:book_id>/update/', views.BookUpdateAPIView.as_view(), name='book-update'),
+    # path('book/check', views.BookCheckView.as_view(), name='book-check'),
+    # path('book/list/', views.BookListAPIView.as_view(), name='book-list'),
+    # path('book-copies/create/', views.BookCopyCreateAPIView.as_view(), name='book-copy-create'),
+    # path('bookcopies/<int:pk>/', views.BookCopyUpdateView.as_view(), name='bookcopy-update'),
 
     # club
-    path('club/list/', views.BookClubListAPIView.as_view(), name='book-club-list'),
-    path('club/request-join', views.BookClubRequestJoinView.as_view(), name='book-club-request-join'),
-    path('club/member/list', views.BookClubMemberView.as_view(), name='view-book-club-member'),
-    path('club/member/update', views.BookClubMemberUpdateView.as_view(), name='update-book-club-member'),
+    # path('club/list/', views.BookClubListAPIView.as_view(), name='book-club-list'),
+    # path('club/request-join', views.BookClubRequestJoinView.as_view(), name='book-club-request-join'),
+    # path('club/member/list', views.BookClubMemberView.as_view(), name='view-book-club-member'),
+    # path('club/member/update', views.BookClubMemberUpdateView.as_view(), name='update-book-club-member'),
 
-    path('club/member/book/borrowing', views.StaffBorrowingView.as_view(), name='staff-view-borrowing-book-by'),
-    path('club/member/book/deposit', views.BookClubMemberBookDepositView.as_view(), name='member-deposit-book'),
-    path('club/member/book/withdraw', views.BookClubMemberBookWithdrawView.as_view(), name='member-withdraw-book'),
-    path('club/member/book/return', views.BookClubMemberBookReturnView.as_view(), name='member-return-book'),
+    # path('club/member/book/borrowing', views.StaffBorrowingView.as_view(), name='staff-view-borrowing-book-by'),
+    # path('club/member/book/deposit', views.BookClubMemberBookDepositView.as_view(), name='member-deposit-book'),
+    # path('club/member/book/withdraw', views.BookClubMemberBookWithdrawView.as_view(), name='member-withdraw-book'),
+    # path('club/member/book/return', views.BookClubMemberBookReturnView.as_view(), name='member-return-book'),
     # path('club/member/book/lend', views.BookClubMemberBookLendView.as_view(), name='user-borrow-book'),
 
-    path('club/member/order/create', views.BookClubStaffCreateOrderView.as_view(), name='staff-create-order'),
-    path('club/member/order/extend', views.BookClubStaffExtendOrderView.as_view(), name='staff-extend-order-due-date'),
-    path('club/member/order/confirm', views.StaffConfirmOrderView.as_view(), name='staff-confirm-order'),
+    # path('club/member/order/create', views.BookClubStaffCreateOrderView.as_view(), name='staff-create-order'),
+    # path('club/member/order/extend', views.BookClubStaffExtendOrderView.as_view(), name='staff-extend-order-due-date'),
+    # path('club/member/order/confirm', views.StaffConfirmOrderView.as_view(), name='staff-confirm-order'),
 
-    path('club/book/list', views.BookClubBookListView.as_view(), name='book-club-view-club-books'),
-    path('club/staff/book/list', views.ClubBookListAPIView.as_view(), name='staff-view-all-books'),
+    # path('club/book/list', views.BookClubBookListView.as_view(), name='book-club-view-club-books'),
+    # path('club/staff/book/list', views.ClubBookListAPIView.as_view(), name='staff-view-all-books'),
 
     # membership-order
-    path('membership/order/create', views.MemberShipOrderCreateView.as_view(), name='membership-order-create'),
+    # path('membership/order/create', views.MemberShipOrderCreateView.as_view(), name='membership-order-create'),
 
     # upload file
-    path('upload', views.UploadFileView.as_view(), name='upload-file'),
+    # path('upload', views.UploadFileView.as_view(), name='upload-file'),
 ]
