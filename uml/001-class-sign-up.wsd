@@ -28,7 +28,10 @@ class UserRegisterSerializer {
 }
 
 class UserManager {
+	+ {method} authenticate(username, password): User
 	+ {method} <color:red> register_user(user): void
+	+ {method} get_user_record(*args, **kwargs): User
+	+ {method} update_user_password(user, new_password): void
 }
 
 class UserModel {

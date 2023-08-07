@@ -26,15 +26,17 @@ class UserLoginSerializer {
 
 class UserManager {
 	+ {method} <color:red> authenticate(username, password): User
+	+ {method} register_user(user): void
+	+ {method} get_user_record(*args, **kwargs): User
+	+ {method} update_user_password(user, new_password): void
 }
 
-class UserModel {
-}
+class UserModel
+UserManager *-- UserModel
 
 ReactComponent <|-- UserLoginComponent
 APIView <|-- UserLoginView
 UserLoginComponent ..> UserLoginView
 UserLoginView ..> UserLoginSerializer
 UserLoginView ..> UserManager
-UserManager *-- UserModel
 @enduml
