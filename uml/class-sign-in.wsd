@@ -1,5 +1,7 @@
 @startuml
 skin rose
+skinparam classAttributeIconSize 0
+
 title Sign In Class Diagram
 class ReactComponent
 

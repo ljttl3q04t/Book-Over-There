@@ -20,6 +20,7 @@ deactivate UserLoginSerializer
 activate UserManager
 UserLoginView -> UserManager: authenticate(username, password)
 activate UserModel
+database Database
 activate Database
 UserManager -> UserModel: query(user)
 UserModel -> Database: SELECT query

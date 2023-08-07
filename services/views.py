@@ -118,7 +118,7 @@ class BookClubListAPIView(APIView):
                 d['is_member'] = d['id'] in joined_clubs
             return Response(data, status=status.HTTP_200_OK)
 
-class ResetPasswordView(APIView):
+class PasswordResetView(APIView):
 
     @swagger_auto_schema(request_body=PasswordResetSerializer)
     def post(self, request):
