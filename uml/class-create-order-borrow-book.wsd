@@ -31,15 +31,18 @@ class MemberCreateOrderBorrowBookSerializer {
 
 class OrderManager {
 	+ {method} <color:red> create_new_order(data): Order
+    + {method} <color:red> create_new_order_detail(data): OrderDetail
 }
 
 class OrderModel {
 }
-
+class OrderDetailModel {
+}
 ReactComponent <|-- MemberCreateOrderBorrowBookComponent
 APIView <|-- MemberCreateOrderBorrowBookView
 MemberCreateOrderBorrowBookComponent ..> MemberCreateOrderBorrowBookView
 MemberCreateOrderBorrowBookView ..> MemberCreateOrderBorrowBookSerializer
 MemberCreateOrderBorrowBookView ..> OrderManager
 OrderManager *-- OrderModel
+OrderModel "1" *-- "many" OrderDetailModel : contains
 @enduml
