@@ -1,0 +1,20 @@
+@startuml
+title Search Club Sequence Diagram 
+
+actor Guest 
+
+activate ClubComponent
+Guest -> ClubComponent: Open Club List Screen 
+ClubComponent --> Guest: Render Club List
+
+activate SearchClubComponent
+ClubComponent -> SearchClubComponent: renderSearchClub()
+SearchClubComponent --> Guest: Render Search Club Form
+
+Guest -> SearchClubComponent: Input Club Name to Search
+SearchClubComponent -> SearchClubComponent: handleSearch(value)
+SearchClubComponent --> ClubComponent: Re-render New Club List
+deactivate SearchClubComponent
+ClubComponent --> Guest: Show Clubs After Search
+
+deactivate ClubComponent

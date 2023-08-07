@@ -1,0 +1,20 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+title Search Club Class Diagram
+
+class ReactComponent
+
+class ClubComponent{
+    + props: Object
+    + {method} <color:red> renderSearchClub(): SearchClubComponent
+}
+
+class SearchClubComponent {
+    + props: Object
+    + {method} <color:red> handleSearch(value): Club[]
+}
+
+ReactComponent <|-- ClubComponent
+ClubComponent ..> SearchClubComponent

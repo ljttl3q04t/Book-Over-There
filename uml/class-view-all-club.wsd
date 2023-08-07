@@ -28,7 +28,7 @@ class ClubSerializer{
 }
 
 class ClubManager{
-    + {method} <color: red> get_clubs(): Club[]
+    + {method} <color: red> get_all_clubs(): Club[]
 }
 
 class ClubModel{
