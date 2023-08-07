@@ -1,0 +1,45 @@
+@startuml
+title Sign Up Sequence Diagram
+actor Guest
+activate UserRegisterComponent
+Guest -> UserRegisterComponent: Open Sign Up Screen
+UserRegisterComponent --> Guest: Render Sign Up Form
+Guest -> UserRegisterComponent: Input Sign Up Information
+activate UserRegisterView
+UserRegisterComponent -> UserRegisterView: POST `user/register`
+activate UserRegisterSerializer
+UserRegisterView -> UserRegisterSerializer: is_valid(data)
+alt valid data success
+	UserRegisterSerializer -> UserRegisterView: Return validated_data
+else valid data failed
+   UserRegisterSerializer -> UserRegisterView: Return Error
+   UserRegisterView --> UserRegisterComponent: Response Error Message
+	 UserRegisterComponent -> Guest: Notify Error Message
+end
+deactivate UserRegisterSerializer
+activate UserManager
+UserRegisterView -> UserManager: register_user(user=validated_data)
+activate UserModel
+UserManager -> UserModel: save(user)
+activate Database
+UserModel -> Database: INSERT Query
+alt success case
+    Database -> UserModel: success
+	UserModel -> UserManager: success
+	UserManager -> UserRegisterView: success
+	UserRegisterView --> UserRegisterComponent: Response Success
+	UserRegisterComponent -> Guest: Notify Register Success
+	UserRegisterComponent -> Guest: Redirect to SignUp Screen
+else failed case
+	Database -> UserModel: Return Error
+    UserModel -> UserManager: Return Error
+	UserManager -> UserRegisterView: Return Error
+	UserRegisterView --> UserRegisterComponent: Response Error Message
+	UserRegisterComponent -> Guest: Notify Error Message
+end
+deactivate Database
+deactivate UserModel
+deactivate UserManager
+deactivate UserRegisterView
+deactivate UserRegisterComponent
+@enduml

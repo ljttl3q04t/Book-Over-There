@@ -1,0 +1,43 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+title Sign Up Class Diagram
+class ReactComponent
+
+class UserRegisterComponent {
+	+ props: Object
+	+ {method} <color:red> handleRegister(data: Object): void
+}
+
+class UserRegisterView {
+	+ serializer: UserRegisterSerializer
+}
+
+class APIView {
+	+ {method} <color:red> post(self, request)
+}
+
+class UserRegisterSerializer {
+	+ username: string
+	+ password: string
+	+ phone_number: string
+	+ email: string
+	+ full_name: string
+	+ {method} <color:red> is_valid(): boolean
+}
+
+class UserManager {
+	+ {method} <color:red> register_user(user): void
+}
+
+class UserModel {
+}
+
+ReactComponent <|-- UserRegisterComponent
+APIView <|-- UserRegisterView
+UserRegisterComponent ..> UserRegisterView
+UserRegisterView ..> UserRegisterSerializer
+UserRegisterView ..> UserManager
+UserManager *-- UserModel
+@enduml
