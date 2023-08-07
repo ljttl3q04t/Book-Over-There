@@ -1,0 +1,45 @@
+@startuml
+title Sign In Sequence Diagram
+actor RegisterUser
+activate UserLoginComponent
+RegisterUser -> UserLoginComponent: Open Sign In Screen
+UserLoginComponent --> RegisterUser: Render Sign In Form
+RegisterUser -> UserLoginComponent: Input Username and Password
+activate UserLoginView
+UserLoginComponent -> UserLoginView: POST `user/register`
+activate UserLoginSerializer
+UserLoginView -> UserLoginSerializer: is_valid(data)
+alt valid data success
+	UserLoginSerializer -> UserLoginView: Return validated_data
+else valid data failed
+   UserLoginSerializer -> UserLoginView: Return Error
+   UserLoginView --> UserLoginComponent: Response Error Message
+	 UserLoginComponent -> RegisterUser: Notify Error Message
+end
+deactivate UserLoginSerializer
+activate UserManager
+UserLoginView -> UserManager: authenticate(username, password)
+activate UserModel
+database Database
+activate Database
+UserManager -> UserModel: query(user)
+UserModel -> Database: SELECT query
+alt success case
+    Database -> UserModel: success 
+	UserModel -> UserManager: success
+	UserManager -> UserLoginView: success
+	UserLoginView --> UserLoginComponent: Response Success
+	UserLoginComponent -> RegisterUser: Notify Register Success
+	UserLoginComponent -> RegisterUser: Redirect to SignUp Screen
+else failed case
+	Database -> UserModel: Return Error
+	UserModel -> UserManager: Return Error
+	UserManager -> UserLoginView: Return Error
+	UserLoginView --> UserLoginComponent: Response Error Message
+	UserLoginComponent -> RegisterUser: Notify Error Message
+end
+deactivate UserModel
+deactivate UserManager
+deactivate UserLoginView
+deactivate UserLoginComponent
+@enduml

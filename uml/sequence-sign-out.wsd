@@ -1,0 +1,15 @@
+@startuml
+title Sign Out Sequence Diagram
+
+actor RegisterUser
+
+activate UserLogOutComponent
+RegisterUser -> UserLogOutComponent: logout()
+
+activate BrowserLocalStorage
+UserLogOutComponent -> BrowserLocalStorage: removeItem(key: string)
+BrowserLocalStorage --> UserLogOutComponent: success
+deactivate BrowserLocalStorage
+UserLogOutComponent --> RegisterUser: Redirect to HomePage Screen
+deactivate UserLogOutComponent
+@enduml

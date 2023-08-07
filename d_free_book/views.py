@@ -107,7 +107,7 @@ class ClubBookUpdateView(APIView):
         else:
             return Response({'error': 'Update Book failed'}, status=status.HTTP_400_BAD_REQUEST)
 
-class StaffGetOrderIdsView(APIView):
+class OrderGetIdsView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)
 
     @swagger_auto_schema(request_body=GetOrderIdsSerializer)
@@ -145,7 +145,7 @@ class OrderInfosView(APIView):
         order_infos = manager.get_order_infos(serializer.data['order_ids'])
         return Response({'order_infos': order_infos.values()}, status=status.HTTP_200_OK)
 
-class GetDraftOrderIdsView(APIView):
+class DraftOrderGetIdsView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)
 
     def post(self, request):
@@ -153,7 +153,7 @@ class GetDraftOrderIdsView(APIView):
         draft_order_ids = manager.get_draft_order_records(club_ids=club_ids).pk_list()
         return Response({'draft_order_ids': draft_order_ids}, status=status.HTTP_200_OK)
 
-class GetDraftOrderInfosView(APIView):
+class DraftOrderGetInfosView(APIView):
     permission_classes = (IsAuthenticated,)
 
     @swagger_auto_schema(request_body=GetDraftOrderInfosSerializer)
@@ -180,7 +180,7 @@ class OrderCreateView(APIView):
         manager.create_new_order(serializer.data)
         return Response({'message': 'Create order successfully'}, status=status.HTTP_200_OK)
 
-class DraftOrderCreateOnlineView(APIView):
+class DraftOrderCreateView(APIView):
     permission_classes = (IsAuthenticated,)
 
     @swagger_auto_schema(request_body=DraftOrderCreateSerializer)
@@ -191,7 +191,7 @@ class DraftOrderCreateOnlineView(APIView):
         manager.create_new_draft_order(serializer.data)
         return Response({'message': 'Create draft order successfully'}, status=status.HTTP_200_OK)
 
-class DraftOrderUpdateOnlineView(APIView):
+class DraftOrderUpdateView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)
 
     @swagger_auto_schema(request_body=DraftOrderUpdateSerializer)

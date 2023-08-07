@@ -1,0 +1,23 @@
+@startuml
+title Search Club Sequence Diagram 
+
+actor Guest 
+
+activate ClubComponent
+Guest -> ClubComponent: Open club list screen 
+
+activate ClubListView
+ClubComponent -> ClubListView: search club by name 
+
+activate ClubSerializer
+ClubListView -> ClubSerializer: get club: club
+
+activate ClubManager
+ClubSerializer -> ClubManager: 
+
+activate ClubModel
+
+activate Database 
+
+
+
