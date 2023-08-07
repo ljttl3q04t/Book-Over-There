@@ -1,0 +1,43 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+title View Club Detail Class Diagram
+
+class ReactComponent
+
+class ClubDetailComponent{
+    + props: Object
+    + {method} <color:red> handleViewClubDetail(data: Object): void
+}
+
+class ClubDetailView{
+    + serializer: ClubDetailSerializer
+}
+
+class APIView {
+    + {method} <color:red> post(self, request)
+}
+
+class ClubDetailSerializer {
+    + name: String 
+    + description: Text  
+    + address: Text
+    + created_at: DateTime
+    + code:  String
+}
+
+class ClubManager{
+    + {method} <color: red> get_club: club 
+}
+
+class ClubModel{
+}
+
+ReactComponent <|-- ClubDetailComponent
+APIView <|-- ClubDetailView
+ClubDetailComponent ..> ClubDetailView
+ClubDetailView ..> ClubDetailSerializer
+ClubDetailView ..> ClubManager
+ClubManager *-- ClubModel
+@enduml

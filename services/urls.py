@@ -48,7 +48,7 @@ urlpatterns = [
     # path('bookcopies/<int:pk>/', views.BookCopyUpdateView.as_view(), name='bookcopy-update'),
 
     # club
-    # path('club/list/', views.BookClubListAPIView.as_view(), name='book-club-list'),
+    path('club/list/', views.BookClubListAPIView.as_view(), name='book-club-list'),
     # path('club/request-join', views.BookClubRequestJoinView.as_view(), name='book-club-request-join'),
     # path('club/member/list', views.BookClubMemberView.as_view(), name='view-book-club-member'),
     # path('club/member/update', views.BookClubMemberUpdateView.as_view(), name='update-book-club-member'),
