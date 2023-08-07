@@ -2,31 +2,32 @@
 skin rose
 skinparam classAttributeIconSize 0
 
-title View list order borrow book Class Diagram
+title View List Orders Class Diagram
 class ReactComponent
 
-class StaffViewListOrderBorrowComponent {
+class StaffViewOrderListComponent {
 	+ props: Object
 	+ {method} <color:red> handleViewListOrderBorrow(data: Object): void
 }
 
-class StaffViewListOrderBorrowView {
-	+ serializer: StaffViewListOrderBorrowSerializer
+class OrderGetIdsView {
+	+ serializer: GetOrderIdsSerializer
 }
 
-class StaffViewListOrderBorrowIdsView {
-	+ serializer: StaffViewListOrderBorrowSerializer
+class GetOrderInfosView {
+	+ serializer: GetOrderIdsSerializer
 }
 
 class APIView {
 	+ {method} <color:red> post(self, request)
 }
 
-class StaffViewListOrderBorrowSerializer {
+class GetOrderInfosSerializer {
 	+  order_ids: list
 	+ {method} <color:red> is_valid(): boolean
 }
-class StaffViewListOrderBorrowIdsSerializer {
+
+class GetOrderIdsSerializer {
 	+  club_id: interger
 	+  from_date: date
 	+  to_date: date
@@ -37,7 +38,7 @@ class StaffViewListOrderBorrowIdsSerializer {
 	+ {method} <color:red> is_valid(): boolean
 }
 class OrderManager {
-	+ {method} <color:red> get_order_infos(order_ids): Order
+	+ {method} <color:red> get_order_infos(order_ids): List Order
 	+ {method} <color:red> get_order_ids(data): List integer
 }
 
@@ -46,15 +47,15 @@ class OrderModel {
 class OrderDetailModel {
 }
 
-ReactComponent <|-- StaffViewListOrderBorrowComponent
-APIView <|-- StaffViewListOrderBorrowView
-APIView <|-- StaffViewListOrderBorrowIdsView
-StaffViewListOrderBorrowComponent ..> StaffViewListOrderBorrowView
-StaffViewListOrderBorrowComponent ..> StaffViewListOrderBorrowIdsView
-StaffViewListOrderBorrowIdsView ..> StaffViewListOrderBorrowIdsSerializer
-StaffViewListOrderBorrowIdsView ..> OrderManager
-StaffViewListOrderBorrowView ..> StaffViewListOrderBorrowSerializer
-StaffViewListOrderBorrowView ..> OrderManager
+ReactComponent <|-- StaffViewOrderListComponent
+APIView <|-- OrderGetIdsView
+APIView <|-- GetOrderInfosView
+StaffViewOrderListComponent ..> OrderGetIdsView
+StaffViewOrderListComponent ..> GetOrderInfosView
+GetOrderInfosView ..> GetOrderInfosSerializer
+GetOrderInfosView ..> OrderManager
+OrderGetIdsView ..> GetOrderIdsSerializer
+OrderGetIdsView ..> OrderManager
 OrderManager *-- OrderModel
 OrderModel "1" *-- "many" OrderDetailModel : contains
 @enduml
