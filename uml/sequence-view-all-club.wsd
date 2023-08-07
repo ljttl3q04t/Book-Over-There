@@ -1,0 +1,34 @@
+@startuml
+title View All Clubs Sequence Diagram
+
+actor Guest
+
+activate ClubComponent
+Guest -> ClubComponent: Open Club List Screen
+
+activate ClubListView
+ClubComponent -> ClubListView: POST `club/list`
+
+activate ClubManager
+ClubListView -> ClubManager: get_all_clubs()
+
+activate ClubModel
+ClubManager -> ClubModel: query_clubs()
+database Database
+activate Database
+ClubModel -> Database: SELECT Query
+Database -> ClubModel: Return data
+deactivate Database
+ClubModel -> ClubManager: Return Clubs
+deactivate ClubModel
+ClubManager -> ClubListView: Return Clubs
+deactivate ClubManager
+activate ClubSerializer
+ClubListView -> ClubSerializer: to_representation(instance=clubs, many=True)
+ClubSerializer -> ClubListView: Return reponse_data
+deactivate ClubSerializer
+ClubListView --> ClubComponent: Return All Clubs Data
+deactivate ClubListView
+ClubComponent --> Guest: Show Clubs Information
+deactivate ClubComponent
+@enduml

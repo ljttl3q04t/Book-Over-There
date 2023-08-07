@@ -12,6 +12,7 @@ class ClubComponent{
 
 class ClubListView{
     + serializer: BookClubSerializer
+    + clubs: Club[]
 }
 
 class APIView{
@@ -25,6 +26,7 @@ class ClubSerializer{
     + address: Text
     + created_at: DateTime
     + code:  String
+    + {method} <color:red> to_representation(self, instance)
 }
 
 class ClubManager{
