@@ -1,0 +1,60 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+title View list order borrow book Class Diagram
+class ReactComponent
+
+class StaffViewListOrderBorrowComponent {
+	+ props: Object
+	+ {method} <color:red> handleViewListOrderBorrow(data: Object): void
+}
+
+class StaffViewListOrderBorrowView {
+	+ serializer: StaffViewListOrderBorrowSerializer
+}
+
+class StaffViewListOrderBorrowIdsView {
+	+ serializer: StaffViewListOrderBorrowSerializer
+}
+
+class APIView {
+	+ {method} <color:red> post(self, request)
+}
+
+class StaffViewListOrderBorrowSerializer {
+	+  order_ids: list
+	+ {method} <color:red> is_valid(): boolean
+}
+class StaffViewListOrderBorrowIdsSerializer {
+	+  club_id: interger
+	+  from_date: date
+	+  to_date: date
+	+  order_date: date
+	+  order_status: integer
+	+  order_month: date
+	+  Staff: integer
+	+ {method} <color:red> is_valid(): boolean
+}
+class OrderManager {
+	+ {method} <color:red> get_order_infos(order_ids): Order
+	+ {method} <color:red> get_order_ids(data): List integer
+}
+
+class OrderModel {
+}
+class OrderDetailModel {
+}
+
+ReactComponent <|-- StaffViewListOrderBorrowComponent
+APIView <|-- StaffViewListOrderBorrowView
+APIView <|-- StaffViewListOrderBorrowIdsView
+StaffViewListOrderBorrowComponent ..> StaffViewListOrderBorrowView
+StaffViewListOrderBorrowComponent ..> StaffViewListOrderBorrowIdsView
+StaffViewListOrderBorrowIdsView ..> StaffViewListOrderBorrowIdsSerializer
+StaffViewListOrderBorrowIdsView ..> OrderManager
+StaffViewListOrderBorrowView ..> StaffViewListOrderBorrowSerializer
+StaffViewListOrderBorrowView ..> OrderManager
+OrderManager *-- OrderModel
+OrderModel "1" *-- "many" OrderDetailModel : contains
+@enduml

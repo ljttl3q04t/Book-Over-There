@@ -1,0 +1,41 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+title Filter Order By Status Class Diagram
+class ReactComponent
+
+class FilterOrderByStatusComponent {
+	+ props: Object
+	+ {method} <color:red> handleFilterOrderByStatus(data: Object): void
+}
+
+class FilterOrderByStatusView {
+	+ serializer: FilterOrderByStatusSerializer
+}
+
+class APIView {
+	+ {method} <color:red> post(self, request)
+}
+
+class FilterOrderByStatusSerializer {
+	+  status: integer
+	+ {method} <color:red> is_valid(): boolean
+}
+
+class OrderManager {
+	+ {method} <color:red> get_order_records(status): listOrder
+}
+
+class OrderModel {
+}
+class OrderDetailModel {
+}
+ReactComponent <|-- FilterOrderByStatusComponent
+APIView <|-- FilterOrderByStatusView
+FilterOrderByStatusComponent ..> FilterOrderByStatusView
+FilterOrderByStatusView ..> FilterOrderByStatusSerializer
+FilterOrderByStatusView ..> OrderManager
+OrderManager *-- OrderModel
+OrderModel "1" *-- "many" OrderDetailModel : contains
+@enduml

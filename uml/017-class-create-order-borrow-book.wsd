@@ -1,0 +1,48 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+title Create order borrow book Class Diagram
+class ReactComponent
+
+class MemberCreateOrderBorrowBookComponent {
+	+ props: Object
+	+ {method} <color:red> handleCreateOrderBorrowBook(data: Object): void
+}
+
+class MemberCreateOrderBorrowBookView {
+	+ serializer: MemberCreateOrderBorrowBookSerializer
+}
+
+class APIView {
+	+ {method} <color:red> post(self, request)
+}
+
+class MemberCreateOrderBorrowBookSerializer {
+	+  member_id: integer
+    +  order_date: date
+    +  due_date: date
+    +  club_id: integer
+    +  note: string
+    +  club_book_ids: ListInteger
+    +  creator_order_id: integer
+	+ {method} <color:red> is_valid(): boolean
+}
+
+class OrderManager {
+	+ {method} <color:red> create_new_order(data): Order
+    + {method} <color:red> create_new_order_detail(data): OrderDetail
+}
+
+class OrderModel {
+}
+class OrderDetailModel {
+}
+ReactComponent <|-- MemberCreateOrderBorrowBookComponent
+APIView <|-- MemberCreateOrderBorrowBookView
+MemberCreateOrderBorrowBookComponent ..> MemberCreateOrderBorrowBookView
+MemberCreateOrderBorrowBookView ..> MemberCreateOrderBorrowBookSerializer
+MemberCreateOrderBorrowBookView ..> OrderManager
+OrderManager *-- OrderModel
+OrderModel "1" *-- "many" OrderDetailModel : contains
+@enduml

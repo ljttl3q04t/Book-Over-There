@@ -1,0 +1,60 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+title View list order borrow book Class Diagram
+class ReactComponent
+
+class MemberViewListOrderBorrowComponent {
+	+ props: Object
+	+ {method} <color:red> handleViewListOrderBorrow(data: Object): void
+}
+
+class MemberViewListOrderBorrowView {
+	+ serializer: MemberViewListOrderBorrowSerializer
+}
+
+class MemberViewListOrderBorrowIdsView {
+	+ serializer: MemberViewListOrderBorrowSerializer
+}
+
+class APIView {
+	+ {method} <color:red> post(self, request)
+}
+
+class MemberViewListOrderBorrowSerializer {
+	+  order_ids: list
+	+ {method} <color:red> is_valid(): boolean
+}
+class MemberViewListOrderBorrowIdsSerializer {
+	+  club_id: interger
+	+  from_date: date
+	+  to_date: date
+	+  order_date: date
+	+  order_status: integer
+	+  order_month: date
+	+  member: integer
+	+ {method} <color:red> is_valid(): boolean
+}
+class OrderManager {
+	+ {method} <color:red> get_order_infos(order_ids): Order
+	+ {method} <color:red> get_order_ids(data): List integer
+}
+
+class OrderModel {
+}
+class OrderDetailModel {
+}
+
+ReactComponent <|-- MemberViewListOrderBorrowComponent
+APIView <|-- MemberViewListOrderBorrowView
+APIView <|-- MemberViewListOrderBorrowIdsView
+MemberViewListOrderBorrowComponent ..> MemberViewListOrderBorrowView
+MemberViewListOrderBorrowComponent ..> MemberViewListOrderBorrowIdsView
+MemberViewListOrderBorrowIdsView ..> MemberViewListOrderBorrowIdsSerializer
+MemberViewListOrderBorrowIdsView ..> OrderManager
+MemberViewListOrderBorrowView ..> MemberViewListOrderBorrowSerializer
+MemberViewListOrderBorrowView ..> OrderManager
+OrderManager *-- OrderModel
+OrderModel "1" *-- "many" OrderDetailModel : contains
+@enduml

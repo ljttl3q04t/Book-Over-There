@@ -1,0 +1,47 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+title Create Search Order By Member Class Diagram
+class ReactComponent
+
+class SearchOrderByMemberComponent {
+	+ props: Object
+	+ {method} <color:red> handleSearchOrderByMember(data: Object): void
+}
+
+class SearchOrderByMemberView {
+	+ serializer: SearchOrderByMemberSerializer
+}
+
+class APIView {
+	+ {method} <color:red> post(self, request)
+}
+
+class SearchOrderByMemberSerializer {
+	+  member_id: integer
+    +  order_date: date
+    +  due_date: date
+    +  club_id: integer
+    +  note: string
+    +  club_book_ids: ListInteger
+    +  creator_order_id: integer
+	+ {method} <color:red> is_valid(): boolean
+}
+
+class OrderManager {
+	+ {method} <color:red> get_order_records(data): listOrder
+}
+
+class OrderModel {
+}
+class OrderDetailModel {
+}
+ReactComponent <|-- SearchOrderByMemberComponent
+APIView <|-- SearchOrderByMemberView
+SearchOrderByMemberComponent ..> SearchOrderByMemberView
+SearchOrderByMemberView ..> SearchOrderByMemberSerializer
+SearchOrderByMemberView ..> OrderManager
+OrderManager *-- OrderModel
+OrderModel "1" *-- "many" OrderDetailModel : contains
+@enduml

@@ -1,0 +1,41 @@
+@startumlMember
+skin rose
+skinparam classAttributeIconSize 0
+
+title Filter Order By Month Class Diagram
+class ReactComponent
+
+class FilterOrderByMonthComponent {
+	+ props: Object
+	+ {method} <color:red> handleFilterOrderByMonth(data: Object): void
+}
+
+class FilterOrderByMonthView {
+	+ serializer: FilterOrderByMonthSerializer
+}
+
+class APIView {
+	+ {method} <color:red> post(self, request)
+}
+
+class FilterOrderByMonthSerializer {
+	+  month: date
+	+ {method} <color:red> is_valid(): boolean
+}
+
+class OrderManager {
+	+ {method} <color:red> get_order_records(month): listOrder
+}
+
+class OrderModel {
+}
+class OrderDetailModel {
+}
+ReactComponent <|-- FilterOrderByMonthComponent
+APIView <|-- FilterOrderByMonthView
+FilterOrderByMonthComponent ..> FilterOrderByMonthView
+FilterOrderByMonthView ..> FilterOrderByMonthSerializer
+FilterOrderByMonthView ..> OrderManager
+OrderManager *-- OrderModel
+OrderModel "1" *-- "many" OrderDetailModel : contains
+@enduml
