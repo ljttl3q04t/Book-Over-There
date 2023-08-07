@@ -1,0 +1,39 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+title View list order borrow book Class Diagram
+class ReactComponent
+
+class MemberViewListOrderBorrowComponent {
+	+ props: Object
+	+ {method} <color:red> handleViewListOrderBorrow(data: Object): void
+}
+
+class MemberViewListOrderBorrowView {
+	+ serializer: MemberViewListOrderBorrowSerializer
+}
+
+class APIView {
+	+ {method} <color:red> post(self, request)
+}
+
+class MemberViewListOrderBorrowSerializer {
+	+  order_ids: list
+	+ {method} <color:red> is_valid(): boolean
+}
+
+class OrderManager {
+	+ {method} <color:red> get_order_infos(order_ids): Order
+}
+
+class OrderModel {
+}
+
+ReactComponent <|-- MemberViewListOrderBorrowComponent
+APIView <|-- MemberViewListOrderBorrowView
+MemberViewListOrderBorrowComponent ..> MemberViewListOrderBorrowView
+MemberViewListOrderBorrowView ..> MemberViewListOrderBorrowSerializer
+MemberViewListOrderBorrowView ..> OrderManager
+OrderManager *-- OrderModel
+@enduml
