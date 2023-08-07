@@ -1,0 +1,43 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+title Search Book In The Club Class Diagram
+class ReactComponent
+
+class SearchBookComponent {
+	+ props: Object
+	+ {method} <color:red> handleSearchBook(data: Object): void
+}
+
+class ClubBookGetInfosView {
+	+ serializer: ClubBookGetInfosSerializer
+}
+
+class APIView {
+	+ {method} <color:red> post(self, request)
+}
+
+class ClubBookGetIdsSerializer {
+    - club_id: integer
+    - club_ids: integer
+    - book_name: string
+    - book_category_ids: ListInteger 
+    - book_author_ids: ListInteger
+}
+
+
+class BookManager {
+	+ {method} <color:red> : get_club_book_info(club_book_ids): listBook
+}
+
+class BookModel {
+}
+
+ReactComponent <|-- BookClubListComponent
+APIView <|-- ClubBookGetInfosView
+BookClubListComponent ..> ClubBookGetInfosView
+ClubBookGetInfosView ..> ClubBookGetIdsSerializer
+ClubBookGetInfosView ..> BookManager
+BookManager *-- BookModel
+@enduml

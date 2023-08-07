@@ -1,0 +1,22 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+title Sign Up Class Diagram
+class ReactComponent
+
+class UserRegisterComponent {
+	+ props: Object
+	+ {method} <color:red> handleRegister(data: Object): void
+}
+
+class UserRegisterView {
+	+ serializer: UserRegisterSerializer
+}
+
+class APIView {
+	+ {method} <color:red> post(self, request)
+}
+
+
+@enduml

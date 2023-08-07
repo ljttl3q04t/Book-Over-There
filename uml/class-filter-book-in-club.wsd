@@ -2,7 +2,7 @@
 skin rose
 skinparam classAttributeIconSize 0
 
-title Search Book In The Club Class Diagram
+title FIlter Book In The Club Class Diagram
 class ReactComponent
 
 class BookClubListComponent {
@@ -12,7 +12,7 @@ class BookClubListComponent {
 
 class ClubBookListAPIView {
 	+ serializer: BookSerializer
-    + name: string
+    + category_name: string
 }
 
 class APIView {
@@ -33,7 +33,7 @@ class BookFilter {
 }
 
 class BookManager {
-	+ {method} <color:red> register_user(user): void
+	+ {method} <color:red> : get_club_book_info(club_book_ids): book
 }
 
 class BookModel {

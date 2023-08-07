@@ -1,0 +1,40 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+title Filter Orders By Phone Number Class Diagram
+class ReactComponent
+
+class FilterOrdersByPhoneNumberComponent {
+	+ props: Object
+	+ {method} <color:red> handleFilterOrdersByPhoneNumber(data: Object): void
+}
+
+class OrderInfosView {
+	+ serializer: GetOrderInfosSerializer
+}
+
+class APIView {
+	+ {method} <color:red> post(self, request)
+}
+
+class GetOrderInfosSerializer {
+    - order_ids: ListInteger
+}
+
+
+class OrderManager {
+	+ {method} <color:red> : get_order_infos(order_ids): listOrder
+}
+
+class OrderModel 
+class OrderDetaiModel
+
+ReactComponent <|-- FilterOrdersByPhoneNumberComponent
+APIView <|-- OrderInfosView
+FilterOrdersByPhoneNumberComponent ..> OrderInfosView
+OrderInfosView ..> GetOrderInfosSerializer
+OrderInfosView ..> OrderManager
+OrderManager *-- OrderModel
+OrderDetaiModel "many" --* "1"OrderModel :contain
+@enduml

@@ -1,0 +1,50 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+title Create New Order For New Member Class Diagram
+class ReactComponent
+
+class CreateNewOrderForNewMemberComponent {
+	+ props: Object
+	+ {method} <color:red> handleCreateNewOrderForNewMember(data: Object): void
+}
+
+class OrderCreateNewMemberView {
+	+ serializer: OrderCreateNewMemberSerializer
+}
+
+class APIView {
+	+ {method} <color:red> post(self, request)
+}
+
+class OrderCreateNewMemberSerializer {
+    - member_id: ListInteger
+	- order_date: datetime `
+}
+
+class MembershipManager {
+	+ {method} <color:red> : get_membership_records(user, is_staff, membership_id, club_id): club_ids
+	+ {method} <color:red> : validate_member(club_id, code, phone_number, club_ids): boolean, error
+}
+
+class OrderManager {
+	+ {method} <color:red> : create_new_order_by_new_member(data): order
+}
+
+class OrderModel 
+class OrderDetaiModel
+class MemberModel
+class MemberDetailModel
+
+ReactComponent <|-- CreateNewOrderForNewMemberComponent
+APIView <|-- OrderCreateNewMemberView
+CreateNewOrderForNewMemberComponent ..> OrderCreateNewMemberView
+OrderCreateNewMemberView ..> OrderCreateNewMemberSerializer
+OrderCreateNewMemberView ..> OrderManager
+OrderCreateNewMemberView ..> MembershipManager
+OrderManager *-- OrderModel
+MembershipManager *-- MemberModel
+OrderDetaiModel "many" --* "1"OrderModel :contain
+MemberDetailModel "many" --* "1"MemberModel :contain
+@enduml

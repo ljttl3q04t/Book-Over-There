@@ -1,0 +1,42 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+title Approve Pending Order Class Diagram
+class ReactComponent
+
+class ApprovePendingOrderComponent {
+	+ props: Object
+	+ {method} <color:red> handleApprovePendingOrder(data: Object): void
+}
+
+class ApprovePendingOrderView {
+	+ serializer: ApprovePendingOrderSerializer
+}
+
+class APIView {
+	+ {method} <color:red> post(self, request)
+}
+
+class ApprovePendingOrderSerializer {
+    - order_id: integer
+	- order_date: datetime
+}
+
+
+
+class OrderManager {
+	+ {method} <color:red> : approve_online_order(order_id): order
+}
+
+class OrderModel 
+class OrderDetaiModel
+
+ReactComponent <|-- ApprovePendingOrderComponent
+APIView <|-- ApprovePendingOrderView
+ApprovePendingOrderComponent ..> ApprovePendingOrderView
+ApprovePendingOrderView ..> ApprovePendingOrderSerializer
+ApprovePendingOrderView ..> OrderManager
+OrderManager *-- OrderModel
+OrderDetaiModel "many" --* "1"OrderModel :contain
+@enduml

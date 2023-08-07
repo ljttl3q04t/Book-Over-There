@@ -1,0 +1,41 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+title Create New Order For Old Member Class Diagram
+class ReactComponent
+
+class CreateNewOrderForOldMemberComponent {
+	+ props: Object
+	+ {method} <color:red> handleCreateNewOrderForOldMember(data: Object): void
+}
+
+class OrderCreateView {
+	+ serializer: OrderCreateSerializer
+}
+
+class APIView {
+	+ {method} <color:red> post(self, request)
+}
+
+class OrderCreateSerializer {
+    - member_id: ListInteger
+	- order_date: datetime `
+}
+
+
+class OrderManager {
+	+ {method} <color:red> : get_order_infos(order_ids): listOrder
+}
+
+class OrderModel 
+class OrderDetaiModel
+
+ReactComponent <|-- CreateNewOrderForOldMemberComponent
+APIView <|-- OrderCreateView
+CreateNewOrderForOldMemberComponent ..> OrderCreateView
+OrderCreateView ..> OrderCreateSerializer
+OrderCreateView ..> OrderManager
+OrderManager *-- OrderModel
+OrderDetaiModel "many" --* "1"OrderModel :contain
+@enduml
