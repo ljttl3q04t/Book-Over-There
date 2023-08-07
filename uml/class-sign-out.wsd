@@ -1,0 +1,19 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+title Sign Out Class Diagram
+class ReactComponent
+
+class UserLogOutComponent {
+	+ props: Object
+	+ {method} <color:red> logout(): void
+}
+
+class BrowserLocalStorage {
+    + {method} <color:red> removeItem(key: string): void
+}
+
+ReactComponent <|-- UserLogOutComponent
+UserLogOutComponent ..> BrowserLocalStorage
+@enduml

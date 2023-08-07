@@ -21,6 +21,7 @@ activate UserManager
 UserRegisterView -> UserManager: register_user(user=validated_data)
 activate UserModel
 UserManager -> UserModel: save(user)
+database Database
 activate Database
 UserModel -> Database: INSERT Query
 alt success case
