@@ -1,0 +1,55 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+title View All Book Class Diagram
+class ReactComponent
+
+class BookClubListComponent {
+    + props: Object
+	+ {method} <color:red> get_club_book_list(club_book_ids): book
+}
+
+class BookClubBookListView {
+	+ serializer: BookSerializer
+}
+
+class APIView {
+	+ {method} <color:red> post(self, request)
+}
+
+class BookSerializer {
+    - name: string
+    - category: string
+    - author: string
+    - publisher:string 
+    - image_url:string
+}
+
+class CategorySerializer {
+	- id: integer
+	- name: string
+}
+
+class AuthorSerializer {
+	- id: integer
+	- name: string
+}
+
+
+class BookManager{
+    + {method} <color:red> : get_club_book_info(club_book_ids): book
+}
+
+class BookModel {
+
+}
+ReactComponent <|-- BookClubListComponent
+BookClubListComponent ..> BookClubBookListView
+APIView <|-- BookClubBookListView
+BookSerializer <.. BookClubBookListView
+BookManager <.. BookClubBookListView
+BookManager *.. BookModel
+CategorySerializer <.. BookSerializer
+AuthorSerializer <.. BookSerializer
+@enduml
