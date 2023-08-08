@@ -1,0 +1,42 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+title Search Order Borrow Book Class Diagram
+class ReactComponent
+
+class SearchOrderBorrowBookComponent {
+	+ props: Object
+	+ {method} <color:red> handleSearchOrderBorrowBook(data: Object): void
+}
+
+class OrderGetIdsView {
+	+ serializer: GetOrderIdsSerializer
+}
+
+class APIView {
+	+ {method} <color:red> post(self, request)
+}
+class OrderDetailSerializer {
+	+ id: bigint
+    + return_date: datetime
+    + overdue_day_count: int
+	+ order_id: bigint
+	+ club_book_id: bigint
+	+ note: string
+	+ order_status: string
+	
+}
+class OrderManager{
+    + {method} <color:red> get_order_detail_records(order_ids, order_status): OrderDetail
+}
+class OrderDetailModel{
+
+}
+ReactComponent <|-- SearchOrderBorrowBookComponent
+APIView <|-- OrderGetIdsView
+SearchOrderBorrowBookComponent ..> OrderGetIdsView
+OrderGetIdsView ..> OrderDetailSerializer
+OrderGetIdsView ..> OrderManager
+OrderManager *-- OrderDetailModel
+@enduml

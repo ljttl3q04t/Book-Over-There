@@ -1,0 +1,59 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+title View List Member Class Diagram
+class ReactComponent
+
+class ViewListMemberComponent {
+	+ props: Object
+	+ {method} <color:red> handleViewListMember(data: Object): void
+}
+
+class ViewListMemberView {
+	+ serializer: ViewListMemberSerializer
+}
+
+class MemberViewListMemberIdsView {
+	+ serializer: ViewListMemberSerializer
+}
+
+class APIView {
+	+ {method} <color:red> post(self, request)
+}
+
+class ViewListMemberSerializer {
+	+  order_ids: list
+	+ {method} <color:red> is_valid(): boolean
+}
+class ViewListMemberIdsSerializer {
+	+ user_id: bigint
+    + book_clubs: bigint
+    + full_name: string
+    + birth_date: datetime 
+    + email: string
+    + phone_number: string
+    + address: string
+	+ {method} <color:red> is_valid(): boolean
+}
+class MemberManager {
+	+ {method} <color:red> get_member_infos(order_ids): Member
+	+ {method} <color:red> get_member_ids(data): List integer
+}
+
+class MemberModel {
+}
+
+
+ReactComponent <|-- ViewListMemberComponent
+APIView <|-- ViewListMemberView
+APIView <|-- MemberViewListMemberIdsView
+ViewListMemberComponent ..> ViewListMemberView
+ViewListMemberComponent ..> MemberViewListMemberIdsView
+MemberViewListMemberIdsView ..> ViewListMemberIdsSerializer
+MemberViewListMemberIdsView ..> MemberManager
+ViewListMemberView ..> ViewListMemberSerializer
+ViewListMemberView ..> MemberManager
+MemberManager *-- MemberModel
+
+@enduml

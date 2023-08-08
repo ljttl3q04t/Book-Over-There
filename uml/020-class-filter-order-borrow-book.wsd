@@ -1,0 +1,44 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+title Filter Order Borrow Book Class Diagram
+class ReactComponent
+
+class FilterOrderBorrowBookComponent {
+	+ props: Object
+	+ {method} <color:red> handleFilterOrderByMember(data: Object): void
+}
+
+class DraftOrderGetInfosView {
+	+ serializer: GetDraftOrderInfosSerializer
+}
+
+class APIView {
+	+ {method} <color:red> post(self, request)
+}
+class GetDraftOrderInfosSerializer {
+    + id: bigint
+    + full_name: string
+    + phone_number: string
+    + address: string
+    + order_date: datetime
+    + due_date: datetime 
+    + club_id: bigint
+    + user_id: bigint
+    + club_book_ids: bigint
+    + draft_status: string
+}
+class OrderManager{
+    + {method} <color:red> get_draft_order_infos(draft_order_ids): draft_order
+}
+class DraftOrderModel{
+
+}
+ReactComponent <|-- FilterOrderBorrowBookComponent
+APIView <|-- DraftOrderGetInfosView
+FilterOrderBorrowBookComponent ..> DraftOrderGetInfosView
+DraftOrderGetInfosView ..> GetDraftOrderInfosSerializer
+DraftOrderGetInfosView ..> OrderManager
+OrderManager *-- DraftOrderModel
+@enduml

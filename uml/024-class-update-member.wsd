@@ -1,0 +1,48 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+title Update Member Class Diagram
+class ReactComponent
+
+class MemberUpdateComponent {
+	+ props: Object
+	+ {method} <color:red> handleMemberUpdate(data: Object): void
+}
+
+class MemberUpdateView {
+	+ serializer: MemberUpdateSerializer
+}
+
+class APIView {
+	+ {method} <color:red> post(self, request)
+}
+
+class MemberUpdateSerializer {
+	+ user_id: bigint
+    + book_clubs: bigint
+    + full_name: string
+    + birth_date: datetime 
+    + email: string
+    + phone_number: string
+    + address: string
+	+ {method} <color:red> is_valid(): boolean
+}
+
+class MemberManager {
+  + get_member_records()
+  + validate_member()
+  + update_member()
+}
+
+class MemberModel {
+}
+
+ReactComponent <|-- MemberUpdateComponent
+APIView <|-- MemberUpdateView
+MemberUpdateComponent ..> MemberUpdateView
+MemberUpdateView ..> MemberUpdateSerializer
+MemberUpdateView ..> MemberManager
+MemberManager *-- MemberModel
+
+@enduml

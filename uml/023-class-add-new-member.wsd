@@ -1,0 +1,47 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+title Add New Member Class Diagram
+class ReactComponent
+
+class MemberCreateMemberComponent {
+	+ props: Object
+	+ {method} <color:red> handleCreateMember(data: Object): void
+}
+
+class MemberAddView {
+	+ serializer: MemberCreateSerializer
+}
+
+class APIView {
+	+ {method} <color:red> post(self, request)
+}
+
+class MemberCreateSerializer {
+	  + user_id: bigint
+    + book_clubs: bigint
+    + full_name: string
+    + birth_date: datetime 
+    + email: string
+    + phone_number: string
+    + address: string
+	+ {method} <color:red> is_valid(): boolean
+}
+
+class MemberManager {
+  + validate_member()
+  + create_member()
+}
+
+class MemberModel {
+}
+
+ReactComponent <|-- MemberCreateMemberComponent
+APIView <|-- MemberAddView
+MemberCreateMemberComponent ..> MemberAddView
+MemberAddView ..> MemberCreateSerializer
+MemberAddView ..> MemberManager
+MemberManager *-- MemberModel
+
+@enduml

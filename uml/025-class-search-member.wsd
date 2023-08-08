@@ -1,0 +1,63 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+title Search Member Class Diagram
+class ReactComponent
+
+class SearchMemberComponent {
+	+ props: Object
+	+ {method} <color:red> handleSearchMember(data: Object): void
+}
+
+class SearchMemberView {
+	+ serializer: SearchMemberSerializer
+}
+
+class APIView {
+	+ {method} <color:red> post(self, request)
+}
+class SearchMember {
+  - permission_classes
+  + post(request)
+  + get_member_infos(member_ids)
+}
+class MemberGetIdsSerializer {
+	+ user_id: bigint
+    + book_clubs: bigint
+    + full_name: string
+    + birth_date: datetime 
+    + email: string
+    + phone_number: string
+    + address: string
+	+ {method} <color:red> is_valid(): boolean
+}
+class MemberGetInfosSerializer {
+	+ user_id: bigint
+    + book_clubs: bigint
+    + full_name: string
+    + birth_date: datetime 
+    + email: string
+    + phone_number: string
+    + address: string
+	+ {method} <color:red> is_valid(): boolean
+}
+
+class MemberManager {
+  + get_member_records()
+  + get_member_infos()
+}
+
+class MemberModel {
+}
+
+ReactComponent <|-- SearchMemberComponent
+APIView <|-- SearchMemberView
+SearchMemberComponent ..> SearchMemberView
+SearchMemberView ..> SearchMember
+SearchMember ..> MemberGetIdsSerializer
+SearchMember ..> MemberGetInfosSerializer
+SearchMember ..> MemberManager
+MemberManager *-- MemberModel
+
+@enduml
