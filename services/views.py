@@ -205,7 +205,7 @@ class UserRegisterView(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        if User.objects.filter(phone_number=serializer.data.get('phone_number')).exists():
+        if User.objects.filter(phone_number=serializer.validated_data.get('phone_number')).exists():
             return Response({'error': 'Duplicated phone number'}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer.validated_data['password'] = make_password(serializer.validated_data['password'])
