@@ -30,9 +30,8 @@ class MemberUpdateSerializer {
 }
 
 class MemberManager {
-  + get_member_records()
-  + validate_member()
-  + update_member()
+  +  {method} <color:red> get_member(data): Member
+  +  {method} <color:red> update_member(data): Member
 }
 
 class MemberModel {

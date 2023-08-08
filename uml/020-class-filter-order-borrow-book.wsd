@@ -10,14 +10,14 @@ class FilterOrderBorrowBookComponent {
 	+ {method} <color:red> handleFilterOrderByMember(data: Object): void
 }
 
-class DraftOrderGetInfosView {
-	+ serializer: GetDraftOrderInfosSerializer
+class FilterOrderBorrowBookView {
+	+ serializer: FilterOrderBorrowBookSerializer
 }
 
 class APIView {
 	+ {method} <color:red> post(self, request)
 }
-class GetDraftOrderInfosSerializer {
+class FilterOrderBorrowBookSerializer {
     + id: bigint
     + full_name: string
     + phone_number: string
@@ -28,21 +28,19 @@ class GetDraftOrderInfosSerializer {
     + user_id: bigint
     + club_book_ids: bigint
     + draft_status: string
+    + {method} <color:red> is_valid(): boolean
 }
 class OrderManager{
-    + {method} <color:red> get_draft_order_infos(draft_order_ids): draft_order
-}
-class DraftOrderModel{
-
+    + {method} <color:red> get_order_record(data): List order
 }
 class OrderDetailModel{
 
 }
 ReactComponent <|-- FilterOrderBorrowBookComponent
-APIView <|-- DraftOrderGetInfosView
-FilterOrderBorrowBookComponent ..> DraftOrderGetInfosView
-DraftOrderGetInfosView ..> GetDraftOrderInfosSerializer
-DraftOrderGetInfosView ..> OrderManager
-OrderManager *-- DraftOrderModel
-OrderManager *-- OrderDetailModel
+APIView <|-- FilterOrderBorrowBookView
+FilterOrderBorrowBookComponent ..> FilterOrderBorrowBookView
+FilterOrderBorrowBookView ..> FilterOrderBorrowBookSerializer
+FilterOrderBorrowBookView ..> OrderManager
+OrderManager *-- OrderModel
+OrderModel "1" *-- "many" OrderDetailModel : contains
 @enduml

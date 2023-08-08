@@ -5,20 +5,20 @@ skinparam classAttributeIconSize 0
 title Add New Member Class Diagram
 class ReactComponent
 
-class MemberCreateMemberComponent {
+class AddNewMemberComponent {
 	+ props: Object
 	+ {method} <color:red> handleCreateMember(data: Object): void
 }
 
-class MemberAddView {
-	+ serializer: MemberCreateSerializer
+class AddNewMemberView {
+	+ serializer: AddNewMemberSerializer
 }
 
 class APIView {
 	+ {method} <color:red> post(self, request)
 }
 
-class MemberCreateSerializer {
+class AddNewMemberSerializer {
 	  + user_id: bigint
     + book_clubs: bigint
     + full_name: string
@@ -30,18 +30,17 @@ class MemberCreateSerializer {
 }
 
 class MemberManager {
-  + validate_member()
-  + create_member()
+  + {method} <color:red> add_new_member(data): Member
 }
 
 class MemberModel {
 }
 
-ReactComponent <|-- MemberCreateMemberComponent
-APIView <|-- MemberAddView
-MemberCreateMemberComponent ..> MemberAddView
-MemberAddView ..> MemberCreateSerializer
-MemberAddView ..> MemberManager
+ReactComponent <|-- AddNewMemberComponent
+APIView <|-- AddNewMemberView
+AddNewMemberComponent ..> AddNewMemberView
+AddNewMemberView ..> AddNewMemberSerializer
+AddNewMemberView ..> MemberManager
 MemberManager *-- MemberModel
 
 @enduml

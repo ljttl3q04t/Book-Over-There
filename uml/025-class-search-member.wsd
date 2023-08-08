@@ -17,22 +17,7 @@ class SearchMemberView {
 class APIView {
 	+ {method} <color:red> post(self, request)
 }
-class SearchMember {
-  - permission_classes
-  + post(request)
-  + get_member_infos(member_ids)
-}
-class MemberGetIdsSerializer {
-	+ user_id: bigint
-    + book_clubs: bigint
-    + full_name: string
-    + birth_date: datetime 
-    + email: string
-    + phone_number: string
-    + address: string
-	+ {method} <color:red> is_valid(): boolean
-}
-class MemberGetInfosSerializer {
+class SearchMemberSerializer {
 	+ user_id: bigint
     + book_clubs: bigint
     + full_name: string
@@ -44,8 +29,8 @@ class MemberGetInfosSerializer {
 }
 
 class MemberManager {
-  + get_member_records()
-  + get_member_infos()
+  + {method} <color:red> get_member_record(data): Member
+  + {method} <color:red> get_member_infos(data): Member
 }
 
 class MemberModel {
@@ -54,10 +39,8 @@ class MemberModel {
 ReactComponent <|-- SearchMemberComponent
 APIView <|-- SearchMemberView
 SearchMemberComponent ..> SearchMemberView
-SearchMemberView ..> SearchMember
-SearchMember ..> MemberGetIdsSerializer
-SearchMember ..> MemberGetInfosSerializer
-SearchMember ..> MemberManager
+SearchMemberView ..> SearchMemberSerializer
+SearchMemberView ..> MemberManager
 MemberManager *-- MemberModel
 
 @enduml
