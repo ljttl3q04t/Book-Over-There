@@ -10,58 +10,32 @@ class ApproveJoinClubRequestComponent {
 	+ props: Object
 	+ {method} <color:red> handleApproveJoinClubRequest(data: Object): void
 }
-class BookClubRequestJoinView {
-  - permission_classes
-  + post(request)
+class ApproveJoinClubRequestView {
+  + serializer: BookClubRequestToJoinSerializer
 }
 
-class BookClubRequestToJoinSerializer {
-  - data
-  + is_valid()
+class ApproveJoinClubRequestSerializer {
+  + user_id: bigint
+  + book_clubs: bigint
+  + full_name: string
+  + birth_date: datetime 
+  + email: string
+  + phone_number: string
+  + address: string
+  + {method} <color:red> is_valid()
 }
-
-class BookClub {
-  - id
-  + objects.get(id)
-  + membership_set
-}
-
-class Member {
-  - user
-  + objects.get(user)
-  + objects.create()
-}
-
-class MemberSerializer {
-  	+ user_id: bigint
-    + book_clubs: bigint
-    + full_name: string
-    + birth_date: datetime 
-    + email: string
-    + phone_number: string
-    + address: string
-  + is_valid()
-  + save()
-}
-
-class Membership {
-  - member
-  - book_club
-  + objects.create()
+class ClubManager{
+  + {method} <color:red> approve_member(data): Member
 }
 class MemberModel{
 
 }
 ReactComponent <|-- ApproveJoinClubRequestComponent
-APIView <|-- BookClubRequestJoinView
-ApproveJoinClubRequestComponent ..> BookClubRequestJoinView
-BookClubRequestJoinView ..> BookClubRequestToJoinSerializer
-BookClubRequestJoinView ..> BookClub
-BookClubRequestJoinView ..> Member
-BookClubRequestJoinView ..> Membership
-Member ..> MemberSerializer
-Membership ..> Member
-Membership ..> BookClub
-MemberSerializer *-- MemberModel
+APIView <|-- ApproveJoinClubRequestView
+ApproveJoinClubRequestComponent ..> ApproveJoinClubRequestView
+ApproveJoinClubRequestView ..> ApproveJoinClubRequestSerializer
+ApproveJoinClubRequestView ..> ClubManager
+ClubManager *-- MemberModel
 
+MemberModel "1" *-- "many" MemberShipModel : contains
 @enduml
