@@ -20,40 +20,29 @@ class APIView {
     + {method} <color:red> post(self, request)
 }
 
-class UserUpdateSerializer {
-    + phone_number: String 
-    + email: String 
-    + address: String 
-    + full_name: String 
-    + birth_date: Date 
-    + username: String 
-    + {method} <color:red> is_verify(): boolean
-}
-
 class ChangeAvatarSerializer {
     + avatar: File 
     + {method} <color:red> is_verify(): boolean
 }
 
 class UserManager {
-    + {method} <color:red> update_user(): void
+    + {method} <color:red> update_user(avatar): void
 }
 
-class UserAvatarStorage {
-    + location: url 
+class FileManager {
+    + {method} <color:red> upload_file(file): string
 }
 
 class UserModel {
-    + avatar: UserAvatarStorage
+    + avatar: FileStorage
 }
 
 ReactComponent <|-- ChangeAvatarComponent
 APIView <|-- UpdateUserInfoView
 ChangeAvatarComponent ..> UpdateUserInfoView
-UpdateUserInfoView ..> UserUpdateSerializer
+UpdateUserInfoView ..> ChangeAvatarSerializer
 UpdateUserInfoView ..> UserManager
+UserManager ..> FileManager
 UserManager *-- UserModel
-ChangeAvatarSerializer --* UserUpdateSerializer
-UserModel ..> UserAvatarStorage
 
 @enduml

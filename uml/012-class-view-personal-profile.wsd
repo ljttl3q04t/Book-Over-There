@@ -29,7 +29,7 @@ class UserSerializer {
 }
 
 class UserManager {
-    + {method}<color:red> view_userInfo(): user
+    + {method}<color:red> view_user_info(user_id): User
 }
 
 class UserModel 

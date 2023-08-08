@@ -26,12 +26,11 @@ class UserUpdateSerializer {
     + address: String 
     + full_name: String 
     + birth_date: Date 
-    + username: String 
     + {method} <color:red> is_verify(): boolean
 }
 
 class UserManager {
-    + {method} <color:red> update_user(): void
+    + {method} <color:red> update_user(data: Object): void
 }
 class UserModel 
 
