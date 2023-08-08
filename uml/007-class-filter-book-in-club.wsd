@@ -1,0 +1,20 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+title Filter Book In The Club Class Diagram
+class ReactComponent
+
+class FilterBookComponent {
+	+ props: Object
+	+ {method} <color:red> handleFilterBook(value): book[]
+}
+
+class BookComponent {
+    + props: Object
+    + {method} <color:red> renderFilterBook(): FilterBookComponent
+}
+
+BookComponent --|> ReactComponent
+BookComponent ..> FilterBookComponent
+@enduml
