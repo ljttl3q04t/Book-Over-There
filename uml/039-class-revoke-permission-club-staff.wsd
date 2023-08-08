@@ -1,0 +1,7 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+title Revoke Permission Club Staff Class Diagram
+
+class ReactComponent

@@ -1,0 +1,45 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+title Update Book Information Class Diagram
+
+class ReactComponent
+
+class UpdateBookComponent {
+    + props: Object
+    + {method}<color:red> handleUpdateBook(data: Object): void
+}
+
+class APIView {
+    + {method} <color:red> post(self, request)
+}
+
+class UpdateBookView {
+    + serializer: UpdateBookSerializer
+}
+
+class UpdateBookSerializer {
+    + name: String 
+    + description: Text 
+    + code: String 
+    + category: String 
+    + author: String
+    + initity quantity: int 
+    + current quantity: int 
+    + {method}<color:red> is_valid(): boolean
+}
+
+class BookManager {
+    + {method} <color:red> update_book(book): void
+}
+
+class BookModel 
+
+ReactComponent <|-- UpdateBookComponent
+APIView <|-- UpdateBookView
+UpdateBookComponent ..> UpdateBookView
+UpdateBookView ..> UpdateBookSerializer
+UpdateBookView ..> BookManager
+BookManager *-- BookModel
+@enduml

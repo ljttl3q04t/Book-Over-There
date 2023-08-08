@@ -1,0 +1,46 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+title Add New Book Class Diagram
+
+class ReactComponent
+
+class AddNewBookComponent {
+    + props: Object
+    + {method}<color:red> handleAddNewBook(data: Object): void
+}
+
+class APIView {
+    + {method} <color:red> post(self, request)
+}
+
+class AddNewBookView {
+    + serializer: AddNewBookSerializer
+}
+
+class AddNewBookSerializer {
+    + name: String 
+    + description: Text 
+    + code: String 
+    + category: String 
+    + author: String
+    + initity quantity: int 
+    + current quantity: int 
+    + {method}<color:red> is_valid(): boolean
+
+}
+
+class BookManager {
+    + {method} <color:red> add_new_book(book): void
+}
+
+class BookModel 
+
+ReactComponent <|-- AddNewBookComponent
+APIView <|-- AddNewBookView
+AddNewBookComponent ..> AddNewBookView
+AddNewBookView ..> AddNewBookSerializer
+AddNewBookView ..> BookManager
+BookManager *-- BookModel
+@enduml

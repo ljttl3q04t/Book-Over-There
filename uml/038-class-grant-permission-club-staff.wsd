@@ -1,0 +1,39 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+title Grant Permission Club Staff Class Diagram
+
+class ReactComponent
+
+class ClubMemberComponent {
+    + props: Object
+    + {method}<color:red> handleGrantPermissionClubStaff(data: Object): void
+}
+
+class APIView {
+    + {method} <color:red> post(self, request)
+}
+
+class ClubMemberView {
+    + serializer: GrantPermissionClubStaffSerializer
+}
+
+class GrantPermissionClubStaffSerializer {
+    + code: String 
+    + name: String 
+}
+
+class ClubStaffManager {
+    + {method} <color:red> grant_permission(user): void
+}
+
+class ClubStaffModel 
+
+ReactComponent <|-- ClubMemberComponent
+APIView <|-- ClubMemberView
+ClubMemberComponent ..> AddNewBookView
+ClubMemberView ..> GrantPermissionClubStaffSerializer
+ClubMemberView ..> ClubStaffManager
+ClubStaffManager *-- ClubStaffModel
+@enduml

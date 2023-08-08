@@ -1,0 +1,59 @@
+@startuml
+skin rose 
+skinparam ClassAttributeIconSize 0
+
+title Change Avatar Class Diagram 
+
+class ReactComponent
+
+class ChangeAvatarComponent {
+    + props: Object 
+    + {method} <color:red> handleUserUpdateView(): void 
+}
+
+class UpdateUserInfoView {
+    + permission_classes: IsAuthenticated
+    + serializer: UserUpdateSerializer
+}
+
+class APIView {
+    + {method} <color:red> post(self, request)
+}
+
+class UserUpdateSerializer {
+    + phone_number: String 
+    + email: String 
+    + address: String 
+    + full_name: String 
+    + birth_date: Date 
+    + username: String 
+    + {method} <color:red> is_verify(): boolean
+}
+
+class ChangeAvatarSerializer {
+    + avatar: File 
+    + {method} <color:red> is_verify(): boolean
+}
+
+class UserManager {
+    + {method} <color:red> update_user(): void
+}
+
+class UserAvatarStorage {
+    + location: url 
+}
+
+class UserModel {
+    + avatar: UserAvatarStorage
+}
+
+ReactComponent <|-- ChangeAvatarComponent
+APIView <|-- UpdateUserInfoView
+ChangeAvatarComponent ..> UpdateUserInfoView
+UpdateUserInfoView ..> UserUpdateSerializer
+UpdateUserInfoView ..> UserManager
+UserManager *-- UserModel
+ChangeAvatarSerializer --* UserUpdateSerializer
+UserModel ..> UserAvatarStorage
+
+@enduml
