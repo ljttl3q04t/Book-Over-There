@@ -13,7 +13,9 @@ class ApproveJoinClubRequestComponent {
 class ApproveJoinClubRequestView {
   + serializer: BookClubRequestToJoinSerializer
 }
-
+class APIView {
+	+ {method} <color:red> post(self, request)
+}
 class ApproveJoinClubRequestSerializer {
   + user_id: bigint
   + book_clubs: bigint
