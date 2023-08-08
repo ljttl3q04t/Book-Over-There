@@ -1,0 +1,73 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+title Order Class Diagram
+class ReactComponent
+
+class OrderComponent {
+	+ props: Object
+	+ {method} <color:red> handleOrder(data: Object): void
+}
+
+class OrderView {
+	+ OrderGetIdsViewOrderGetIdsView
+    + OrderInfosView
+    + OrderCreateView
+    + OrderCreateNewMemberView
+    + OrderReturnBooksView
+    + OrderCreateFromDraftView
+    + OrderCreateFromDraftNewMemberView
+}
+
+class APIView {
+	+ {method} <color:red> post(self, request)
+}
+
+class OrderSerializer {
+	+  GetOrderIdsSerializer
+    +  GetOrderInfosSerializer
+    +  OrderCreateSerializer
+    +  OrderCreateNewMemberSerializer
+    +  OrderReturnBooksSerializer
+    +  OrderCreateFromDraftSerializer
+    +  OrderCreateFromDraftNewMemberSerializer
+	+ {method} <color:red> is_valid(): boolean
+}
+
+class OrderManager {
+	+ {method} <color:red> get_order_detail_records(data): Order
+    + {method} <color:red> get_order_infos(data): Order
+    + {method} <color:red> create_new_order(data): Order
+    + {method} <color:red> create_new_order_by_new_member(data): Order
+    + {method} <color:red> return_books(data): Order
+    + {method} <color:red> create_new_order_from_draft(data): Order
+    + {method} <color:red> create_new_order_from_draft_by_new_member(data): Order
+    + {method} <color:red> create_new_order_detail(data): OrderDetail
+}
+
+class OrderModel {
+    + member: integer
+    + club: integer
+    + order_date: date
+    + due_date: date
+    -  approvier_order: integer
+}
+class OrderDetailModel {
+    + order: integer
+    + club_book: integer
+    + return_date: date
+    + overdue_day_count: integer
+    + note: string
+    + order_status: integer
+    + receiver: integer
+}
+ReactComponent <|-- OrderComponent
+APIView <|-- OrderView
+OrderComponent ..> OrderView
+OrderView ..> OrderSerializer
+OrderView ..> OrderManager
+OrderManager *-- OrderModel
+OrderManager *-- OrderDetailModel
+OrderModel "1" *-- "many" OrderDetailModel : contains
+@enduml
