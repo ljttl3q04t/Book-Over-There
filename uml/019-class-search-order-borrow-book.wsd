@@ -33,10 +33,15 @@ class OrderManager{
 class OrderDetailModel{
 
 }
+class OrderModel{
+
+}
 ReactComponent <|-- SearchOrderBorrowBookComponent
 APIView <|-- OrderGetIdsView
 SearchOrderBorrowBookComponent ..> OrderGetIdsView
 OrderGetIdsView ..> OrderDetailSerializer
 OrderGetIdsView ..> OrderManager
-OrderManager *-- OrderDetailModel
+OrderManager *-- OrderModel
+ 
+OrderModel "1" *-- "many" OrderDetailModel : contains
 @enduml

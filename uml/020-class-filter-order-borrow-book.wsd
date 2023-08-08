@@ -35,10 +35,14 @@ class OrderManager{
 class DraftOrderModel{
 
 }
+class OrderDetailModel{
+
+}
 ReactComponent <|-- FilterOrderBorrowBookComponent
 APIView <|-- DraftOrderGetInfosView
 FilterOrderBorrowBookComponent ..> DraftOrderGetInfosView
 DraftOrderGetInfosView ..> GetDraftOrderInfosSerializer
 DraftOrderGetInfosView ..> OrderManager
 OrderManager *-- DraftOrderModel
+OrderManager *-- OrderDetailModel
 @enduml

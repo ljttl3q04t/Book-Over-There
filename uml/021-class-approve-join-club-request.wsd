@@ -3,7 +3,7 @@
 skin rose
 skinparam classAttributeIconSize 0
 
-title Sign In Class Diagram
+title Approve Join Club Request Class Diagram
 class ReactComponent
 
 class ApproveJoinClubRequestComponent {
