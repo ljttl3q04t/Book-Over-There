@@ -41,6 +41,10 @@ class UserLoginSerializer(serializers.Serializer):
         data['user'] = user
         return data
 
+class UserChangePasswordSerializer(serializers.Serializer):
+    password = serializers.CharField()
+    new_password = serializers.CharField()
+
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category

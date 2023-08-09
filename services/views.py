@@ -1,3 +1,4 @@
+from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.tokens import default_token_generator
 from django.db import transaction
@@ -33,7 +34,8 @@ from .serializers import BookCheckSerializer, BookClubMemberDepositBookSerialize
     ClubBookListFilter, MemberBookCopySerializer, MemberSerializer, MembershipOrderCreateSerializer, \
     MembershipSerializer, MyBookAddSerializer, PasswordResetConfirmSerializer, PasswordResetSerializer, \
     ReturnBookSerializer, ShareBookClubSerializer, StaffBorrowingSerializer, StaffOrderConfirmSerializer, \
-    UserBorrowingBookSerializer, UserLoginSerializer, UserRegisterSerializer, UserSerializer, UserUpdateSerializer
+    UserBorrowingBookSerializer, UserChangePasswordSerializer, UserLoginSerializer, UserRegisterSerializer, \
+    UserSerializer, UserUpdateSerializer
 
 class UploadFileView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -117,6 +119,19 @@ class BookClubListAPIView(APIView):
                 d['total_book_count'] = total_book_count
                 d['is_member'] = d['id'] in joined_clubs
             return Response(data, status=status.HTTP_200_OK)
+
+class UserChangePasswordView(APIView):
+    def post(self, request):
+        serializer = UserChangePasswordSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_200_OK)
+
+        user = authenticate(username=request.user.username, password=serializer.data.get('password'))
+        if not user:
+            raise serializers.ValidationError('Invalid username or password.')
+        user.set_password(serializer.data.get('new_password'))
+        user.save()
+        return Response({'message': 'Password reset successful.'}, status=status.HTTP_200_OK)
 
 class ResetPasswordView(APIView):
 
