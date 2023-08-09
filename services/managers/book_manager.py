@@ -35,12 +35,13 @@ def get_publisher_infos():
     serializer = PublisherSerializer(instance=publishers, many=True)
     return {item['id']: item for item in serializer.data}
 
-def get_book_records(book_ids=None, author_ids=None, category_ids=None, book_name=None):
+def get_book_records(book_ids=None, author_ids=None, category_ids=None, book_name=None, book_id=None):
     return Book.objects.filter_ignore_none(
         id__in=book_ids,
         author_id__in=author_ids,
         category_id__in=category_ids,
         name__istartswith=book_name,
+        id=book_id,
     )
 
 @combine_key_cache_data(**CACHE_KEY_BOOK_INFOS)
@@ -91,17 +92,23 @@ def create_book(name, category, author, image):
 def update_book(book_id, **kwargs):
     author_id = None
     category_id = None
+    should_invalid_cache = False
     if kwargs.get('author'):
         author_id = get_or_create_author(kwargs.pop('author')).id
     if kwargs.get('category'):
         category_id = get_or_create_category(kwargs.pop('category')).id
+    if kwargs.get('image'):
+        image = kwargs.pop('image')
+        book = get_book_records(book_id=book_id).first()
+        book.image.save(image.name, File(image.file), save=True)
+        should_invalid_cache = True
 
     affected_count = Book.objects.filter(id=book_id).update_ignore_none(
         author_id=author_id,
         category=category_id,
         **kwargs
     )
-    if affected_count:
+    if should_invalid_cache or affected_count:
         cache_key = CACHE_KEY_BOOK_INFOS['cache_key_converter'](CACHE_KEY_BOOK_INFOS['cache_prefix'], book_id)
         invalid_cache_data(cache_key)
-    return affected_count
+    return should_invalid_cache or affected_count

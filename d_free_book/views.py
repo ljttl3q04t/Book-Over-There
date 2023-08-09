@@ -69,7 +69,7 @@ class ClubBookAddView(APIView):
                                          club_id=serializer.data.get('club_id')).exists():
             return Response({'error': 'Book code is duplicated'}, status=status.HTTP_400_BAD_REQUEST)
 
-        manager.create_club_book(serializer.data, book)
+        manager.create_club_book(serializer.validated_data, book)
         return Response({'result': 'create book successfully'}, status=status.HTTP_200_OK)
 
 class ClubBookUpdateView(APIView):
@@ -80,7 +80,7 @@ class ClubBookUpdateView(APIView):
         serializer = ClubBookUpdateSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        data = serializer.data
+        data = serializer.validated_data
         club_ids = membership_manager.get_membership_records(request.user, is_staff=True).flat_list('book_club_id')
         club_book_id = data.pop('club_book_id')
         if not manager.get_club_book_records(club_book_id=club_book_id, club_ids=club_ids).exists():
