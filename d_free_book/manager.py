@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from django.db import transaction
-from django.db.models import Count
+from django.db.models import Count, F
 from django.db.models.functions import TruncMonth
 
 from d_free_book.models import ClubBook, DFreeOrder, DFreeMember, DFreeOrderDetail, DFreeDraftOrder
@@ -107,30 +107,6 @@ def check_member(phone_number, club_id):
     else:
         return True, 'Member not existed'
 
-@transaction.atomic
-def create_new_order(data):
-    order = DFreeOrder.objects.create(
-        member_id=data.get('member_id'),
-        club_id=data.get('club_id'),
-        order_date=data.get('order_date'),
-        due_date=data.get('due_date'),
-        creator_order_id=data.get('creator_order_id'),
-    )
-    for club_book_id in data.get('club_book_ids'):
-        DFreeOrderDetail.objects.create(
-            order=order,
-            club_book_id=club_book_id,
-        )
-    return order
-
-def create_new_draft_order(data):
-    draft_order = DFreeDraftOrder.objects.create(**data)
-    member_ids = membership_manager.get_membership_records(club_id=draft_order.club_id, is_staff=True).flat_list(
-        'member_id')
-    staff_emails = membership_manager.get_member_records(member_ids=member_ids).flat_list('email')
-    for email in staff_emails:
-        send_new_order_email.delay(email)
-
 @combine_key_cache_data(**CACHE_KEY_MEMBER_INFOS)
 def get_member_infos(member_ids):
     members = get_member_records(member_ids=member_ids)
@@ -147,6 +123,29 @@ def get_member_infos(member_ids):
     return result
 
 @transaction.atomic
+def create_new_order(data):
+    order = DFreeOrder.objects.create(
+        member_id=data.get('member_id'),
+        club_id=data.get('club_id'),
+        order_date=data.get('order_date'),
+        due_date=data.get('due_date'),
+        creator_order_id=data.get('creator_order_id'),
+    )
+    for club_book_id in data.get('club_book_ids'):
+        DFreeOrderDetail.objects.create(
+            order=order,
+            club_book_id=club_book_id,
+        )
+
+    get_club_book_records(club_book_ids=data.get('club_book_ids')).update(current_count=F('current_count') - 1)
+    cache_keys = [
+        CACHE_KEY_CLUB_BOOK_INFOS['cache_key_converter'](CACHE_KEY_CLUB_BOOK_INFOS['cache_prefix'], club_book_id)
+        for club_book_id in data.get('club_book_ids')
+    ]
+    invalid_many_cache_data(cache_keys)
+    return order
+
+@transaction.atomic
 def create_new_order_by_new_member(data):
     new_member = data.get('new_member')
     user = user_manager.get_user_records(phone_number=new_member.get('phone_number'), is_verify=True).first()
@@ -157,19 +156,16 @@ def create_new_order_by_new_member(data):
         phone_number=new_member.get('phone_number'),
         user=user,
     )
-    order = DFreeOrder.objects.create(
-        member_id=new_member.id,
-        club_id=new_member.club_id,
-        order_date=data.get('order_date'),
-        due_date=data.get('due_date'),
-        creator_order_id=data.get('creator_order_id'),
-    )
-    for club_book_id in data.get('club_book_ids'):
-        DFreeOrderDetail.objects.create(
-            order=order,
-            club_book_id=club_book_id,
-        )
-    return order
+    data['member_id'] = new_member.id
+    return create_new_order(data)
+
+def create_new_draft_order(data):
+    draft_order = DFreeDraftOrder.objects.create(**data)
+    member_ids = membership_manager.get_membership_records(club_id=draft_order.club_id, is_staff=True).flat_list(
+        'member_id')
+    staff_emails = membership_manager.get_member_records(member_ids=member_ids).flat_list('email')
+    for email in staff_emails:
+        send_new_order_email.delay(email)
 
 @delete_key_cache_data([CACHE_KEY_DFB_ORDER_DETAIL_INFOS])
 def return_books(order_detail_ids, return_date, receiver_id):
@@ -178,7 +174,15 @@ def return_books(order_detail_ids, return_date, receiver_id):
                 order_status=DFreeOrderDetail.COMPLETE,
                 receiver_id=receiver_id)
 
-    order_ids = get_order_detail_records(order_detail_ids=order_detail_ids).flat_list('order_id')
+    order_details = get_order_detail_records(order_detail_ids=order_detail_ids).values('club_book_id', 'order_id')
+    order_ids = [order_detail['order_id'] for order_detail in order_details]
+    club_book_ids = [order_detail['club_book_id'] for order_detail in order_details]
+    get_club_book_records(club_book_ids=club_book_ids).update(current_count=F('current_count') + 1)
+    cache_keys = [
+        CACHE_KEY_CLUB_BOOK_INFOS['cache_key_converter'](CACHE_KEY_CLUB_BOOK_INFOS['cache_prefix'], club_book_id)
+        for club_book_id in club_book_ids
+    ]
+    invalid_many_cache_data(cache_keys)
     clear_keys = [build_cache_key(CACHE_KEY_DFB_ORDER_INFOS, order_id) for order_id in order_ids]
     invalid_many_cache_data(clear_keys)
     return affected_count
