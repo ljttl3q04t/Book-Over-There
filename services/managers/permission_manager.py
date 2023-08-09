@@ -9,3 +9,7 @@ class IsStaff(BasePermission):
 
 def is_club_admin(user):
     return user.is_staff or user.groups.filter(name='ClubAdmin').exists()
+
+class isClubAdmin(BasePermission):
+    def has_permission(self, request, view):
+        return is_club_admin(request.user)

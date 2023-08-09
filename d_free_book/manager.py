@@ -11,13 +11,14 @@ from services.managers.cache_manager import combine_key_cache_data, CACHE_KEY_CL
     delete_key_cache_data, build_cache_key, invalid_many_cache_data
 from services.managers.email_manager import send_new_order_email
 
-def get_club_book_records(club_book_ids=None, club_id=None, book_ids=None, code=None, club_ids=None):
+def get_club_book_records(club_book_ids=None, club_id=None, book_ids=None, code=None, club_ids=None, club_book_id=None):
     return ClubBook.objects.filter_ignore_none(
         id__in=club_book_ids,
         club_id=club_id,
         club_id__in=club_ids,
         book_id__in=book_ids,
         code=code,
+        id=club_book_id,
     )
 
 def get_member_records(phone_number=None, code=None, member_ids=None, full_name=None, club_ids=None, club_id=None,
@@ -124,7 +125,8 @@ def create_new_order(data):
 
 def create_new_draft_order(data):
     draft_order = DFreeDraftOrder.objects.create(**data)
-    member_ids = membership_manager.get_membership_records(club_id=draft_order.club_id, is_staff=True).flat_list('member_id')
+    member_ids = membership_manager.get_membership_records(club_id=draft_order.club_id, is_staff=True).flat_list(
+        'member_id')
     staff_emails = membership_manager.get_member_records(member_ids=member_ids).flat_list('email')
     for email in staff_emails:
         send_new_order_email.delay(email)
@@ -300,9 +302,31 @@ def create_club_book(data, book=None):
         current_count=data['current_count'],
     )
 
-def update_club_book(club_book_id, **kwargs):
-    affected_count = ClubBook.objects.filter(id=club_book_id).update(**kwargs)
-    return affected_count
+@transaction.atomic
+def update_club_book(club_book_id, data):
+    code = data.pop('code', None)
+    if code and get_club_book_records(code=code).exists():
+        return 0, "duplicated code"
+
+    record = get_club_book_records(club_book_id=club_book_id).first()
+    init_count = record.init_count
+    current_count = record.current_count
+    update_init_count = data.pop('init_count', None)
+    update_current_count = current_count + (update_init_count - init_count) if update_init_count else None
+
+    book_affected_count = book_manager.update_book(book_id=record.book_id, **data)
+
+    affected_count = ClubBook.objects \
+        .filter(id=club_book_id, init_count=init_count, current_count=current_count) \
+        .update_ignore_none(code=code, init_count=update_init_count, current_count=update_current_count)
+
+    if affected_count or book_affected_count:
+        cache_key = CACHE_KEY_CLUB_BOOK_INFOS['cache_key_converter'](
+            CACHE_KEY_CLUB_BOOK_INFOS['cache_prefix'], club_book_id
+        )
+        invalid_cache_data(cache_key)
+
+    return affected_count, None
 
 def validate_oder(data):
     order_ids = get_order_records(member_ids=[data['member_id']], club_id=data['club_id']).pk_list()
@@ -337,7 +361,7 @@ def update_draft(draft_order_ids, **kwargs):
         invalid_cache_data(cache_key)
     return affected_count
 
-@transaction.atomic()
+@transaction.atomic
 def link_user_member(user):
     user.is_verify = True
     user.save()

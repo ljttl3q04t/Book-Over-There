@@ -242,7 +242,7 @@ class UserInfoView(APIView):
 class UpdateUserInfoView(APIView):
     permission_classes = [IsAuthenticated]
 
-    @transaction.atomic()
+    @transaction.atomic
     def put(self, request):
         serializer = UserUpdateSerializer(request.user, data=request.data, partial=True)
         if serializer.is_valid():

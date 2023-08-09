@@ -83,25 +83,10 @@ class ClubBookUpdateView(APIView):
         data = serializer.data
         club_ids = membership_manager.get_membership_records(request.user, is_staff=True).flat_list('book_club_id')
         club_book_id = data.pop('club_book_id')
-        club_book = manager.get_club_book_records(
-            club_book_ids=[club_book_id],
-            club_ids=club_ids,
-        ).first()
-
-        if not club_book:
+        if not manager.get_club_book_records(club_book_id=club_book_id, club_ids=club_ids).exists():
             return Response({'error': 'Book not found'}, status=status.HTTP_400_BAD_REQUEST)
 
-        club_book_data = club_book.as_dict()
-        updated_data = {}
-        for k, v in data.items():
-            if club_book_data.get(k) != v:
-                updated_data[k] = v
-
-        if updated_data.get('code') and manager.get_club_book_records(code=updated_data.get('code'),
-                                                                      club_id=club_book.club_id).exists():
-            return Response({'error': 'Book code is duplicated'}, status=status.HTTP_400_BAD_REQUEST)
-
-        affected_count = manager.update_club_book(club_book_id, **updated_data)
+        affected_count = manager.update_club_book(club_book_id, data)
         if affected_count:
             return Response({'message': 'Update Book successfully'}, status=status.HTTP_200_OK)
         else:

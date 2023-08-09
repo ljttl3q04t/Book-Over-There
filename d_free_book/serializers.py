@@ -43,8 +43,11 @@ class ClubBookAddSerializer(serializers.Serializer):
 class ClubBookUpdateSerializer(serializers.Serializer):
     club_book_id = serializers.IntegerField()
     code = serializers.CharField(required=False)
+    name = serializers.CharField(required=False)
+    category = serializers.CharField(required=False)
+    author = serializers.CharField(required=False)
+    image = serializers.ImageField(required=False)
     init_count = serializers.IntegerField(required=False)
-    current_count = serializers.IntegerField(required=False)
 
 class OrderCreateSerializer(serializers.Serializer):
     member_id = serializers.IntegerField(required=False)

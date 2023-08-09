@@ -2,6 +2,7 @@ from io import BytesIO
 
 import requests
 from django.core.files import File
+from django.db import transaction
 
 from services.managers.cache_manager import simple_cache_data, CACHE_KEY_CATEGORY_INFOS_DICT, \
     CACHE_KEY_AUTHOR_INFOS_DICT, combine_key_cache_data, CACHE_KEY_BOOK_INFOS, CACHE_KEY_PUBLISHER_INFOS_DICT, \
@@ -85,3 +86,22 @@ def create_book(name, category, author, image):
         author=author,
         image=image,
     )
+
+@transaction.atomic
+def update_book(book_id, **kwargs):
+    author_id = None
+    category_id = None
+    if kwargs.get('author'):
+        author_id = get_or_create_author(kwargs.pop('author')).id
+    if kwargs.get('category'):
+        category_id = get_or_create_category(kwargs.pop('category')).id
+
+    affected_count = Book.objects.filter(id=book_id).update_ignore_none(
+        author_id=author_id,
+        category=category_id,
+        **kwargs
+    )
+    if affected_count:
+        cache_key = CACHE_KEY_BOOK_INFOS['cache_key_converter'](CACHE_KEY_BOOK_INFOS['cache_prefix'], book_id)
+        invalid_cache_data(cache_key)
+    return affected_count

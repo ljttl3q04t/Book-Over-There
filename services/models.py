@@ -26,6 +26,11 @@ class BookQuerySet(QuerySet):
         not_none_kwargs = utils.remove_none_value_in_dict(kwargs)
         return self.exclude(*args, **not_none_kwargs)
 
+    def update_ignore_none(self, **kwargs):
+        not_none_kwargs = utils.remove_none_value_in_dict(kwargs)
+        if not_none_kwargs:
+            return self.update(**not_none_kwargs)
+
 class Manager(BaseManager.from_queryset(BookQuerySet)):
     pass
 
