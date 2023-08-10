@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 
 from django.db import transaction
 from django.db.models import Count, F
@@ -131,10 +131,17 @@ def create_new_order(data):
         due_date=data.get('due_date'),
         creator_order_id=data.get('creator_order_id'),
     )
+
+    today = date.today()
+    due_date = datetime.strptime(data.get('due_date'), '%Y-%m-%d').date()
+    overdue_day_count = max((today - due_date).days, 0)
+    order_status = DFreeOrderDetail.OVERDUE if overdue_day_count > 0 else DFreeOrderDetail.CREATED
     for club_book_id in data.get('club_book_ids'):
         DFreeOrderDetail.objects.create(
             order=order,
             club_book_id=club_book_id,
+            order_status=order_status,
+            overdue_day_count=overdue_day_count,
         )
 
     get_club_book_records(club_book_ids=data.get('club_book_ids')).update(current_count=F('current_count') - 1)
