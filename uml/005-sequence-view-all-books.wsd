@@ -1,0 +1,34 @@
+@startuml View All Books Sequence Diagram
+title View All Books Sequence Diagram
+
+actor Guest
+
+activate BookClubComponent
+Guest -> BookClubComponent: Open Book Club List Screen
+
+activate BookClubView
+BookClubComponent -> BookClubView: POST `club/booklist`
+
+activate BookManager
+BookClubView -> BookManager: get_all_books()
+
+activate BookModel
+BookManager -> BookModel: query_books()
+database Database
+activate Database
+BookModel -> Database: SELECT Query
+Database -> BookModel: Return data
+deactivate Database
+BookModel -> BookManager: Return Books
+deactivate BookModel
+BookManager -> BookClubView: Return Books
+deactivate BookManager
+activate BookSerializer
+BookClubView -> BookSerializer: to_representation(instance=books, many=True)
+BookSerializer -> BookClubView: Return reponse_data
+deactivate BookSerializer
+BookClubView --> BookClubComponent: Return All Books Data
+deactivate BookClubView
+BookClubComponent --> Guest: Show Clubs Information
+deactivate BookClubComponent
+@enduml

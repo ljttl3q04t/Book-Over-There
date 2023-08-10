@@ -1,0 +1,20 @@
+@startuml Filter Book In The Club Sequence Diagram 
+title Filter Book In The Club Sequence Diagram 
+
+actor Guest 
+
+activate BookComponent
+Guest -> BookComponent: Open Club Book List Screen 
+BookComponent --> Guest: Render Club Book List
+
+activate FilterBookComponent
+BookComponent -> FilterBookComponent: renderFilterBook()
+FilterBookComponent --> Guest: Render Filter Book Form
+
+Guest -> FilterBookComponent: Choose Condition to Filter
+FilterBookComponent -> FilterBookComponent: handleFilter(value)
+FilterBookComponent --> BookComponent: Re-render New Club Book List
+deactivate FilterBookComponent
+BookComponent --> Guest: Show Clubs After Filter
+
+deactivate BookComponent

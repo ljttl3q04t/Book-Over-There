@@ -1,0 +1,20 @@
+@startuml Search Book In The Club Sequence Diagram 
+title Search Book In The Club Sequence Diagram 
+
+actor Guest 
+
+activate BookComponent
+Guest -> BookComponent: Open Club Book List Screen 
+BookComponent --> Guest: Render Club Book List
+
+activate SearchBookComponent
+BookComponent -> SearchBookComponent: renderSearchBook()
+SearchBookComponent --> Guest: Render Search Book Form
+
+Guest -> SearchBookComponent: Input Book Name to Search
+SearchBookComponent -> SearchBookComponent: handleSearch(value)
+SearchBookComponent --> BookComponent: Re-render New Club Book List
+deactivate SearchBookComponent
+BookComponent --> Guest: Show Clubs After Search
+
+deactivate BookComponent
