@@ -19,8 +19,13 @@ class APIView {
 }
 
 class ApprovePendingOrderSerializer {
-    - order_id: integer
-	- order_date: datetime
+    - draft_order_id: integer
+	- order_date: date
+	- duedate: date
+	- phone_number: string
+	- full_name: string
+	- club_book_ids: listInteger
+	+ {method} <color:red> isValid(): boolean
 }
 
 
@@ -38,5 +43,5 @@ ApprovePendingOrderComponent ..> ApprovePendingOrderView
 ApprovePendingOrderView ..> ApprovePendingOrderSerializer
 ApprovePendingOrderView ..> OrderManager
 OrderManager *-- OrderModel
-OrderDetaiModel "many" --* "1"OrderModel :contain
+OrderDetaiModel "1" --* "1" OrderModel :contain
 @enduml

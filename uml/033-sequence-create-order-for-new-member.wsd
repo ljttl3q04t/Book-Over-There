@@ -1,0 +1,51 @@
+@startuml Create Order For New Member Sequence Diagram 
+title Create Order For New Member Sequence Diagram 
+
+actor ClubStaff 
+
+activate OrderComponent
+ClubStaff -> OrderComponent: Open Create Order Screen
+
+activate OrderCreateView
+OrderComponent -> OrderCreateView: POST `order/create`
+activate MemberManager
+activate MembershipManager
+activate OrderManager
+
+
+'OrderCreateView -> MemberManager: get_member_id(member)
+
+
+OrderCreateView -> MemberManager: create_new_member(data)
+MemberManager -> MembershipManager: create_new_membership(member_club)
+
+MembershipManager -> OrderManager: create_new_order(order_data)
+
+
+activate OrderModel
+OrderManager -> OrderModel: querry_order(order)
+deactivate MemberManager
+deactivate MembershipManager
+database Database
+activate Database
+
+OrderModel -> Database: SELECT, INSERT Querry
+Database -> OrderModel: Return data
+deactivate Database
+
+OrderModel -> OrderManager: Return orders
+deactivate OrderModel
+
+OrderManager -> OrderCreateView: Return Order
+deactivate OrderManager
+activate OrderSerializer
+
+
+OrderCreateView -> OrderSerializer: to_representation(instance=Order, many=False)
+OrderSerializer -> OrderCreateView: Return response_data
+deactivate OrderSerializer
+
+OrderCreateView --> OrderComponent: Return Order Data Created
+deactivate OrderCreateView
+OrderComponent --> ClubStaff: Create Order Informations
+deactivate OrderComponent

@@ -1,0 +1,31 @@
+@startuml Create Return Book of Member Sequence Diagram 
+title Create Return Book of Member Sequence Diagram 
+
+actor ClubStaff 
+
+activate OrderComponent
+ClubStaff -> OrderComponent: Open Order List Screen
+
+activate OrderListView
+OrderComponent -> CreateReturnBookView: POST `order/return`
+deactivate CreateReturnBookView
+activate OrderManager
+CreateReturnBookView -> OrderManager: update_order(data)
+activate OrderModel
+OrderManager -> OrderModel: querry_order(data)
+database Database
+activate Database
+OrderModel -> Database: UPDATE QUERY
+Database -> OrderModel: Return data
+
+OrderModel -> OrderManager: Return order
+deactivate OrderModel
+OrderManager -> CreateReturnBookView: Return Order
+deactivate OrderManager
+activate OrderSerializer
+CreateReturnBookView -> OrderSerializer: to_representation(instance=Order, many=True)
+OrderSerializer -> CreateReturnBookView: Return response_data
+deactivate OrderSerializer
+CreateReturnBookView --> OrderComponent: Return Order Data
+OrderComponent --> ClubStaff: Show Order Information
+

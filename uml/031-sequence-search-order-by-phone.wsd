@@ -1,0 +1,40 @@
+@startuml Search Order By Phone Number Sequence Diagram 
+title Search Order By Phone Number Sequence Diagram 
+
+actor ClubStaff 
+
+activate OrderComponent
+ClubStaff -> OrderComponent: Open Order List Screen
+
+activate OrderView
+OrderComponent -> OrderSearchView: POST `Order/list`
+activate OrderManager
+deactivate OrderSearchView
+OrderSearchView -> OrderManager: get_orders(phone)
+activate OrderModel
+OrderManager -> OrderModel: querry_orders()
+
+database Database
+activate Database
+OrderModel -> Database: SELECT Querry
+
+Database -> OrderModel: Return data
+deactivate OrderModel
+deactivate Database
+
+OrderModel -> OrderManager: Return orders
+
+
+OrderManager -> OrderSearchView: Return orders
+deactivate OrderManager
+activate OrderSerializer
+OrderSearchView -> OrderSerializer: to_representation(instance=Orders, many=true)
+
+OrderSerializer -> OrderSearchView: Return response_data
+deactivate OrderSerializer
+OrderSearchView --> OrderComponent: Return list Orders Data
+OrderComponent --> ClubStaff: Show Orders Information
+deactivate OrderComponent
+
+
+

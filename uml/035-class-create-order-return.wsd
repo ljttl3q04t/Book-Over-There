@@ -1,0 +1,43 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+title Create Return Book of Member Class Diagram
+class ReactComponent
+
+class OrderReturnBooksComponent {
+	+ props: Object
+	+ {method} <color:red> handleCreateOrderReturn(data: Object): void
+}
+
+class OrderReturnBooksView {
+	+ serializer: OrderReturnBooksSerializer
+}
+
+class APIView {
+	+ {method} <color:red> post(self, request)
+}
+
+class OrderReturnBooksSerializer {
+    - order_detail_ids: listInteger
+	- return_date: date
+	- receiver_id: integer
+}
+
+
+
+class OrderManager {
+	+ {method} <color:red> : return_books(order_detail_ids, return_date, receiver_id): order
+}
+
+class OrderModel 
+class OrderDetaiModel
+
+ReactComponent <|-- OrderReturnBooksComponent
+APIView <|-- OrderReturnBooksView
+OrderReturnBooksComponent ..> OrderReturnBooksView
+OrderReturnBooksView ..> OrderReturnBooksSerializer
+OrderReturnBooksView ..> OrderManager
+OrderManager *-- OrderModel
+OrderDetaiModel "1" --* "1" OrderModel :contain
+@enduml

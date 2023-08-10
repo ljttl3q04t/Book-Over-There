@@ -1,0 +1,31 @@
+@startuml Approve Pending Order Sequence Diagram 
+title Approve Pending Order Sequence Diagram 
+
+actor ClubStaff 
+
+activate OrderComponent
+ClubStaff -> OrderComponent: Open Online Order List Screen
+
+activate OrderListView
+OrderComponent -> ApproveOrderView: POST `draftOrder/update`
+deactivate ApproveOrderView
+activate OrderManager
+ApproveOrderView -> OrderManager: update_draft(data)
+activate OrderModel
+OrderManager -> OrderModel: querry_order(data)
+database Database
+activate Database
+OrderModel -> Database: UPDATE QUERY
+Database -> OrderModel: Return data
+
+OrderModel -> OrderManager: Return order
+deactivate OrderModel
+OrderManager -> ApproveOrderView: Return Order
+deactivate OrderManager
+activate OrderSerializer
+ApproveOrderView -> OrderSerializer: to_representation(instance=Order, many=True)
+OrderSerializer -> ApproveOrderView: Return response_data
+deactivate OrderSerializer
+ApproveOrderView --> OrderComponent: Return Order Data
+OrderComponent --> ClubStaff: Show Order Information
+
