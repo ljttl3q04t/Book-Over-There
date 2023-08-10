@@ -7,7 +7,7 @@ ClubStaff -> AddNewMemberComponent: handleAddNewMember()
 activate AddNewMemberView
 AddNewMemberComponent -> AddNewMemberView:Post'members/add'
 activate MemberManager
-AddNewMemberView -> MemberManager: add_new_member()
+AddNewMemberView -> MemberManager: add_new_member(memberSerializer)
 activate MemberModel
 MemberManager -> MemberModel: query_member()
 database Database

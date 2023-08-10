@@ -2,14 +2,28 @@
 actor Member
 activate OrderBorrowBookComponent
 Member -> OrderBorrowBookComponent: Open Order Borrow Screen
-OrderBorrowBookComponent --> Member: Render Order Borrow Book
-activate FilterOrderBorrowComponent
-OrderBorrowBookComponent -> FilterOrderBorrowComponent: renderFilterOrderBorrowBook()
-FilterOrderBorrowComponent --> Member: Render Filter Order Borrow Book Form
-Member -> FilterOrderBorrowComponent: Choose condition filter
-FilterOrderBorrowComponent -> FilterOrderBorrowComponent: handleFilter(value)
-FilterOrderBorrowComponent --> OrderBorrowBookComponent: Re-render New Order Borrow Book List
-deactivate FilterOrderBorrowComponent
-OrderBorrowBookComponent --> Member: Show Order Borrow Book after Filter 
+activate OrderBorrowBookView
+
+OrderBorrowBookComponent -> OrderBorrowFilterView: Post'OrderBorrow/List'
+activate BookMananger
+OrderBorrowFilterView -> BookMananger: get_order_borrow(member_id)
+activate OrderBorrowBookModel
+BookMananger -> OrderBorrowBookModel: query_order_borrow()
+database Database 
+activate Database
+OrderBorrowBookModel -> Database: SELECT Query
+Database -> OrderBorrowBookModel: Return data
+deactivate Database
+OrderBorrowBookModel -> BookMananger: Return Order Borrow
+deactivate OrderBorrowBookModel
+BookMananger -> OrderBorrowFilterView: Return Order Borrow
+deactivate BookMananger
+activate OrderBorrowBookSerializer
+OrderBorrowFilterView -> OrderBorrowBookSerializer: to_presentation(instance = OrderBorrow, many = True)
+OrderBorrowBookSerializer -> OrderBorrowFilterView: Return Response data
+deactivate OrderBorrowBookSerializer
+OrderBorrowFilterView -> OrderBorrowBookComponent: Return list Order Borrow data
+
+OrderBorrowBookComponent -> Member: Show OrderBorrows infomation
 deactivate OrderBorrowBookComponent
 @enduml

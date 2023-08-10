@@ -2,14 +2,28 @@
 actor Member
 activate OrderBorrowBookComponent
 Member -> OrderBorrowBookComponent: Open Order Borrow Screen
-OrderBorrowBookComponent --> Member: Render Order Borrow Book
-activate SearchOrderBorrowComponent
-OrderBorrowBookComponent -> SearchOrderBorrowComponent: renderSearchOrderBorrowBook()
-SearchOrderBorrowComponent --> Member: Render Search Order Borrow Book Form
-Member -> SearchOrderBorrowComponent: Input Book Name to Search
-SearchOrderBorrowComponent -> SearchOrderBorrowComponent: handleSearch(value)
-SearchOrderBorrowComponent --> OrderBorrowBookComponent: Re-render New Order Borrow Book List
-deactivate SearchOrderBorrowComponent
-OrderBorrowBookComponent --> Member: Show Order Borrow Book after Search 
+activate OrderBorrowView
+
+OrderBorrowBookComponent -> OrderBorrowSearchView: Post'OrderBorrow/List'
+activate BookMananger
+OrderBorrowSearchView -> BookMananger: get_order_borrow(member_id)
+activate OrderBorrowBookModel
+BookMananger -> OrderBorrowBookModel: query_order_borrow()
+database Database 
+activate Database
+OrderBorrowBookModel -> Database: SELECT Query
+Database -> OrderBorrowBookModel: Return data
+deactivate Database
+OrderBorrowBookModel -> BookMananger: Return Order Borrow
+deactivate OrderBorrowBookModel
+BookMananger -> OrderBorrowSearchView: Return Order Borrow
+deactivate BookMananger
+activate OrderBorrowBookSerializer
+OrderBorrowSearchView -> OrderBorrowBookSerializer: to_presentation(instance = OrderBorrow, many = True)
+OrderBorrowBookSerializer -> OrderBorrowSearchView: Return Response data
+deactivate OrderBorrowBookSerializer
+OrderBorrowSearchView -> OrderBorrowBookComponent: Return list Order Borrow data
+
+OrderBorrowBookComponent -> Member: Show OrderBorrows infomation
 deactivate OrderBorrowBookComponent
 @enduml

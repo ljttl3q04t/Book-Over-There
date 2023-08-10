@@ -7,7 +7,7 @@ ClubStaff -> UpdateMemberComponent: handleMemberUpdate()
 activate UpdateMemberView
 UpdateMemberComponent -> UpdateMemberView:Post'members/update'
 activate MemberManager
-UpdateMemberView -> MemberManager: update_member()
+UpdateMemberView -> MemberManager: update_member(memberSerializer)
 activate MemberModel
 MemberManager -> MemberModel: query_member()
 database Database
