@@ -8,7 +8,7 @@ OrderComponent -> SearchOrderBorrowComponent: renderSearchOrderBorrowBook()
 SearchOrderBorrowComponent --> Member: Render Search Order Borrow Book Form
 Member -> SearchOrderBorrowComponent: Input Book Name to Search
 SearchOrderBorrowComponent -> SearchOrderBorrowComponent: handleSearch(value)
-SearchOrderBorrowComponent --> OrderComponent: Re-render New Club List
+SearchOrderBorrowComponent --> OrderComponent: Re-render New Order Borrow Book List
 deactivate SearchOrderBorrowComponent
 OrderComponent --> Member: Show Order Borrow Book after Search 
 deactivate OrderComponent
