@@ -1,0 +1,66 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+class ReactComponent{
+    	+ props: Object
+}
+
+class OrderComponent {
+	+ {method} handleFilterOrderByStatus(data: Object): void
+    + {method} handleFilterOrderByCreatedDate(data: Object): void
+    + {method} handleFilterOrderByMonth(data: Object): void
+    + {method} handleFilterOrdersByPhoneNumber(data: Object): void
+}
+class OrderDetailComponent {
+
+}
+class FilterOrderComponent {
+
+}
+class OrderView {
+    + serializer: FilterOrderSerializer
+}
+
+
+class APIView {
+	+ {method} post(self, request)
+    + {method} get(self, request)
+}
+class FilterOrderSerializer {
+	+  club_id: integer
+    +  from_date: date
+    +  to_date: date
+    +  order_date: date
+    +  order_status: integer
+    +  order_month: date
+    +  member: integer
+	+ {method} is_valid(): boolean
+}
+class Serializer {
+	+  data: Object
+    + validated_data: Object
+	+ {method} is_valid(): boolean
+    + {method} validate(data): boolean
+}
+
+class OrderManager {
+	+ {method} <color:red> get_order_records(*args, **kwarg): listOrder
+    + {method} <color:red> get_order_detail_records(*args, **kwarg): listOrderDetail
+}
+
+class OrderModel {
+}
+class OrderDetailModel {
+}
+ReactComponent <|-- OrderComponent
+OrderComponent ..> OrderDetailComponent
+OrderComponent ..> FilterOrderComponent
+OrderComponent ..> OrderView
+APIView <|-- OrderView
+OrderView ..> FilterOrderSerializer
+Serializer <|-- FilterOrderSerializer
+OrderView ..> OrderManager
+OrderManager *-- OrderModel
+OrderModel "1" *-- "many" OrderDetailModel : contains
+@enduml

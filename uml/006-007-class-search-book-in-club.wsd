@@ -1,0 +1,61 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+class ReactComponent{
+    	+ props: Object
+}
+
+class BookClubComponent {
+	+ {method} handleFilterBookInClub(data: Object): void
+    + {method} handleSearchBookInClub(data: Object): void
+	+ {method} renderFilterBookInClub(data: Object): void
+    + {method} renderSearchBookInClub(data: Object): void
+}
+class FilterBookClubComponent {
+
+}
+class SearchBookClubComponent {
+
+}
+class BookClubView {
+    + serializer: BookkClubSerializer
+}
+
+
+class APIView {
+	+ {method} post(self, request)
+    + {method} get(self, request)
+}
+class BookClubSerializer {
+	+  club_id: integer
+    +  club_ids: date
+    +  book_name: date
+    +  book_category_ids: date
+    +  book_author_ids: integer
+	+ {method} is_valid(): boolean
+}
+class Serializer {
+	+  data: Object
+    + validated_data: Object
+	+ {method} is_valid(): boolean
+    + {method} validate(data): boolean
+}
+
+class BookManager {
+	+ {method} <color:red> get_book_club_records(*args, **kwarg): listOrder
+}
+
+class BookClubModel {
+}
+
+ReactComponent <|-- BookClubComponent
+BookClubComponent ..> FilterBookClubComponent
+BookClubComponent ..> SearchBookClubComponent
+BookClubComponent ..> BookClubView
+APIView <|-- BookClubView
+BookClubView ..> BookClubSerializer
+Serializer <|-- BookClubSerializer
+BookClubView ..> BookManager
+BookManager *-- BookClubModel
+@enduml

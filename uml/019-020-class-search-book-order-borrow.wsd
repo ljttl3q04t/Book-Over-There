@@ -1,0 +1,59 @@
+@startuml
+skin rose
+skinparam classAttributeIconSize 0
+
+class ReactComponent{
+    	+ props: Object
+}
+
+class OrderBorrowBookComponent {
+	+ {method} handleFilterOrderBorrowBook(data: Object): void
+    + {method} handleSearchOrderBorrowBook(data: Object): void
+	+ {method} renderFilterOrderBorrowBook(data: Object): void
+    + {method} renderSearchOrderBorrowBook(data: Object): void
+}
+class FilterOrderBorrowBookComponent {
+
+}
+class SearchOrderBorrowBookComponent {
+
+}
+class OrderBorrowBookView {
+    + serializer: BookkClubSerializer
+}
+
+
+class APIView {
+	+ {method} post(self, request)
+    + {method} get(self, request)
+}
+class OrderBorrowBookSerializer {
+	+  club_id: integer
+    +  book_name: date
+    +  book_author_ids: integer
+	+ {method} is_valid(): boolean
+}
+class Serializer {
+	+  data: Object
+    + validated_data: Object
+	+ {method} is_valid(): boolean
+    + {method} validate(data): boolean
+}
+
+class BookManager {
+	+ {method} <color:red> get_order_borrow_records(*args, **kwarg): listOrder
+}
+
+class OrderBorrowBookModel {
+}
+
+ReactComponent <|-- OrderBorrowBookComponent
+OrderBorrowBookComponent ..> FilterOrderBorrowBookComponent
+OrderBorrowBookComponent ..> SearchOrderBorrowBookComponent
+OrderBorrowBookComponent ..> OrderBorrowBookView
+APIView <|-- OrderBorrowBookView
+OrderBorrowBookView ..> OrderBorrowBookSerializer
+Serializer <|-- OrderBorrowBookSerializer
+OrderBorrowBookView ..> BookManager
+BookManager *-- OrderBorrowBookModel
+@enduml
