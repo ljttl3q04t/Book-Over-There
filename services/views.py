@@ -403,13 +403,14 @@ class BookClubMemberUpdateView(APIView):
                 return Response({'error': 'invalid change member status'}, status=status.HTTP_400_BAD_REQUEST)
         if 'is_staff' in serializer.data:
             if is_club_admin(request.user):
-                if serializer.data['is_staff']:
-                    membership.is_staff = serializer.data['is_staff']
-                    membership.save()
-                    return Response({'message': 'Update staff successfully'}, status=status.HTTP_200_OK)
+                membership.is_staff = serializer.data['is_staff']
+                membership.member.user.is_staff = serializer.data['is_staff']
+                membership.member.user.save()
+                membership.save()
+                return Response({'message': 'Update staff successfully'}, status=status.HTTP_200_OK)
             else:
                 return Response({'error': 'You cant update status staff'}, status=status.HTTP_400_BAD_REQUEST)
-
+        return Response({'error': 'An error occurred'}, status=status.HTTP_400_BAD_REQUEST)
 
 class BookClubMemberBookDepositView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)
