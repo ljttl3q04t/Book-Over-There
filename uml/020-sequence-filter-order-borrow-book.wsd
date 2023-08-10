@@ -1,0 +1,15 @@
+@startuml
+actor Member
+activate OrderBorrowBookComponent
+Member -> OrderBorrowBookComponent: Open Order Borrow Screen
+OrderBorrowBookComponent --> Member: Render Order Borrow Book
+activate FilterOrderBorrowComponent
+OrderBorrowBookComponent -> FilterOrderBorrowComponent: renderFilterOrderBorrowBook()
+FilterOrderBorrowComponent --> Member: Render Filter Order Borrow Book Form
+Member -> FilterOrderBorrowComponent: Choose condition filter
+FilterOrderBorrowComponent -> FilterOrderBorrowComponent: handleFilter(value)
+FilterOrderBorrowComponent --> OrderBorrowBookComponent: Re-render New Order Borrow Book List
+deactivate FilterOrderBorrowComponent
+OrderBorrowBookComponent --> Member: Show Order Borrow Book after Filter 
+deactivate OrderBorrowBookComponent
+@enduml

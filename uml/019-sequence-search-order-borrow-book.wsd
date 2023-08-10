@@ -1,15 +1,15 @@
 @startuml
 actor Member
-activate OrderComponent
-Member -> OrderComponent: Open Order Borrow Screen
-OrderComponent --> Member: Render Order Borrow Book
+activate OrderBorrowBookComponent
+Member -> OrderBorrowBookComponent: Open Order Borrow Screen
+OrderBorrowBookComponent --> Member: Render Order Borrow Book
 activate SearchOrderBorrowComponent
-OrderComponent -> SearchOrderBorrowComponent: renderSearchOrderBorrowBook()
+OrderBorrowBookComponent -> SearchOrderBorrowComponent: renderSearchOrderBorrowBook()
 SearchOrderBorrowComponent --> Member: Render Search Order Borrow Book Form
 Member -> SearchOrderBorrowComponent: Input Book Name to Search
 SearchOrderBorrowComponent -> SearchOrderBorrowComponent: handleSearch(value)
-SearchOrderBorrowComponent --> OrderComponent: Re-render New Order Borrow Book List
+SearchOrderBorrowComponent --> OrderBorrowBookComponent: Re-render New Order Borrow Book List
 deactivate SearchOrderBorrowComponent
-OrderComponent --> Member: Show Order Borrow Book after Search 
-deactivate OrderComponent
+OrderBorrowBookComponent --> Member: Show Order Borrow Book after Search 
+deactivate OrderBorrowBookComponent
 @enduml

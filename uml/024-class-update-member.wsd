@@ -5,20 +5,20 @@ skinparam classAttributeIconSize 0
 title Update Member Class Diagram
 class ReactComponent
 
-class MemberUpdateComponent {
+class UpdateMemberComponent {
 	+ props: Object
-	+ {method} <color:red> handleMemberUpdate(data: Object): void
+	+ {method} <color:red> handleUpdateMember(data: Object): void
 }
 
-class MemberUpdateView {
-	+ serializer: MemberUpdateSerializer
+class UpdateMemberView {
+	+ serializer: UpdateMemberSerializer
 }
 
 class APIView {
 	+ {method} <color:red> post(self, request)
 }
 
-class MemberUpdateSerializer {
+class UpdateMemberSerializer {
 	+ user_id: bigint
     + book_clubs: bigint
     + full_name: string
@@ -37,11 +37,11 @@ class MemberManager {
 class MemberModel {
 }
 
-ReactComponent <|-- MemberUpdateComponent
-APIView <|-- MemberUpdateView
-MemberUpdateComponent ..> MemberUpdateView
-MemberUpdateView ..> MemberUpdateSerializer
-MemberUpdateView ..> MemberManager
+ReactComponent <|-- UpdateMemberComponent
+APIView <|-- UpdateMemberView
+UpdateMemberComponent ..> UpdateMemberView
+UpdateMemberView ..> UpdateMemberSerializer
+UpdateMemberView ..> MemberManager
 MemberManager *-- MemberModel
 
 @enduml

@@ -1,0 +1,28 @@
+@startuml
+actor ClubStaff
+activate ViewListMemberComponent
+ClubStaff -> ViewListMemberComponent: Open Club Member screen
+activate ViewListMemberView
+ViewListMemberComponent -> ViewListMemberView: Post'clubstaff/members'
+activate MemberManager
+ViewListMemberView -> MemberManager: get_all_member()
+activate MemberModel
+MemberManager -> MemberModel: Query_Members()
+database Database
+activate Database
+MemberModel -> Database: SELECT Query()
+Database -> MemberModel: Return data
+deactivate Database
+MemberModel -> MemberManager: Return Members
+deactivate MemberModel
+MemberManager -> ViewListMemberView: Return Members
+deactivate MemberManager
+activate ViewListMemberSerializer
+ViewListMemberView -> ViewListMemberSerializer: to_representation(instance = Member, many = True)
+ViewListMemberSerializer -> ViewListMemberView: Return reponse_data
+deactivate ViewListMemberSerializer
+ViewListMemberView --> ViewListMemberComponent: Return all Members
+deactivate ViewListMemberView
+ViewListMemberComponent --> ClubStaff: Show all member infomation
+deactivate ViewListMemberComponent
+@enduml

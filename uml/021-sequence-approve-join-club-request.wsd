@@ -1,0 +1,28 @@
+@startuml
+actor ClubStaff
+activate ApproveJoinClubRequestComponent
+ClubStaff -> ApproveJoinClubRequestComponent: Open Club Member Screen 
+activate ApproveJoinClubRequestView
+ApproveJoinClubRequestComponent -> ApproveJoinClubRequestView: Post'clubstaff/member-order'
+activate ClubManager
+ApproveJoinClubRequestView -> ClubManager: approve_member(member_id)
+activate MemberModel
+ClubManager -> MemberModel: query_club_members()
+database Database
+activate Database
+MemberModel -> Database: INSERT Query
+Database -> MemberModel: Return data
+deactivate Database
+MemberModel -> ClubManager: Return member request
+deactivate MemberModel
+ClubManager -> ApproveJoinClubRequestView: Return member request
+deactivate ClubManager
+activate ApproveJoinClubRequestSerializer
+ApproveJoinClubRequestView -> ApproveJoinClubRequestSerializer: to_representation(instance = Member, many = True)
+ApproveJoinClubRequestSerializer -> ApproveJoinClubRequestView: Return response_data
+deactivate ApproveJoinClubRequestSerializer
+ApproveJoinClubRequestView -> ApproveJoinClubRequestComponent:Return approved join club request
+deactivate ApproveJoinClubRequestView
+ApproveJoinClubRequestComponent -> ClubStaff: Approve Join Club infomation
+deactivate ApproveJoinClubRequestComponent
+@enduml

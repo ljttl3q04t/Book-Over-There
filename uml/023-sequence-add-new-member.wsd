@@ -1,0 +1,30 @@
+@startuml
+actor ClubStaff
+activate AddNewMemberComponent
+ClubStaff -> AddNewMemberComponent: Open Member Screen
+AddNewMemberComponent -> ClubStaff: Render Member Screen
+ClubStaff -> AddNewMemberComponent: handleAddNewMember()
+activate AddNewMemberView
+AddNewMemberComponent -> AddNewMemberView:Post'members/add'
+activate MemberManager
+AddNewMemberView -> MemberManager: add_new_member()
+activate MemberModel
+MemberManager -> MemberModel: query_member()
+database Database
+activate Database
+MemberModel -> Database: CREATE query
+Database -> MemberModel: Return data
+deactivate Database
+MemberModel -> MemberManager: Return Member
+deactivate MemberModel
+MemberManager -> AddNewMemberView: Return Member
+deactivate MemberManager
+activate AddNewMemberSerializer
+AddNewMemberView -> AddNewMemberSerializer: to_representaion(instance = Member, many = True)
+AddNewMemberSerializer -> AddNewMemberView: Return reponse data
+deactivate AddNewMemberSerializer
+AddNewMemberView -> AddNewMemberComponent: Return Add New Member Created
+deactivate AddNewMemberView
+AddNewMemberComponent -> ClubStaff: Add New Member infomation
+deactivate AddNewMemberComponent
+@enduml

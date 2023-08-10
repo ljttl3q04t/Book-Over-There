@@ -1,0 +1,28 @@
+@startuml
+actor ClubStaff
+activate SearchMemberComponent
+ClubStaff -> SearchMemberComponent: Open Member Screen
+activate SearchMemberView
+SearchMemberComponent -> SearchMemberView: Post'clubstaff/members'
+activate MemberManager
+SearchMemberView -> MemberManager: get_members(member_id)
+activate MemberModel
+MemberManager -> MemberModel: query_member()
+database Database
+activate Database
+MemberModel -> Database: CREATE query
+Database -> MemberModel: Return data
+deactivate Database
+MemberModel -> MemberManager: Return Member
+deactivate MemberModel
+MemberManager -> SearchMemberView: Return Member
+deactivate MemberManager
+activate SearchMemberSerializer
+SearchMemberView -> SearchMemberSerializer: to_representaion(instance = Member, many = True)
+SearchMemberSerializer -> SearchMemberView: Return reponse data
+deactivate SearchMemberSerializer
+SearchMemberView -> SearchMemberComponent: Return Member Data
+deactivate SearchMemberView
+SearchMemberComponent -> ClubStaff: Show Member infomation
+deactivate SearchMemberComponent
+@enduml

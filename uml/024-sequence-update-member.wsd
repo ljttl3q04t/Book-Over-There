@@ -1,0 +1,30 @@
+@startuml
+actor ClubStaff
+activate UpdateMemberComponent
+ClubStaff -> UpdateMemberComponent: Open Member Screen
+UpdateMemberComponent -> ClubStaff: Render Member Screen
+ClubStaff -> UpdateMemberComponent: handleMemberUpdate()
+activate UpdateMemberView
+UpdateMemberComponent -> UpdateMemberView:Post'members/update'
+activate MemberManager
+UpdateMemberView -> MemberManager: update_member()
+activate MemberModel
+MemberManager -> MemberModel: query_member()
+database Database
+activate Database
+MemberModel -> Database: CREATE query
+Database -> MemberModel: Return data
+deactivate Database
+MemberModel -> MemberManager: Return Member
+deactivate MemberModel
+MemberManager -> UpdateMemberView: Return Member
+deactivate MemberManager
+activate UpdateMemberSerializer
+UpdateMemberView -> UpdateMemberSerializer: to_representaion(instance = Member, many = True)
+UpdateMemberSerializer -> UpdateMemberView: Return reponse data
+deactivate UpdateMemberSerializer
+UpdateMemberView -> UpdateMemberComponent: Return Update Member Success
+deactivate UpdateMemberView
+UpdateMemberComponent -> ClubStaff: Update Member infomation
+deactivate UpdateMemberComponent
+@enduml
