@@ -21,8 +21,9 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from d_free_book.manager import link_user_member
+from d_free_book.serializers import ClubStaffSerializer
 from services.managers import book_manager, membership_manager, otp_manager
-from services.managers.permission_manager import IsStaff, is_club_admin, is_staff
+from services.managers.permission_manager import IsStaff, is_club_admin
 from .managers.book_manager import get_category_infos
 from .managers.crawl_manager import CrawFahasa, CrawTiki
 from .managers.email_manager import send_password_reset_email
@@ -200,9 +201,6 @@ class UserLoginView(APIView):
             refresh = TokenObtainPairSerializer.get_token(user)
             user_serializer = UserSerializer(instance=user)
             user_data = user_serializer.data
-            user_data['is_staff'] = is_staff(user)
-            user_data['is_club_admin'] = is_club_admin(user)
-
             data = {
                 'refresh_token': str(refresh),
                 'access_token': str(refresh.access_token),
@@ -236,7 +234,6 @@ class UserInfoView(APIView):
     def get(self, request):
         user_serializer = UserSerializer(instance=request.user)
         user_data = user_serializer.data
-        user_data['is_staff'] = is_staff(request.user)
         return Response(user_data, status=status.HTTP_200_OK)
 
 class UpdateUserInfoView(APIView):
@@ -374,10 +371,12 @@ class BookClubRequestJoinView(APIView):
 class BookClubMemberView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)
 
-    def get(self, request):
-        club_ids = Membership.objects.filter(member__user=self.request.user, is_staff=True) \
-            .values_list('book_club_id', flat=True)
-        club_members = Membership.objects.filter(book_club__in=club_ids)
+    def post(self, request):
+        serializer = ClubStaffSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        club_members = Membership.objects.filter(book_club_id=serializer.validated_data.get('club_id'))
         serializer = MembershipSerializer(instance=club_members, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -404,8 +403,6 @@ class BookClubMemberUpdateView(APIView):
         if 'is_staff' in serializer.data:
             if is_club_admin(request.user):
                 membership.is_staff = serializer.data['is_staff']
-                membership.member.user.is_staff = serializer.data['is_staff']
-                membership.member.user.save()
                 membership.save()
                 return Response({'message': 'Update staff successfully'}, status=status.HTTP_200_OK)
             else:

@@ -12,7 +12,6 @@ urlpatterns = [
     path('member/get_infos', views.MemberGetInfosView.as_view()),
     path('member/add', views.MemberAddView.as_view()),
     path('member/update', views.MemberUpdateView.as_view()),
-    path('member/check', views.MemberCheckView.as_view()),
 
     path('order/get_ids', views.StaffGetOrderIdsView.as_view()),
     path('order/get_infos', views.OrderInfosView.as_view()),
@@ -29,5 +28,5 @@ urlpatterns = [
 
     path('user/order_history', views.UserOrderHistoryView.as_view()),
 
-    path('report/<str:club_id>', views.ReportView.as_view()),
+    path('report', views.ReportView.as_view()),
 ]

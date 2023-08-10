@@ -13,16 +13,20 @@ class CustomModelAdmin(admin.ModelAdmin):
         super().delete_model(request, obj)
         cache.clear()
 
+class UserAdmin(admin.ModelAdmin):
+    search_fields = ('username', )  # Add fields you want to search on
+
+class MembershipAdmin(admin.ModelAdmin):
+    search_fields = ('member__user__username', )
+
 models_to_register = [
     models.Permission,
     models.Book,
     models.BookCopy,
     models.Publisher,
     models.Category,
-    models.User,
     models.Author,
     models.BookClub,
-    models.Membership,
     models.Member,
     models.MemberBookCopy,
     models.UploadFile,
@@ -37,3 +41,6 @@ models_to_register = [
 
 for model in models_to_register:
     admin.site.register(model, CustomModelAdmin)
+
+admin.site.register(models.User, UserAdmin)
+admin.site.register(models.Membership, MembershipAdmin)

@@ -185,6 +185,7 @@ class Membership(BaseModel):
     joined_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     leaved_at = models.DateField(null=True, default=None, blank=True)
     is_staff = models.BooleanField(default=False)
+    is_admin = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.id} - {self.member.full_name} - {self.book_club.name}"

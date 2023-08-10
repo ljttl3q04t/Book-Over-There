@@ -45,3 +45,6 @@ def get_membership_records(user=None, is_staff=None, membership_id=None, club_id
     return Membership.objects \
         .filter(leaved_at=None) \
         .filter_ignore_none(member__user=user, is_staff=is_staff, id=membership_id, book_club_id=club_id)
+
+def is_club_staff(user_id, club_id):
+    return Membership.objects.filter(member__user_id=user_id, book_club_id=club_id, is_staff=True).exists()
