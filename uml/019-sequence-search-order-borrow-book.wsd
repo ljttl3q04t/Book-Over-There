@@ -3,12 +3,11 @@ actor Member
 activate OrderBorrowBookComponent
 Member -> OrderBorrowBookComponent: Open Order Borrow Screen
 activate OrderBorrowView
-
 OrderBorrowBookComponent -> OrderBorrowSearchView: Post'OrderBorrow/List'
 activate BookMananger
 OrderBorrowSearchView -> BookMananger: get_order_borrow(member_id)
 activate OrderBorrowBookModel
-BookMananger -> OrderBorrowBookModel: query_order_borrow()
+BookMananger -> OrderBorrowBookModel: query_order_borrow(member_id)
 database Database 
 activate Database
 OrderBorrowBookModel -> Database: SELECT Query
@@ -23,7 +22,6 @@ OrderBorrowSearchView -> OrderBorrowBookSerializer: to_presentation(instance = O
 OrderBorrowBookSerializer -> OrderBorrowSearchView: Return Response data
 deactivate OrderBorrowBookSerializer
 OrderBorrowSearchView -> OrderBorrowBookComponent: Return list Order Borrow data
-
 OrderBorrowBookComponent -> Member: Show OrderBorrows infomation
 deactivate OrderBorrowBookComponent
 @enduml

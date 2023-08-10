@@ -8,7 +8,7 @@ OrderBorrowBookComponent -> OrderBorrowFilterView: Post'OrderBorrow/List'
 activate BookMananger
 OrderBorrowFilterView -> BookMananger: get_order_borrow(member_id)
 activate OrderBorrowBookModel
-BookMananger -> OrderBorrowBookModel: query_order_borrow()
+BookMananger -> OrderBorrowBookModel: query_order_borrow(member_id)
 database Database 
 activate Database
 OrderBorrowBookModel -> Database: SELECT Query

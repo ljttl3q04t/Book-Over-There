@@ -7,7 +7,7 @@ ApproveJoinClubRequestComponent -> ApproveJoinClubRequestView: Post'clubstaff/me
 activate ClubManager
 ApproveJoinClubRequestView -> ClubManager: approve_member(member_id)
 activate MemberModel
-ClubManager -> MemberModel: query_club_members()
+ClubManager -> MemberModel: query_club_members(member_id)
 database Database
 activate Database
 MemberModel -> Database: INSERT Query
