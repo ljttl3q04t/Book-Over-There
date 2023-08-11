@@ -1,7 +1,4 @@
-.PHONY: build
-build:
-	docker-compose build
+deploy:
+	cd deploy && ansible-playbook -i hosts deploy.yml
 
-.PHONY: dev
-dev:
-	docker-compose run api
+.PHONY: deploy
