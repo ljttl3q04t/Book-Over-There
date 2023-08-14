@@ -23,7 +23,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from d_free_book.manager import link_user_member
 from d_free_book.serializers import ClubStaffSerializer
 from services.managers import book_manager, membership_manager, otp_manager
-from services.managers.permission_manager import IsStaff, is_club_admin
+from services.managers.permission_manager import IsClubAdmin, IsStaff
 from .managers.book_manager import get_category_infos
 from .managers.crawl_manager import CrawFahasa, CrawTiki
 from .managers.email_manager import send_password_reset_email
@@ -381,7 +381,7 @@ class BookClubMemberView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class BookClubMemberUpdateView(APIView):
-    permission_classes = (IsAuthenticated, IsStaff,)
+    permission_classes = (IsAuthenticated, IsClubAdmin,)
 
     @swagger_auto_schema(request_body=BookClubMemberUpdateSerializer)
     def post(self, request):
@@ -401,12 +401,10 @@ class BookClubMemberUpdateView(APIView):
             else:
                 return Response({'error': 'invalid change member status'}, status=status.HTTP_400_BAD_REQUEST)
         if 'is_staff' in serializer.data:
-            if is_club_admin(request.user):
-                membership.is_staff = serializer.data['is_staff']
-                membership.save()
-                return Response({'message': 'Update staff successfully'}, status=status.HTTP_200_OK)
-            else:
-                return Response({'error': 'You cant update status staff'}, status=status.HTTP_400_BAD_REQUEST)
+            membership.is_staff = serializer.data['is_staff']
+            membership.save()
+            return Response({'message': 'Update staff successfully'}, status=status.HTTP_200_OK)
+
         return Response({'error': 'An error occurred'}, status=status.HTTP_400_BAD_REQUEST)
 
 class BookClubMemberBookDepositView(APIView):

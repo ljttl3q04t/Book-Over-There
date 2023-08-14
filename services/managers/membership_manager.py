@@ -48,3 +48,6 @@ def get_membership_records(user=None, is_staff=None, membership_id=None, club_id
 
 def is_club_staff(user_id, club_id):
     return Membership.objects.filter(member__user_id=user_id, book_club_id=club_id, is_staff=True).exists()
+
+def is_club_admin(user_id, club_id):
+    return Membership.objects.filter(member__user_id=user_id, book_club_id=club_id, is_admin=True).exists()
