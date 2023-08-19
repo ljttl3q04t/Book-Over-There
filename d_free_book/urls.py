@@ -3,8 +3,8 @@ from django.urls import path
 from d_free_book import views
 
 urlpatterns = [
-    path('club_book/get_ids', views.ClubBookGetIdsView.as_view()),
-    path('club_book/get_infos', views.ClubBookGetInfosView.as_view()),
+    path('club_book/get_ids', views.ClubBookGetIdsView.as_view(), name='club-book-get-ids'),
+    path('club_book/get_infos', views.ClubBookGetInfosView.as_view(), name='club-book-get-infos'),
     path('club_book/add', views.ClubBookAddView.as_view()),
     path('club_book/update', views.ClubBookUpdateView.as_view()),
 
