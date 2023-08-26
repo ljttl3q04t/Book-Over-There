@@ -221,11 +221,14 @@ class UserRegisterView(APIView):
         if User.objects.filter(phone_number=serializer.validated_data.get('phone_number')).exists():
             return Response({'error': 'Duplicated phone number'}, status=status.HTTP_400_BAD_REQUEST)
 
+        if User.objects.filter(email=serializer.validated_data.get('email')).exists():
+            return Response({'error': 'Duplicated email'}, status=status.HTTP_400_BAD_REQUEST)
+
         serializer.validated_data['password'] = make_password(serializer.validated_data['password'])
         serializer.save()
 
         return Response({
-            'message': 'Register successful!'
+            'message': 'Register successfully, please login to continue!'
         }, status=status.HTTP_201_CREATED)
 
 class UserInfoView(APIView):
