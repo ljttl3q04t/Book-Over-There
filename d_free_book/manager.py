@@ -176,6 +176,13 @@ def create_new_draft_order(data):
 
 @delete_key_cache_data([CACHE_KEY_DFB_ORDER_DETAIL_INFOS])
 def return_books(order_detail_ids, return_date, receiver_id):
+    order_detail_records = get_order_detail_records(order_detail_ids=order_detail_ids)
+    return_date_obj = datetime.strptime(return_date, '%Y-%m-%d').date()
+    for order_detail in order_detail_records:
+        new_overdue_day_count = max((return_date_obj - order_detail.order.due_date).days, 0)
+        order_detail.overdue_day_count = new_overdue_day_count
+        order_detail.save()
+
     affected_count = DFreeOrderDetail.objects.filter(id__in=order_detail_ids) \
         .update(return_date=return_date,
                 order_status=DFreeOrderDetail.COMPLETE,
