@@ -162,6 +162,7 @@ def create_new_order_by_new_member(data):
         code=new_member.get('code'),
         phone_number=new_member.get('phone_number'),
         user=user,
+        first_order_date=data.get('order_date'),
     )
     data['member_id'] = new_member.id
     return create_new_order(data)
