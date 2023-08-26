@@ -5,11 +5,12 @@ from django.db.models import Count, F
 from django.db.models.functions import TruncMonth
 
 from d_free_book.models import ClubBook, DFreeOrder, DFreeMember, DFreeOrderDetail, DFreeDraftOrder
-from services.managers import membership_manager, book_manager, user_manager
+from services.managers import membership_manager, book_manager
 from services.managers.cache_manager import combine_key_cache_data, CACHE_KEY_CLUB_BOOK_INFOS, \
     CACHE_KEY_DFB_ORDER_INFOS, CACHE_KEY_MEMBER_INFOS, invalid_cache_data, CACHE_KEY_DFB_ORDER_DETAIL_INFOS, \
     delete_key_cache_data, build_cache_key, invalid_many_cache_data
 from services.managers.email_manager import send_new_order_email
+from services.models import User
 
 def get_club_book_records(club_book_ids=None, club_id=None, book_ids=None, code=None, club_ids=None, club_book_id=None):
     return ClubBook.objects.filter_ignore_none(
@@ -155,7 +156,7 @@ def create_new_order(data):
 @transaction.atomic
 def create_new_order_by_new_member(data):
     new_member = data.get('new_member')
-    user = user_manager.get_user_records(phone_number=new_member.get('phone_number'), is_verify=True).first()
+    user = User.objects.filter(phone_number=new_member.get('phone_number'), is_verify=True).first()
     new_member = DFreeMember.objects.create(
         club_id=new_member.get('club_id'),
         full_name=new_member.get('full_name'),
@@ -268,7 +269,7 @@ def get_order_infos(order_ids):
         order_details = map_order_order_details.get(order.id)
         result[order.id] = {
             'id': order.id,
-            'member': member_infos.get(order.member_id),
+            'member_id': order.member_id,
             'club_id': order.club_id,
             'order_date': order.order_date,
             'due_date': order.due_date,

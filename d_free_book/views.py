@@ -6,15 +6,15 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from d_free_book import manager
-from d_free_book.serializers import ClubBookGetIdsSerializer, ClubBookGetInfosSerializer, ClubBookAddSerializer, \
-    GetOrderIdsSerializer, GetOrderInfosSerializer, OrderCreateSerializer, MemberGetIdsSerializer, \
-    MemberGetInfosSerializer, MemberCreateSerializer, \
-    MemberUpdateSerializer, ClubBookUpdateSerializer, OrderReturnBooksSerializer, OrderCreateNewMemberSerializer, \
-    DraftOrderCreateSerializer, GetDraftOrderInfosSerializer, OrderCreateFromDraftSerializer, \
-    OrderCreateFromDraftNewMemberSerializer, DraftOrderUpdateSerializer, ClubStaffSerializer
+from d_free_book.serializers import ClubBookAddSerializer, ClubBookGetIdsSerializer, ClubBookGetInfosSerializer, \
+    ClubBookUpdateSerializer, ClubStaffSerializer, DraftOrderCreateSerializer, DraftOrderUpdateSerializer, \
+    GetDraftOrderInfosSerializer, GetOrderIdsSerializer, GetOrderInfosSerializer, MemberCreateSerializer, \
+    MemberGetIdsSerializer, MemberGetInfosSerializer, MemberUpdateSerializer, OrderCreateFromDraftNewMemberSerializer, \
+    OrderCreateFromDraftSerializer, OrderCreateNewMemberSerializer, OrderCreateSerializer, OrderReturnBooksSerializer
 from services.managers import membership_manager
 from services.managers.book_manager import get_book_records
-from services.managers.permission_manager import IsStaff, IsClubAdmin
+from services.managers.permission_manager import IsClubAdmin, IsStaff
+from services.models import User
 
 MAX_QUERY_SIZE = 300
 
@@ -123,8 +123,12 @@ class OrderInfosView(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        order_infos = manager.get_order_infos(serializer.data['order_ids'])
-        return Response({'order_infos': order_infos.values()}, status=status.HTTP_200_OK)
+        order_infos = manager.get_order_infos(serializer.data['order_ids']).values()
+        member_ids = [o['member_id'] for o in order_infos]
+        member_infos = manager.get_member_infos(member_ids)
+        for order_info in order_infos:
+            order_info['member'] = member_infos.get(order_info['member_id'])
+        return Response({'order_infos': order_infos}, status=status.HTTP_200_OK)
 
 class GetDraftOrderIdsView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)
@@ -169,6 +173,12 @@ class DraftOrderCreateOnlineView(APIView):
         serializer = DraftOrderCreateSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        user_record = User.objects.filter(id=serializer.data.get('user_id')).first()
+        if not user_record:
+            return Response({'error': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
+        if not user_record.is_verify:
+            return Response({'error': 'User not verified yet'}, status=status.HTTP_400_BAD_REQUEST)
         manager.create_new_draft_order(serializer.data)
         return Response({'message': 'Create draft order successfully'}, status=status.HTTP_200_OK)
 
@@ -362,8 +372,12 @@ class UserOrderHistoryView(APIView):
     def post(self, request):
         member_ids = manager.get_member_records(user_id=request.user.id).pk_list()
         order_ids = manager.get_order_records(member_ids=member_ids).pk_list()
-        order_infos = manager.get_order_infos(order_ids)
-        return Response({'order_infos': order_infos.values()}, status=status.HTTP_200_OK)
+        order_infos = manager.get_order_infos(order_ids).values()
+        member_ids = [o['member_id'] for o in order_infos]
+        member_infos = manager.get_member_infos(member_ids)
+        for order_info in order_infos:
+            order_info['member'] = member_infos.get(order_info['member_id'])
+        return Response({'order_infos': order_infos}, status=status.HTTP_200_OK)
 
 class ReportView(APIView):
     permission_classes = (IsAuthenticated, IsStaff,)
