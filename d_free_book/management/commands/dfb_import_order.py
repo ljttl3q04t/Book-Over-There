@@ -8,10 +8,10 @@ from d_free_book.models import DFreeMember, ClubBook, DFreeOrder, DFreeOrderDeta
 from services.models import BookClub
 
 NO_CODE = ['K mã', 'K khớp mã trên link', 'K mã ', 'Ko mã ', 'k mã', 'k có mã', 'ko mã', 'Ko mã']
-ERROR_ORDERS = ['2301_1_1', '2301_1_2', '2301_2_2', '2301_6_1', '2301_8_2', '2301_9_3', '2301_11_3', '2301_12_1',
-                '2301_13_1', '2301_13_4', '2301_13_4', '2301_15_1', '2301_15_1', '2301_15_1', '2301_15_1', '2301_31_3',
-                '2301_31_4', '2302_2_4', '2302_3_2', '2302_5_2', '2302_6_6', '2302_7_7', '2302_8_2', '2302_9_3',
-                '2302_11_4', '2302_12_5', '2302_17_3', '2302_17_6', '2302_17_9', '2302_18_3', '2302_18_12',
+ERROR_ORDERS = ['2301_1_1', '2301_1_2', '2301_2_2', '2301_6_1', '2301_6_8', '2301_8_2', '2301_9_3', '2301_11_3',
+                '2301_12_1', '2301_13_1', '2301_13_4', '2301_13_4', '2301_15_1', '2301_15_1', '2301_15_1', '2301_15_1',
+                '2301_31_3', '2301_31_4', '2302_2_4', '2302_3_2', '2302_5_2', '2302_6_6', '2302_7_7', '2302_8_2',
+                '2302_9_3', '2302_11_4', '2302_12_5', '2302_17_3', '2302_17_6', '2302_17_9', '2302_18_3', '2302_18_12',
                 '2302_18_12', '2302_18_12', '2302_18_12', '2302_19_6', '2302_19_6', '2302_28_1', '2303_4_5', '2303_6_1',
                 '2303_6_3', '2303_8_1', '2303_8_4', '2303_8_4', '2303_12_6', '2303_12_9', '2303_15_9', '2303_18_8',
                 '2303_19_8', '2303_23_4', '2303_30_3', '2303_31_1', '2303_31_1', '2303_31_2', '2303_31_3', '2304_1_1',
@@ -28,9 +28,14 @@ ERROR_ORDERS = ['2301_1_1', '2301_1_2', '2301_2_2', '2301_6_1', '2301_8_2', '230
                 '2305_21_2', '2305_22_1', '2305_22_5', '2305_22_5', '2305_22_5', '2305_24_3', '2305_26_2', '2305_26_2',
                 '2305_29_10', '2305_30_1', '2305_30_1', '2305_30_1', '2305_30_1', '2305_30_1', '2305_31_3', '2306_4_2',
                 '2306_5_1', '2306_7_4', '2306_9_1', '2306_10_3', '2306_11_1', '2306_11_1', '2306_11_6', '2306_13_1',
-                '2306_13_2', '2306_16_2', '2306_16_2', '2306_16_3', '2306_16_3', '2306_23_7', '2306_23_7', '2306_26_5',
-                '2306_27_4', '2306_27_5', '2306_27_7', '2306_28_2', '2307_1_4', '2307_6_1', '2307_9_1', '2307_9_2',
-                '2307_12_4']
+                '2306_13_2', '2306_16_2', '2306_16_3', '2306_16_3', '2306_23_7', '2306_23_7', '2306_26_5', '2306_27_4',
+                '2306_27_5', '2306_27_7', '2306_28_2', '2307_1_4', '2307_6_1', '2307_9_1', '2307_9_2', '2307_12_4',
+                '2308_5_5', '2308_5_5', '2308_5_5', '2308_11_1', '2308_11_1', '2308_12_4', '2308_12_5', '2308_12_5',
+                '2308_12_6', '2308_14_7', '2308_15_', '2308_17_2', '2308_18_1', '2308_18_1', '2308_18_1', '2308_18_2',
+                '2308_18_4', '2308_18_5', '2308_18_5', '2308_18_10', '2308_18_11', '2308_19_5', '2308_21_3',
+                '2308_22_4', '2308_22_7', '2308_22_7', '2308_22_7', '2308_23_1', '2308__', '2308_24_2', '2308_25_',
+                '2308__', '2308__', '2308_26_', '2308__', '2308__', '2308_27_', '2308__', '2308__', '2308_28_',
+                '2308__', '2308__', '2308_29_', '2308__', '2308__', '2308_30_', '2308__', '2308__', '2308_31_']
 
 MAP_ORDER_STATUS = {
     'Đang mượn': DFreeOrderDetail.CREATED,
@@ -145,18 +150,27 @@ def import_order_from_csv(file_path, fcode, club_id):
         success_rows = 0
         for row in reader:
             order_code = "{}_{}_{}".format(fcode, row[0], row[1])
-            try:
-                data = verify_row(row, fcode)
-            except ImportException as e:
-                # print("error|{}|{}|{}".format(order_code, e.cause, e.row))
-                error_orders.append("{}_{}_{}".format(fcode, row[0], row[1]))
-                continue
-
             if order_code in ERROR_ORDERS:
                 # print("error|{}|{}|{}".format(order_code, "check_order_detail", row))
                 continue
 
-            dfb_member, _ = DFreeMember.objects.get_or_create(club_id=club_id, code=data['member_code'], full_name=data['full_name'])
+            try:
+                data = verify_row(row, fcode)
+            except ImportException as e:
+                print("error|{}|{}|{}".format(order_code, e.cause, e.row))
+                error_orders.append("{}_{}_{}".format(fcode, row[0], row[1]))
+                continue
+
+            dfb_member, _ = DFreeMember.objects.get_or_create(
+                club_id=club_id,
+                code=data['member_code'],
+                full_name=data['full_name'],
+            )
+
+            if not dfb_member.phone_number:
+                dfb_member.phone_number = data['phone_number']
+                dfb_member.save()
+
             if data['order_index'] != new_order:
                 new_order = data['order_index']
                 current_order = DFreeOrder.objects.create(
@@ -187,7 +201,6 @@ def import_order_from_csv(file_path, fcode, club_id):
             else:
                 DFreeOrderDetail.objects.create(
                     order=current_order,
-                    book_note=data['book_note'],
                     return_date=data['return_date'],
                     note=data['note'],
                     order_status=order_status,
@@ -202,7 +215,7 @@ class Command(BaseCommand):
     help = "import order for d free book"
 
     def handle(self, *args, **options):
-        file_names = ['2301', '2302', '2303', '2304', '2305', '2306', '2307']
+        file_names = ['2301', '2302', '2303', '2304', '2305', '2306', '2307', '2308']
         error_orders = []
         club_id = BookClub.objects.get(code='dfb_caugiay').id
 
