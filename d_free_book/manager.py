@@ -176,6 +176,7 @@ def create_new_draft_order(data):
     for email in staff_emails:
         send_new_order_email.delay(email)
 
+@transaction.atomic
 @delete_key_cache_data([CACHE_KEY_DFB_ORDER_DETAIL_INFOS])
 def return_books(order_detail_ids, return_date, receiver_id):
     order_detail_records = get_order_detail_records(order_detail_ids=order_detail_ids)
@@ -193,7 +194,8 @@ def return_books(order_detail_ids, return_date, receiver_id):
     order_details = get_order_detail_records(order_detail_ids=order_detail_ids).values('club_book_id', 'order_id')
     order_ids = [order_detail['order_id'] for order_detail in order_details]
     club_book_ids = [order_detail['club_book_id'] for order_detail in order_details]
-    get_club_book_records(club_book_ids=club_book_ids).update(current_count=F('current_count') + 1)
+    for club_book_id in club_book_ids:
+        get_club_book_records(club_book_id=club_book_id).update(current_count=F('current_count') + 1)
     cache_keys = [
         CACHE_KEY_CLUB_BOOK_INFOS['cache_key_converter'](CACHE_KEY_CLUB_BOOK_INFOS['cache_prefix'], club_book_id)
         for club_book_id in club_book_ids
