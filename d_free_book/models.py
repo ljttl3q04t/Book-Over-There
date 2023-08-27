@@ -40,6 +40,10 @@ class DFreeOrder(BaseModel):
     order_date = models.DateField()
     due_date = models.DateField()
     creator_order = models.ForeignKey(Membership, on_delete=models.CASCADE, null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.id} - {self.member.code} - {self.member.full_name}'
+
     class Meta:
         db_table = 'dfree_order_tab'
 
