@@ -65,6 +65,9 @@ class DFreeOrderDetail(BaseModel):
     order_status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default=CREATED)
     receiver = models.ForeignKey(Membership, on_delete=models.CASCADE, null=True, blank=True)
 
+    def __str__(self):
+        return f'{self.id} - {self.order_id} - {self.club_book.code}'
+
     class Meta:
         db_table = 'dfree_order_detail_tab'
 
