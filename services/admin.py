@@ -37,6 +37,7 @@ models_to_register = [
     dfb_models.ClubBook,
     dfb_models.DFreeOrder,
     dfb_models.DFreeOrderDetail,
+    dfb_models.DFreeDraftOrder,
 ]
 
 for model in models_to_register:
