@@ -40,7 +40,7 @@ def send_password_reset_email(email, reset_url):
 @shared_task
 def send_new_order_email(email):
     recipient_email = email
-    email_subject = '[Book Over There] Password Reset E-mail'
+    email_subject = '[Book Over There] New Order Notification'
     email_body = render_to_string('new_order_email.html')
     send_mail(
         email_subject,
